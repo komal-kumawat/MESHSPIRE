@@ -4,7 +4,7 @@
 
 This document explains how team members should clone, contribute, and merge code safely.
 
-1. Clone the repository
+## 1. Clone the repository
 
 Each teammate clones the repo once:
 
@@ -13,7 +13,7 @@ git clone git@github.com:ORG_NAME/MeshSpire-Core.git
 cd MeshSpire-Core
 ```
 
-2. Checkout your assigned branch
+## 2. Checkout your assigned branch
 
 Branches have been created for each teammate (kom, kul, rajat).
 Switch to your branch:
@@ -30,7 +30,7 @@ git checkout kom
 git pull origin kom
 ```
 
-3. Work on your branch
+## 3. Work on your branch
 
 Write your code.
 
@@ -50,7 +50,7 @@ Push your branch:
 git push origin YOUR_BRANCH_NAME
 ```
 
-4. Open a Pull Request (PR) → dev
+## 4. Open a Pull Request (PR) → dev
 
 Go to the repository on GitHub.
 
@@ -66,7 +66,7 @@ Add a short title + description of your changes.
 
 Assign reviewers (another teammate).
 
-5. Code Review & Merge into dev
+## 5. Code Review & Merge into dev
 
 Teammates review your PR.
 
@@ -76,13 +76,13 @@ Click Merge pull request (Squash & Merge recommended).
 
 Now your changes are in the shared dev branch.
 
-6. Test dev
+## 6. Test dev
 
 The dev branch is the integration environment.
 
 After all teammates merge their work, test everything end-to-end.
 
-7. Promote dev → main (Production)
+## 7. Promote dev → main (Production)
 
 When dev is stable:
 

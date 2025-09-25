@@ -8,8 +8,10 @@ This document explains how team members should clone, contribute, and merge code
 
 Each teammate clones the repo once:
 
+```bash
 git clone git@github.com:ORG_NAME/MeshSpire-Core.git
 cd MeshSpire-Core
+```
 
 2. Checkout your assigned branch
 

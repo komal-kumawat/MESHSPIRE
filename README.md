@@ -15,16 +15,20 @@ cd MeshSpire-Core
 
 2. Checkout your assigned branch
 
-Branches have been created for each teammate (kom, kul, rajat, alice, bob).
+Branches have been created for each teammate (kom, kul, rajat).
 Switch to your branch:
 
+```bash
 git checkout YOUR_BRANCH_NAME
 git pull origin YOUR_BRANCH_NAME
+```
 
 Example:
 
+```bash
 git checkout kom
 git pull origin kom
+```
 
 3. Work on your branch
 
@@ -32,15 +36,19 @@ Write your code.
 
 Stage changes:
 
+```bash
 git add .
 
 Commit with a clear message:
 
 git commit -m "feat(auth): add signup API"
+```
 
 Push your branch:
 
+```bash
 git push origin YOUR_BRANCH_NAME
+```
 
 4. Open a Pull Request (PR) → dev
 
@@ -65,8 +73,6 @@ Teammates review your PR.
 Once approved:
 
 Click Merge pull request (Squash & Merge recommended).
-
-Delete your feature branch from GitHub (optional).
 
 Now your changes are in the shared dev branch.
 

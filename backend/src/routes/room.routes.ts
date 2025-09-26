@@ -1,12 +1,12 @@
 import express, { Router } from "express";
 
 const roomRoutes = Router();
-roomRoutes.post("/room/create",()=>{
+roomRoutes.post("/create",()=>{
 
 })
 
-roomRoutes.get("/room/:roomID",()=>{
-    
+roomRoutes.get("/:roomID",()=>{
+
 })
 
 export default roomRoutes;

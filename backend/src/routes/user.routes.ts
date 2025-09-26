@@ -4,7 +4,7 @@ import { User } from "../models/user.model.js";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import bcrypt from "bcrypt";
-import { authMiddleware, type AuthRequest } from "../middleware.js";
+import { authMiddleware, type AuthRequest } from "../middleware/auth.js";
 
 dotenv.config();
 

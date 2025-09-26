@@ -21,8 +21,8 @@ io.on("connection" , (socket:Socket)=>{
 
 })
 
-app.use("api/v1/user" , userRoutes);
-app.use("api/v1/room",roomRoutes);
+app.use("api/v0/user" , userRoutes);
+app.use("api/v0/room",roomRoutes);
 
 const port = process.env.PORT || 8000
 const MONGO_URI = process.env.MONGO_URI as string || "mongodb://127.0.0.1:27017/meshspire"

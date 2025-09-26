@@ -27,7 +27,7 @@ const catamaran = Catamaran({
 export const metadata: Metadata = {
   metadataBase: new URL(SITE.url),
   title: {
-    default: `Silver - Software Engineer`,
+    default: `Meshspire | Learn & Teach Anytime, Anywhere`,
     template: `%s | ${SITE.name}`,
   },
   description: SITE.description,

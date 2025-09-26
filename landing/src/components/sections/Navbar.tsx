@@ -81,6 +81,7 @@ export default function Navbar() {
                 onMouseEnter={() => setHovered(item.name)}
                 onFocus={() => setHovered(item.name)}
                 className="
+                font-semibold
                   relative z-10 transition-colors
                   text-gray-700 hover:text-black
                   dark:text-gray-300 dark:hover:text-white
@@ -98,10 +99,10 @@ export default function Navbar() {
           <a
             href="#footer"
             className="
-              bg-[#34a586] text-white border border-gray-900 rounded-full px-6 py-1.5
-              transition duration-300 hover:bg-white hover:text-black
-              dark:bg-[#34a586] dark:text-black dark:border-gray-100
-              dark:hover:bg-black dark:hover:text-white
+              bg-green-600 text-black border border-transparent rounded-full px-6 py-1.5
+              transition duration-300 hover:bg-white hover:text-black hover:border-black
+              dark:bg-green-600 dark:text-white dark:border-transparent
+              dark:hover:bg-black dark:hover:text-white dark:hover:border-white
             "
           >
             Get Started

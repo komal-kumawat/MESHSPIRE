@@ -6,7 +6,6 @@ export interface IRoom extends Document{
     creator:mongoose.Types.ObjectId;
     title:string;
     createdAt:Date;
-    terminatedAt:Date;
 }
 
 const RoomSchema = new Schema<IRoom>({

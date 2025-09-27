@@ -27,11 +27,9 @@ app.use(
   })
 );
 
-// API routes
 app.use("/api/v0/users", userRoutes);
 app.use("/api/v0/room", roomRoutes);
 
-// create http server + socket.io
 const server = createServer(app);
 const io = new IOServer(server, {
   cors: {

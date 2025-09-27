@@ -12,11 +12,6 @@ export interface JwtPayloadRoom {
 
 const router = Router();
 
-/**
- * Create a room (authenticated)
- * POST /api/v0/room/create
- * body: { title?: string }
- */
 router.post(
   "/create",
   authMiddleware,
@@ -35,7 +30,7 @@ router.post(
         throw new Error("JWT_ROOM_SECRET not defined");
       }
 
-      const signOptions: SignOptions = { expiresIn: 600 }; // 10 minutes
+      const signOptions: SignOptions = { expiresIn: 600 };
       const roomToken = jwt.sign(
         { roomId, uid: req.user!.id } as JwtPayloadRoom,
         process.env.JWT_ROOM_SECRET,
@@ -54,10 +49,6 @@ router.post(
   }
 );
 
-/**
- * Get room by id (public)
- * GET /api/v0/room/:roomId
- */
 router.get("/:roomId", async (req: Request, res: Response) => {
   try {
     const room = await Room.findOne({ roomId: req.params.roomId });

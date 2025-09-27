@@ -13,7 +13,7 @@ const UserSchema = new Schema<IUser>(
   {
     name: { type: String },
     email: { type: String, required: true, unique: true },
-    password: { type: String, required: true }, // hashed password
+    password: { type: String, required: true },
     avatarUrl: { type: String },
   },
   { timestamps: true }

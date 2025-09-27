@@ -15,7 +15,7 @@ function App() {
           onJoin={() => setJoined(true)}
         />
       ) : (
-        <VideoCall />
+        <VideoCall/>
       )}
     </div>
   );

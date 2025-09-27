@@ -9,11 +9,14 @@ const VideoCall: React.FC = () => {
   const [roomId, setRoomId] = useState<string | null>(null);
   const [connected, setConnected] = useState(false);
 
+  const [hoverStart, setHoverStart] = useState(false);
+  const [hoverEnd, setHoverEnd] = useState(false);
+
   const localVideoRef = useRef<HTMLVideoElement>(null);
   const remoteVideoRef = useRef<HTMLVideoElement>(null);
   const pcRef = useRef<RTCPeerConnection | null>(null);
 
-  // Initialize Peer Connection
+  // Create peer connection
   const createPeerConnection = () => {
     pcRef.current = new RTCPeerConnection({
       iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
@@ -38,7 +41,7 @@ const VideoCall: React.FC = () => {
     });
   };
 
-  // Connect to Socket.IO server
+  // Socket.io connection
   useEffect(() => {
     const s = io(SOCKET_URL);
     setSocket(s);
@@ -76,7 +79,7 @@ const VideoCall: React.FC = () => {
     };
   }, []);
 
-  // Join a room by meeting code
+  // Join room
   const joinRoom = () => {
     if (!socket || !roomIdInput) return;
     setRoomId(roomIdInput);
@@ -85,7 +88,7 @@ const VideoCall: React.FC = () => {
     socket.emit("join-room", { roomId: roomIdInput });
   };
 
-  // Start call (create offer)
+  // Start call
   const startCall = async () => {
     if (!pcRef.current || !socket || !roomId) return;
     const offer = await pcRef.current.createOffer();
@@ -93,35 +96,141 @@ const VideoCall: React.FC = () => {
     socket.emit("offer", { sdp: offer, roomId });
   };
 
+  // End call
+  const endCall = () => {
+    if (pcRef.current) {
+      pcRef.current.getSenders().forEach((sender) => sender.track?.stop());
+      pcRef.current.close();
+      pcRef.current = null;
+    }
+    setConnected(false);
+    setRoomId(null);
+
+    if (socket && roomId) {
+      socket.emit("leave-room", { roomId });
+    }
+  };
+
   return (
-    <div style={{ textAlign: "center", padding: "20px" }}>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        padding: "40px",
+        fontFamily: "Arial, sans-serif",
+        backgroundColor: "#f0f2f5",
+        minHeight: "100vh",
+      }}
+    >
       {!connected ? (
-        <div>
-          <h2>Enter Meeting Code</h2>
+        <div
+          style={{
+            backgroundColor: "#fff",
+            padding: "30px",
+            borderRadius: "12px",
+            boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
+            textAlign: "center",
+          }}
+        >
+          <h2 style={{ marginBottom: "20px", color: "#333" }}>Enter Meeting Code</h2>
           <input
             type="text"
             value={roomIdInput}
             onChange={(e) => setRoomIdInput(e.target.value)}
             placeholder="Meeting Code"
+            style={{
+              padding: "10px",
+              width: "200px",
+              borderRadius: "6px",
+              border: "1px solid #ccc",
+              marginRight: "10px",
+            }}
           />
-          <button onClick={joinRoom} style={{ marginLeft: "10px" }}>
+          <button
+            onClick={joinRoom}
+            style={{
+              padding: "10px 20px",
+              borderRadius: "6px",
+              border: "none",
+              backgroundColor: "#007bff",
+              color: "#fff",
+              cursor: "pointer",
+              fontWeight: 500,
+            }}
+          >
             Join Room
           </button>
         </div>
       ) : (
-        <div>
-          <h2>Room: {roomId}</h2>
-          <button onClick={startCall} style={{ marginBottom: "10px" }}>
-            Start Call
-          </button>
-          <div style={{ display: "flex", justifyContent: "center", gap: "10px" }}>
-            <div>
-              <h4>Your Video</h4>
-              <video ref={localVideoRef} autoPlay playsInline muted style={{ width: "300px" }} />
+        <div style={{ width: "100%", maxWidth: "900px" }}>
+          <h2 style={{ textAlign: "center", marginBottom: "20px", color: "#333" }}>Room: {roomId}</h2>
+          <div style={{ display: "flex", justifyContent: "center", gap: "10px", marginBottom: "20px" }}>
+            <button
+              onClick={startCall}
+              onMouseEnter={() => setHoverStart(true)}
+              onMouseLeave={() => setHoverStart(false)}
+              style={{
+                padding: "10px 20px",
+                borderRadius: "6px",
+                border: "none",
+                backgroundColor: hoverStart ? "#218838" : "#28a745",
+                color: "#fff",
+                cursor: "pointer",
+                fontWeight: 500,
+                transition: "background-color 0.3s",
+              }}
+            >
+              Start Call
+            </button>
+
+            <button
+              onClick={endCall}
+              onMouseEnter={() => setHoverEnd(true)}
+              onMouseLeave={() => setHoverEnd(false)}
+              style={{
+                padding: "10px 20px",
+                borderRadius: "6px",
+                border: "none",
+                backgroundColor: hoverEnd ? "#c82333" : "#dc3545",
+                color: "#fff",
+                cursor: "pointer",
+                fontWeight: 500,
+                transition: "background-color 0.3s",
+              }}
+            >
+              End Call
+            </button>
+          </div>
+          <div style={{ display: "flex", justifyContent: "center", gap: "20px", flexWrap: "wrap" }}>
+            <div style={{ textAlign: "center" }}>
+              <h4 style={{ marginBottom: "10px" }}>Your Video</h4>
+              <video
+                ref={localVideoRef}
+                autoPlay
+                playsInline
+                muted
+                style={{
+                  minHeight:"300px",
+                  width: "300px",
+                  borderRadius: "8px",
+                  boxShadow: "0 4px 15px rgba(0,0,0,0.2)",
+                }}
+              />
             </div>
-            <div>
-              <h4>Peer Video</h4>
-              <video ref={remoteVideoRef} autoPlay playsInline style={{ width: "300px" }} />
+            <div style={{ textAlign: "center" }}>
+              <h4 style={{ marginBottom: "10px" }}>Peer Video</h4>
+              <video
+                ref={remoteVideoRef}
+                autoPlay
+                playsInline
+                style={{
+                  width: "300px",
+                  minHeight:"300px",
+                  borderRadius: "8px",
+                  boxShadow: "0 4px 15px rgba(0,0,0,0.2)",
+                }}
+              />
             </div>
           </div>
         </div>

@@ -152,7 +152,7 @@ export const Room: React.FC = () => {
   }, [myStream, sendStream]);
 
   return (
-    <div className="h-screen w-full flex flex-col bg-gray-900 text-white p-4 gap-4">
+    <div className="min-h-[100vh] w-full flex flex-col bg-gray-900 text-white p-4 gap-4 m-0">
       <header className="flex justify-between items-center border-b border-gray-700 pb-2">
         <h2 className="text-xl font-semibold">Room: {roomid}</h2>
         <div className="flex gap-4 text-sm">
@@ -161,9 +161,9 @@ export const Room: React.FC = () => {
         </div>
       </header>
 
-      <main className="flex flex-1 gap-6 flex-col md:flex-row justify-center items-center p-10 md:px-[200px] ">
+      <main className="flex flex-1 gap-6 flex-col md:flex-row justify-center items-center p-10 ">
         {/* Local Video */}
-        <div className="flex flex-col items-center gap-2 bg-gray-800 p-3 rounded-lg shadow-md w-full md:w-1/2 p-5">
+        <div className="flex flex-col items-center gap-2 bg-gray-800 p-3 rounded-lg shadow-md w-full md:w-1/2 max-w-[500px]">
           <h4 className="font-medium text-lg">Your Video</h4>
           <video
             ref={localVideoRef}
@@ -189,7 +189,7 @@ export const Room: React.FC = () => {
         </div>
 
         {/* Remote Video */}
-        <div className="flex flex-col items-center gap-2 bg-gray-800 p-3 rounded-lg shadow-md w-full md:w-1/2 p-5">
+        <div className="flex flex-col items-center gap-2 bg-gray-800 p-3 rounded-lg shadow-md w-full md:w-1/2 max-w-[500px]">
           <h4 className="font-medium text-lg">Remote Video {remoteEmailId ? `(${remoteEmailId})` : ""}</h4>
           <video
             ref={remoteVideoRef}

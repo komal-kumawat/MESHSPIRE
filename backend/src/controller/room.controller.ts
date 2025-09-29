@@ -1,64 +1,66 @@
-import { Server as IOServer, Socket } from "socket.io";
-import { RoomManager } from "../manager/room.manager";
+import { Server, Socket } from "socket.io";
 
-interface SignalPayload {
-  to: string;
-  sdp?: any;
-  candidate?: any;
-}
+// roomId -> socket IDs
+const roomToSockets: Map<string, string[]> = new Map();
+const socketToRoom: Map<string, string> = new Map();
 
-interface JoinRoomPayload {
-  roomId: string;
-}
+export function RoomController(io: Server, socket: Socket) {
+  console.log("Socket connected:", socket.id);
 
-export const handleRoomSignals = (
-  io: IOServer,
-  roomManager: RoomManager,
-  socket: Socket
-) => {
-  const socketRooms = new Set<string>();
+  /** Join a room */
+  socket.on("join-room", ({ roomId }: { roomId: string }) => {
+    if (!roomId) return;
 
-  socket.on("join-room", ({ roomId }: JoinRoomPayload) => {
-    if (!roomManager.hasRoom(roomId)) {
-      socket.emit("error", { message: "Room not found" });
-      return;
-    }
+    if (!roomToSockets.has(roomId)) roomToSockets.set(roomId, []);
+    const sockets = roomToSockets.get(roomId)!;
 
-    roomManager.addPeer(roomId, socket.id);
-    socketRooms.add(roomId);
+    sockets.push(socket.id);
+    socketToRoom.set(socket.id, roomId);
+    socket.join(roomId);
 
-    const peers = roomManager.getPeers(roomId).filter((id) => id !== socket.id);
-
-    socket.emit("peers", peers);
-
-    peers.forEach((peerId) => io.to(peerId).emit("peer-joined", socket.id));
+    console.log(`Socket ${socket.id} joined room ${roomId}`);
   });
 
-  socket.on("offer", ({ to, sdp }: SignalPayload) => {
-    io.to(to).emit("offer", { from: socket.id, sdp });
+  /** Handle offer */
+  socket.on("offer", ({ target, offer }: { target: string; offer: RTCSessionDescriptionInit }) => {
+    io.to(target).emit("offer", { from: socket.id, offer });
   });
 
-  socket.on("answer", ({ to, sdp }: SignalPayload) => {
-    io.to(to).emit("answer", { from: socket.id, sdp });
+  /** Handle answer */
+  socket.on("answer", ({ target, answer }: { target: string; answer: RTCSessionDescriptionInit }) => {
+    io.to(target).emit("answer", { from: socket.id, answer });
   });
 
-  socket.on("ice-candidate", ({ to, candidate }: SignalPayload) => {
-    io.to(to).emit("ice-candidate", { from: socket.id, candidate });
+  /** Handle ICE candidate */
+  socket.on("ice-candidate", ({ target, candidate }: { target: string; candidate: RTCIceCandidateInit }) => {
+    io.to(target).emit("ice-candidate", { from: socket.id, candidate });
   });
 
-  socket.on("disconnecting", () => {
-    socketRooms.forEach((roomId) => {
-      const peers = roomManager
-        .getPeers(roomId)
-        .filter((id) => id !== socket.id);
-      peers.forEach((peerId) => io.to(peerId).emit("peer-left", socket.id));
+  /** User clicks "Send My Video" */
+  socket.on("send-my-video", ({ roomId }: { roomId: string }) => {
+    const socketsInRoom = roomToSockets.get(roomId) || [];
+    socketsInRoom.forEach((socketId) => {
+      if (socketId !== socket.id) {
+        io.to(socketId).emit("new-participant", { socketId: socket.id });
+      }
     });
   });
 
+  /** Disconnect */
   socket.on("disconnect", () => {
-    socketRooms.forEach((roomId) => {
-      roomManager.removePeer(roomId, socket.id);
-    });
-    socketRooms.clear();
+    const roomId = socketToRoom.get(socket.id);
+    if (!roomId) return;
+
+    const sockets = roomToSockets.get(roomId);
+    if (!sockets) return;
+
+    const index = sockets.indexOf(socket.id);
+    if (index > -1) sockets.splice(index, 1);
+
+    if (sockets.length === 1) io.to(sockets[0]).emit("partner-left");
+    if (sockets.length === 0) roomToSockets.delete(roomId);
+    socketToRoom.delete(socket.id);
+
+    console.log("Socket disconnected:", socket.id);
   });
-};
+}

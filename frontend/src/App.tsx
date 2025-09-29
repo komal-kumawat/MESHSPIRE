@@ -3,7 +3,7 @@ import LandingPage from "./Pages/LandingPage"
 import Signin from "./Pages/Signin"
 import Signup from "./Pages/Signup"
 import Dashboard from "./Pages/Dashboard"
-import{ Room } from "./Pages/RoomPage"
+import Room  from "./Pages/RoomPage"
 
 const App = () => {
   return (

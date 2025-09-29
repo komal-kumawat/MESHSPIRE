@@ -1,207 +1,182 @@
-import { useEffect, useCallback, useState, useRef, useMemo } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import { useSocket } from "../providers/SocketProvider";
-import { usePeer } from "../providers/PeerProvider";
-import "../index.css";
+import { useParams } from "react-router-dom";
+// import { useAuth } from "../Context/AuthContext";
 
-interface UserJoinPayload {
-  emailId: string;
+interface PendingCandidates {
+  [socketId: string]: RTCIceCandidateInit[];
 }
 
-interface IncomingCallPayload {
-  from: string;
-  offer: RTCSessionDescriptionInit;
-}
-
-interface CallAcceptedPayload {
-  ans: RTCSessionDescriptionInit;
-}
-
-interface IceCandidatePayload {
-  from: string;
-  candidate: RTCIceCandidate;
-}
-
-export const Room: React.FC = () => {
+const Room: React.FC = () => {
   const { socket } = useSocket();
-  const { peer, createOffer, createAnswer, setRemoteAns, sendStream, remoteStream } = usePeer();
-  const { roomid } = useParams<{ roomid: string }>();
-  const navigate = useNavigate();
-
-  const [myStream, setMyStream] = useState<MediaStream | null>(null);
-  const [remoteEmailId, setRemoteEmailId] = useState<string | null>(null);
-  const [connectedUserEmails, setConnectedUserEmails] = useState<string[]>([]);
-
+  // const { username } = useAuth();
   const localVideoRef = useRef<HTMLVideoElement>(null);
   const remoteVideoRef = useRef<HTMLVideoElement>(null);
 
-  const localEmail = useMemo(() => sessionStorage.getItem("email") || "", []);
+  const { roomid: roomId } = useParams<{ roomid: string }>();
+  const [localStream, setLocalStream] = useState<MediaStream | null>(null);
+  const [peerConnections, setPeerConnections] = useState<{ [key: string]: RTCPeerConnection }>({});
+  const pendingCandidates = useRef<PendingCandidates>({});
 
-  /** Join room */
-  useEffect(() => {
-    if (!roomid) {
-      navigate("/");
-      return;
-    }
-    socket.emit("join-room", { emailId: localEmail, roomid });
-  }, [localEmail, roomid, navigate, socket]);
-
-  /** Local video binding */
-  useEffect(() => {
-    if (localVideoRef.current && myStream) {
-      localVideoRef.current.srcObject = myStream;
-    }
-  }, [myStream]);
-
-  /** Remote video binding */
-  useEffect(() => {
-    if (remoteVideoRef.current && remoteStream) {
-      remoteVideoRef.current.srcObject = remoteStream;
-    }
-  }, [remoteStream]);
-
-  /** New user joined */
-  const handleNewUserJoined = useCallback(
-    async ({ emailId }: UserJoinPayload) => {
-      if (!emailId || emailId === localEmail) return;
-      setConnectedUserEmails((prev) => Array.from(new Set([...prev, emailId])));
-      setRemoteEmailId(emailId);
-
-      try {
-        const offer = await createOffer();
-        socket.emit("call-user", { emailId, offer });
-      } catch (err) {
-        console.error(err);
-      }
-    },
-    [createOffer, localEmail, socket]
-  );
-
-  /** Incoming call */
-  const handleIncomingCall = useCallback(
-    async ({ from, offer }: IncomingCallPayload) => {
-      setRemoteEmailId(from);
-      try {
-        const ans = await createAnswer(offer);
-        socket.emit("call-accepted", { emailId: from, ans });
-      } catch (err) {
-        console.error(err);
-      }
-    },
-    [createAnswer, socket]
-  );
-
-  /** Call accepted */
-  const handleCallAccepted = useCallback(
-    async ({ ans }: CallAcceptedPayload) => {
-      if (!ans) return;
-      try {
-        await setRemoteAns(ans);
-      } catch (err) {
-        console.error(err);
-      }
-    },
-    [setRemoteAns]
-  );
-
-  /** Remote ICE */
-  const handleRemoteIce = useCallback(
-    ({ from, candidate }: IceCandidatePayload) => {
-      if (candidate) peer.addIceCandidate(candidate).catch((e) => console.warn(e));
-    },
-    [peer]
-  );
-
-  /** Socket listeners */
-  useEffect(() => {
-    socket.on("user-joined", handleNewUserJoined);
-    socket.on("incoming-call", handleIncomingCall);
-    socket.on("call-accepted", handleCallAccepted);
-    socket.on("ice-candidate", handleRemoteIce);
-
-    return () => {
-      socket.off("user-joined", handleNewUserJoined);
-      socket.off("incoming-call", handleIncomingCall);
-      socket.off("call-accepted", handleCallAccepted);
-      socket.off("ice-candidate", handleRemoteIce);
-    };
-  }, [socket, handleNewUserJoined, handleIncomingCall, handleCallAccepted, handleRemoteIce]);
-
-  /** Local camera/mic */
+  // Get camera/mic immediately
   const getUserMediaStream = useCallback(async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
-      setMyStream(stream);
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+      setLocalStream(stream);
+      if (localVideoRef.current) localVideoRef.current.srcObject = stream;
+      return stream;
     } catch (err) {
-      console.error(err);
-      alert("Unable to access camera/microphone.");
+      console.error("Unable to access camera/microphone:", err);
+      return null;
     }
   }, []);
 
+  // Join room on mount
   useEffect(() => {
-    getUserMediaStream();
-  }, [getUserMediaStream]);
+    if (!roomId) return;
 
-  /** Send local stream to peer */
-  const handleSendMyStream = useCallback(async () => {
-    if (!myStream) {
-      alert("No local stream available");
-      return;
-    }
-    sendStream(myStream);
-  }, [myStream, sendStream]);
+    getUserMediaStream().then((stream) => {
+      if (!stream) return;
+      socket.emit("join-room", { roomId });
+    });
+  }, [roomId, getUserMediaStream, socket]);
+
+  // Handle new participant: create peer connection (tracks added only after sendMyVideo)
+  const createPeerConnection = useCallback((socketId: string) => {
+    const pc = new RTCPeerConnection({ iceServers: [{ urls: "stun:stun.l.google.com:19302" }] });
+
+    pc.ontrack = (event) => {
+      if (remoteVideoRef.current) remoteVideoRef.current.srcObject = event.streams[0];
+    };
+
+    pc.onicecandidate = (e) => {
+      if (e.candidate) socket.emit("ice-candidate", { target: socketId, candidate: e.candidate });
+    };
+
+    setPeerConnections((prev) => ({ ...prev, [socketId]: pc }));
+    return pc;
+  }, [socket]);
+
+  useEffect(() => {
+    socket.on("new-participant", ({ socketId }) => {
+      if (!peerConnections[socketId]) {
+        createPeerConnection(socketId);
+      }
+    });
+
+    return () => {
+      socket.off("new-participant");
+    };
+  }, [socket, peerConnections, createPeerConnection]);
+
+  // Receive offer
+  useEffect(() => {
+    socket.on("offer", async ({ from, offer }) => {
+      let pc = peerConnections[from];
+      if (!pc) pc = createPeerConnection(from);
+
+      await pc.setRemoteDescription(offer);
+
+      // Apply any queued ICE candidates
+      if (pendingCandidates.current[from]) {
+        for (const c of pendingCandidates.current[from]) {
+          await pc.addIceCandidate(c);
+        }
+        delete pendingCandidates.current[from];
+      }
+
+      const answer = await pc.createAnswer();
+      await pc.setLocalDescription(answer);
+      socket.emit("answer", { target: from, answer });
+    });
+
+    return () => {socket.off("offer");}
+  }, [socket, peerConnections, createPeerConnection]);
+
+  // Receive answer
+  useEffect(() => {
+    socket.on("answer", async ({ from, answer }) => {
+      const pc = peerConnections[from];
+      if (!pc) return;
+
+      await pc.setRemoteDescription(answer);
+
+      // Apply any queued ICE candidates
+      if (pendingCandidates.current[from]) {
+        for (const c of pendingCandidates.current[from]) {
+          await pc.addIceCandidate(c);
+        }
+        delete pendingCandidates.current[from];
+      }
+    });
+
+    return () => {socket.off("answer");}
+  }, [peerConnections, socket]);
+
+  // Receive ICE candidates
+  useEffect(() => {
+    socket.on("ice-candidate", async ({ from, candidate }) => {
+      const pc = peerConnections[from];
+      if (!pc) {
+        // Queue candidate until pc exists
+        if (!pendingCandidates.current[from]) pendingCandidates.current[from] = [];
+        pendingCandidates.current[from].push(candidate);
+        return;
+      }
+
+      if (pc.remoteDescription) {
+        await pc.addIceCandidate(candidate);
+      } else {
+        // Queue if remote description not set yet
+        if (!pendingCandidates.current[from]) pendingCandidates.current[from] = [];
+        pendingCandidates.current[from].push(candidate);
+      }
+    });
+
+    return () => {socket.off("ice-candidate");}
+  }, [peerConnections, socket]);
+
+  // Send my video: add tracks and create offers
+  const sendMyVideo = () => {
+    if (!localStream) return;
+
+    Object.entries(peerConnections).forEach(([socketId, pc]) => {
+      if (pc.getSenders().length === 0) {
+        localStream.getTracks().forEach((track) => pc.addTrack(track, localStream));
+      }
+
+      pc.createOffer().then((offer) => {
+        pc.setLocalDescription(offer);
+        socket.emit("offer", { target: socketId, offer });
+      });
+    });
+
+    if (roomId) socket.emit("send-my-video", { roomId });
+  };
 
   return (
-    <div className="min-h-[100vh] w-full flex flex-col bg-gray-900 text-white p-4 gap-4 m-0">
-      <header className="flex justify-between items-center border-b border-gray-700 pb-2">
-        <h2 className="text-xl font-semibold">Room: {roomid}</h2>
-        <div className="flex gap-4 text-sm">
-          <span className="bg-green-600 px-2 py-1 rounded">You: {localEmail}</span>
-          <span className="bg-blue-600 px-2 py-1 rounded">Connected: {connectedUserEmails.length}</span>
-        </div>
-      </header>
-
-      <main className="flex flex-1 gap-6 flex-col md:flex-row justify-center items-center p-10 ">
-        {/* Local Video */}
-        <div className="flex flex-col items-center gap-2 bg-gray-800 p-3 rounded-lg shadow-md w-full md:w-1/2 max-w-[500px]">
-          <h4 className="font-medium text-lg">Your Video</h4>
-          <video
-            ref={localVideoRef}
-            autoPlay
-            playsInline
-            muted
-            className="w-full h-72 rounded-md border-2 border-green-500 object-cover"
-          />
-          <div className="flex gap-2 mt-2">
-            <button
-              className="px-4 py-2 bg-yellow-500 rounded-md hover:bg-yellow-400 transition font-medium"
-              onClick={getUserMediaStream}
-            >
-              Restart Camera
-            </button>
-            <button
-              className="px-4 py-2 bg-blue-500 rounded-md hover:bg-blue-400 transition font-medium"
-              onClick={handleSendMyStream}
-            >
-              Send Video
-            </button>
-          </div>
+    <div className="min-h-screen flex flex-col items-center justify-center gap-6 p-6 bg-gray-100">
+      <div className="flex gap-4 mb-4 w-full max-w-4xl">
+        {/* Local video */}
+        <div className="w-1/2 relative">
+          <video ref={localVideoRef} autoPlay muted className="w-full rounded-lg bg-black" />
         </div>
 
-        {/* Remote Video */}
-        <div className="flex flex-col items-center gap-2 bg-gray-800 p-3 rounded-lg shadow-md w-full md:w-1/2 max-w-[500px]">
-          <h4 className="font-medium text-lg">Remote Video {remoteEmailId ? `(${remoteEmailId})` : ""}</h4>
-          <video
-            ref={remoteVideoRef}
-            autoPlay
-            playsInline
-            className="w-full h-72 rounded-md border-2 border-blue-500 object-cover"
-          />
-          <div className="mt-2 text-sm text-gray-300 text-center">
-            Remote stream will appear here after connection is established
-          </div>
+        {/* Remote video */}
+        <div className="w-1/2 relative">
+          <div className="absolute top-2 left-2 bg-black text-white px-2 py-1 rounded z-10">Partner</div>
+          <video ref={remoteVideoRef} autoPlay className="w-full rounded-lg bg-black" />
         </div>
-      </main>
+      </div>
+
+      <button
+        onClick={sendMyVideo}
+        className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-500"
+      >
+        Send My Video
+      </button>
     </div>
   );
 };
+
+export default Room;

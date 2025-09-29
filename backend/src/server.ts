@@ -8,8 +8,7 @@ import cors from "cors";
 import helmet from "helmet";
 import userRoutes from "./routes/user.route";
 import roomRoutes from "./routes/room.route";
-import { RoomManager } from "./manager/room.manager";
-import { handleRoomSignals } from "./controller/room.controller";
+import { RoomController } from "./controller/room.controller";
 
 dotenv.config();
 
@@ -39,11 +38,11 @@ const io = new IOServer(server, {
   },
 });
 
-const roomManager = new RoomManager();
 
 io.on("connection", (socket) => {
   console.log("socket connected:", socket.id);
-  handleRoomSignals(io, roomManager, socket);
+  RoomController(io, socket);
+
 });
 
 const PORT = 8000;

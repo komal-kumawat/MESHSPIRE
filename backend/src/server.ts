@@ -27,7 +27,7 @@ app.use(
   })
 );
 
-app.use("/api/v0/users", userRoutes);
+app.use("/api/v0/user", userRoutes);
 app.use("/api/v0/room", roomRoutes);
 
 const server = createServer(app);
@@ -46,7 +46,7 @@ io.on("connection", (socket) => {
   handleRoomSignals(io, roomManager, socket);
 });
 
-const PORT = process.env.PORT || 8000;
+const PORT = 8000;
 
 const start = async () => {
   if (!process.env.MONGO_URI) {
@@ -55,9 +55,7 @@ const start = async () => {
   }
 
   try {
-    await mongoose.connect(process.env.MONGO_URI, {
-      dbName: "Meshspire",
-    });
+    await mongoose.connect(process.env.MONGO_URI);
     console.log("Connected to MongoDB");
   } catch (err: any) {
     console.error("MongoDB connection error:", err.message || err);

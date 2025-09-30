@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
-import { useSocket } from "../providers/SocketProvider";
 import { useParams } from "react-router-dom";
+import { useSocket } from "../providers/SocketProvider";
 
 interface PendingCandidates {
   [socketId: string]: RTCIceCandidateInit[];
@@ -9,7 +9,7 @@ interface PendingCandidates {
 const Room: React.FC = () => {
   const { socket } = useSocket();
   const localVideoRef = useRef<HTMLVideoElement>(null);
-  const remoteVideoRef = useRef<HTMLVideoElement>(null);
+  const [remoteStreams, setRemoteStreams] = useState<{ [socketId: string]: MediaStream }>({});
 
   const { roomid: roomId } = useParams<{ roomid: string }>();
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
@@ -42,8 +42,13 @@ const Room: React.FC = () => {
   const createPeerConnection = useCallback((socketId: string) => {
     const pc = new RTCPeerConnection({ iceServers: [{ urls: "stun:stun.l.google.com:19302" }] });
 
+    // Add local tracks immediately
+    if (localStream) {
+      localStream.getTracks().forEach((track) => pc.addTrack(track, localStream));
+    }
+
     pc.ontrack = (event) => {
-      if (remoteVideoRef.current) remoteVideoRef.current.srcObject = event.streams[0];
+      setRemoteStreams((prev) => ({ ...prev, [socketId]: event.streams[0] }));
     };
 
     pc.onicecandidate = (e) => {
@@ -52,7 +57,7 @@ const Room: React.FC = () => {
 
     setPeerConnections((prev) => ({ ...prev, [socketId]: pc }));
     return pc;
-  }, [socket]);
+  }, [localStream, socket]);
 
   // Handle new participants
   useEffect(() => {
@@ -61,7 +66,9 @@ const Room: React.FC = () => {
     };
 
     socket.on("new-participant", handleNewParticipant);
-    return () => {socket.off("new-participant", handleNewParticipant);}
+    return () => {
+      socket.off("new-participant", handleNewParticipant);
+    };
   }, [socket, peerConnections, createPeerConnection]);
 
   // Handle incoming offer
@@ -80,19 +87,16 @@ const Room: React.FC = () => {
         delete pendingCandidates.current[from];
       }
 
-      // Add local tracks if not added
-      if (localStream && pc.getSenders().length === 0) {
-        localStream.getTracks().forEach((track) => pc.addTrack(track, localStream));
-      }
-
       const answer = await pc.createAnswer();
       await pc.setLocalDescription(answer);
       socket.emit("answer", { target: from, answer });
     };
 
     socket.on("offer", handleOffer);
-    return () => {socket.off("offer", handleOffer);}
-  }, [socket, peerConnections, createPeerConnection, localStream]);
+    return () => {
+      socket.off("offer", handleOffer);
+    };
+  }, [socket, peerConnections, createPeerConnection]);
 
   // Handle incoming answer
   useEffect(() => {
@@ -102,7 +106,6 @@ const Room: React.FC = () => {
 
       await pc.setRemoteDescription(answer);
 
-      // Apply queued ICE candidates
       if (pendingCandidates.current[from]) {
         for (const c of pendingCandidates.current[from]) {
           await pc.addIceCandidate(c);
@@ -112,7 +115,9 @@ const Room: React.FC = () => {
     };
 
     socket.on("answer", handleAnswer);
-    return () => {socket.off("answer", handleAnswer);}
+    return () => {
+      socket.off("answer", handleAnswer);
+    };
   }, [peerConnections, socket]);
 
   // Handle incoming ICE candidates
@@ -130,11 +135,12 @@ const Room: React.FC = () => {
         if (!pendingCandidates.current[from]) pendingCandidates.current[from] = [];
         pendingCandidates.current[from].push(candidate);
       }
-
     };
 
     socket.on("ice-candidate", handleIceCandidate);
-    return () => {socket.off("ice-candidate", handleIceCandidate);}
+    return () => {
+      socket.off("ice-candidate", handleIceCandidate);
+    };
   }, [peerConnections, socket]);
 
   // Send my video to all participants
@@ -142,10 +148,6 @@ const Room: React.FC = () => {
     if (!localStream) return;
 
     Object.entries(peerConnections).forEach(([socketId, pc]) => {
-      if (pc.getSenders().length === 0) {
-        localStream.getTracks().forEach((track) => pc.addTrack(track, localStream));
-      }
-
       pc.createOffer().then((offer) => {
         pc.setLocalDescription(offer);
         socket.emit("offer", { target: socketId, offer });
@@ -156,50 +158,56 @@ const Room: React.FC = () => {
   };
 
   return (
-<div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-6">
-  <div className="w-full max-w-5xl flex flex-col items-center gap-6">
-    {/* Room ID */}
-    <h1 className="text-3xl font-bold text-gray-800 mb-4">Room ID: {roomId}</h1>
+    <div className="min-h-screen bg-gray-900 flex flex-col items-center justify-center p-6">
+      <div className="w-full max-w-6xl flex flex-col items-center gap-6">
+        {/* Room ID */}
+        <h1 className="text-3xl font-bold text-white mb-4">Room ID: {roomId}</h1>
 
-    {/* Video Section */}
-    <div className="flex flex-col sm:flex-row gap-6 w-full">
-      {/* Local Video */}
-      <div className="relative w-full md:w-1/2 shadow-lg rounded-lg overflow-hidden">
-        <div className="absolute top-2 left-2 bg-black text-white px-3 py-1 rounded z-10 font-semibold">
-          You
-        </div>
-        <video
-          ref={localVideoRef}
-          autoPlay
-          muted
-          className="w-full h-64 md:h-96 object-cover bg-black rounded-lg"
-        />
-      </div>
+        {/* Video Section */}
+        <div className="flex flex-wrap gap-6 w-full justify-center">
+          {/* Local Video */}
+          <div className="relative w-full sm:w-1/2 md:w-1/3 shadow-2xl rounded-lg overflow-hidden">
+            <div className="absolute top-2 left-2 bg-black text-white px-3 py-1 rounded z-10 font-semibold">
+              You
+            </div>
+            <video
+              ref={localVideoRef}
+              autoPlay
+              muted
+              className="w-full h-64 md:h-72 object-cover rounded-lg bg-black"
+            />
+          </div>
 
-      {/* Remote Video */}
-      <div className="relative w-full md:w-1/2 shadow-lg rounded-lg overflow-hidden">
-        <div className="absolute top-2 left-2 bg-black text-white px-3 py-1 rounded z-10 font-semibold">
-          Partner
+          {/* Remote Videos */}
+          {Object.entries(remoteStreams).map(([id, stream]) => (
+            <div key={id} className="relative w-full sm:w-1/2 md:w-1/3 shadow-2xl rounded-lg overflow-hidden">
+              <div className="absolute top-2 left-2 bg-black text-white px-3 py-1 rounded z-10 font-semibold">
+                {id}
+              </div>
+              <video
+                autoPlay
+                playsInline
+              ref={(video) => {
+        if (video) {
+          video.srcObject = stream;
+        }
+      }}
+
+                className="w-full h-64 md:h-72 object-cover rounded-lg bg-black"
+              />
+            </div>
+          ))}
         </div>
-        <video
-          ref={remoteVideoRef}
-          autoPlay
-          className="w-full h-64 md:h-96 object-cover bg-black rounded-lg"
-        />
+
+        {/* Send Video Button */}
+        <button
+          onClick={sendMyVideo}
+          className="mt-6 px-8 py-3 bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 text-white rounded-2xl hover:scale-105 hover:shadow-lg transition transform duration-200 font-bold shadow-md"
+        >
+          Send My Video
+        </button>
       </div>
     </div>
-
-    {/* Send Video Button */}
-    <button
-      onClick={sendMyVideo}
-      className="mt-4 px-8 py-3 bg-green-600 text-white rounded-lg hover:bg-green-500 active:scale-95 transition transform duration-200 shadow-md font-semibold"
-    >
-      Send My Video
-    </button>
-  </div>
-</div>
-
-
   );
 };
 

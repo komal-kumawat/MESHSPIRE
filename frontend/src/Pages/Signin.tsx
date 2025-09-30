@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import API from "../api";
+import API from "../api"; // axios instance
 import { useAuth } from "../Context/AuthContext";
 
 interface SigninForm {
@@ -9,9 +9,13 @@ interface SigninForm {
 }
 
 interface SigninResponse {
-  token: string;
-  name: string;
-  avatarUrl?: string;
+  access: string;
+  user: {
+    id: string;
+    name: string;
+    email: string;
+    avatarUrl?: string;
+  };
 }
 
 export default function Signin() {
@@ -19,7 +23,7 @@ export default function Signin() {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const navigate = useNavigate();
-  const { setUser } = useAuth(); // use context
+  const { setUser } = useAuth();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -30,20 +34,19 @@ export default function Signin() {
     setErrorMsg("");
     try {
       const res = await API.post<SigninResponse>("/user/signin", form);
+      console.log("Signin response:", res.data); // 👀 log to verify
 
-      // Update context
-      setUser(res.data.name, res.data.token);
+      // ✅ take name from res.data.user.name, token from res.data.access
+      setUser(res.data.user.name, res.data.access);
 
-      navigate("/dashboard"); // redirect to dashboard
+      navigate("/dashboard");
     } catch (err: any) {
       console.error("Signin error:", err);
-
       const serverMsg =
         err?.response?.data?.message ||
         err?.response?.data?.error ||
         err.message ||
         "Signin failed";
-
       setErrorMsg(serverMsg);
     } finally {
       setLoading(false);
@@ -88,7 +91,7 @@ export default function Signin() {
 
         <p className="text-sm mt-6 text-gray-400 text-center">
           Don’t have an account?{" "}
-          <a href="/signup" className="text-blue-400 hover:underline">
+          <a href="/" className="text-blue-400 hover:underline">
             Sign up
           </a>
         </p>

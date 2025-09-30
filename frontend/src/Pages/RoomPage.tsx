@@ -15,7 +15,7 @@ const Room: React.FC = () => {
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
   const [peerConnections, setPeerConnections] = useState<{ [key: string]: RTCPeerConnection }>({});
   const pendingCandidates = useRef<PendingCandidates>({});
-
+  
   // Get camera/mic
   const getUserMediaStream = useCallback(async () => {
     try {

@@ -1,12 +1,20 @@
+"use client";
+
 import React from "react";
 import Link from "next/link";
+import { useTheme } from "next-themes";
 
 const CTA = () => {
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
+
   return (
     <section
       id="cta"
-      className="overflow-x-hidden overflow-hidden relative py-20 px-4 mt-20 mb-24 flex flex-col items-center justify-center max-w-7xl mx-auto rounded-2xl shadow-md gap-12"
+      className="overflow-x-hidden relative py-20 px-4 mt-20 mb-24 flex flex-col items-center justify-center 
+                 max-w-7xl mx-auto rounded-2xl gap-12"
     >
+      {/* Background grid */}
       <div
         className="absolute inset-0 w-full bg-grid pointer-events-none rounded-2xl"
         aria-hidden="true"
@@ -18,13 +26,16 @@ const CTA = () => {
         }}
       />
 
+      {/* Background */}
       <div
-        className="absolute inset-0 w-full h-full bg-black rounded-2xl opacity-90"
+        className={`absolute inset-0 w-full h-full rounded-2xl opacity-90 transparent`}
         aria-hidden="true"
       />
 
+      {/* Radial glow */}
       <div
-        className="absolute top-[300px] left-1/2 w-[600px] h-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full pointer-events-none z-0"
+        className="absolute top-[300px] left-1/2 w-[600px] h-[600px] -translate-x-1/2 -translate-y-1/2 
+                   rounded-full pointer-events-none z-0"
         aria-hidden="true"
         style={{
           background:
@@ -33,17 +44,30 @@ const CTA = () => {
         }}
       />
 
+      {/* Content */}
       <div className="relative z-10 flex flex-col items-center justify-center gap-2">
-        <h1 className="md:text-6xl text-3xl pt-20 font-khula font-extrabold text-white tracking-tighter text-center md:text-left">
+        <h1
+          className={`md:text-6xl text-3xl pt-20 font-khula font-extrabold tracking-tighter text-center md:text-left ${isDark ? "text-white" : "text-gray-900"
+            }`}
+        >
           Your All-in-one Learning
         </h1>
 
-        <h1 className="md:text-6xl text-3xl pt-4 font-khula font-extrabold text-white tracking-tighter items-center">
+        <h1
+          className={`md:text-6xl text-3xl pt-4 font-khula font-extrabold tracking-tighter items-center ${isDark ? "text-white" : "text-gray-900"
+            }`}
+        >
           Companion
         </h1>
+
         <Link
-          href="/MeshSpire/signup"
-          className="bg-green-600 hover:bg-green-900 text-white font-catamaran font-bold px-20 py-2 mt-20 rounded-full transition-colors duration-300 cursor-pointer inline-block"
+          href="https://meshspire.vercel.app/"
+
+          className={`font-catamaran font-bold px-20 py-2 mt-20 rounded-full transition-colors duration-300 cursor-pointer inline-block shadow-lg
+            ${isDark
+              ? "bg-green-600 hover:bg-green-900 text-white"
+              : "bg-green-600 hover:bg-green-700 text-white"
+            }`}
         >
           Login
         </Link>

@@ -101,6 +101,9 @@
     @apply overscroll-y-none bg-background font-sans text-foreground antialiased;
     font-synthesis-weight: none;
     text-rendering: optimizeLegibility;
+    body {
+      @apply bg-background text-foreground;
+    }
   }
 
   /* Custom scrollbar styling. Thanks @shadcn-ui */

@@ -6,6 +6,7 @@ import {
   TargetAndTransition,
 } from "framer-motion";
 import { useEffect } from "react";
+import { useTheme } from "next-themes";
 
 type Testimonial = {
   quote: string;
@@ -53,6 +54,9 @@ export function InfiniteMovingCards({
     controls.start(animationProps);
   }, [controls, direction, duration]);
 
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
+
   return (
     <div
       className={`overflow-hidden mx-auto max-w-7xl py-6 relative ${className}`}
@@ -76,15 +80,17 @@ export function InfiniteMovingCards({
         {[...items, ...items].map((item, idx) => (
           <div
             key={idx}
-            className="flex-shrink-0 rounded-xl bg-slate-800 shadow-md flex flex-col items-center px-12 py-12 mx-2 min-w-[250px]"
+            className={`flex-shrink-0 rounded-xl flex flex-col items-center px-12 py-12 mx-2 min-w-[250px]
+                        ${isDark ? "bg-slate-800 shadow-md" : "bg-white shadow-md"}
+            `}
           >
-            <p className="text- font-catamaran text-white italic">
+            <p className={`text-center font-catamaran italic ${isDark ? "text-white" : "text-gray-800"}`}>
               ”{item.quote}”
             </p>
-            <span className="mt-3 font-catamaran text-white font-bold">
+            <span className={`mt-3 font-catamaran font-bold ${isDark ? "text-white" : "text-gray-900"}`}>
               {item.name}
             </span>
-            <span className="text-xs font-catamaran font-white text-gray-200">
+            <span className={`text-xs font-catamaran ${isDark ? "text-gray-200" : "text-gray-500"}`}>
               {item.title}
             </span>
           </div>

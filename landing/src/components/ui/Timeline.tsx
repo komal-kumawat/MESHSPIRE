@@ -6,13 +6,25 @@ import {
   motion,
 } from "framer-motion";
 import React, { useEffect, useRef, useState } from "react";
+import { useTheme } from "next-themes";
 
 interface TimelineEntry {
   title: string;
   content: React.ReactNode;
 }
 
-export const Timeline = ({ data }: { data: TimelineEntry[] }) => {
+export const Timeline = ({
+  data,
+  hoverEffect,
+  scaleOnHover,
+}: {
+  data: TimelineEntry[];
+  hoverEffect?: boolean;
+  scaleOnHover?: boolean;
+}) => {
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
+
   const ref = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [height, setHeight] = useState(0);
@@ -34,43 +46,77 @@ export const Timeline = ({ data }: { data: TimelineEntry[] }) => {
 
   return (
     <div
-      className="w-full bg-white dark:bg-black font-catamaran md:px-10"
+      className="w-full font-catamaran md:px-10 relative"
       ref={containerRef}
     >
-      <div className="max-w-7xl mx-auto  px-4 md:px-8 lg:px-10"></div>
-
       <div ref={ref} className="relative max-w-7xl mx-auto pb-20">
         {data.map((item, index) => (
-          <div
+          <motion.div
             key={index}
-            className="flex flex-col pt-10 md:pt-40 gap-10 mb-20"
+            className={`flex flex-col pt-10 md:pt-40 gap-6 mb-20 relative transition-all duration-500 
+              ${hoverEffect && isDark ? "hover:shadow-lg rounded-xl" : ""}
+              ${scaleOnHover ? "hover:scale-[1.02]" : ""}
+            `}
           >
-            <div className="flex items-center relative">
-              <div className="h-10 absolute left-3 w-10 rounded-full bg-white dark:bg-black flex items-center justify-center z-10">
-                <div className="h-4 w-4 rounded-full bg-neutral-200 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 p-2" />
-              </div>
-              <h3 className="text-xl md:text-5xl font-bold text-neutral-500 dark:text-neutral-500 pl-14">
-                {item.title}
-              </h3>
+            {/* Indicator Circle */}
+            <div className="absolute left-3 md:left-8 flex items-center justify-center z-10">
+              <motion.div
+                initial={{ scale: 0 }}
+                whileInView={{ scale: 0.8 }}
+                transition={{ duration: 0.5, type: "spring" }}
+                className={`h-10 w-10 rounded-full flex items-center justify-center transition-colors duration-500 ${
+                  isDark ? "bg-black" : "bg-white"
+                }`}
+              >
+                <div
+                  className={`h-4 w-4 rounded-full border p-2 transition-colors duration-500 ${
+                    isDark
+                      ? "bg-neutral-800 border-neutral-700"
+                      : "bg-neutral-200 border-neutral-300"
+                  }`}
+                />
+              </motion.div>
             </div>
 
-            <div className="relative pl-16 pr-4 w-full text-[18px] leading-[1.9]">
+            {/* Title */}
+            <h3
+              className={`text-xl md:text-4xl font-extrabold pl-16 md:pl-20 transition-colors duration-500 ${
+                isDark ? "text-neutral-300" : "text-neutral-700"
+              }`}
+            >
+              {item.title}
+            </h3>
+
+            {/* Content */}
+            <div
+              className={`pl-16 md:pl-20 pr-4 w-full text-[18px] md:text-lg leading-[1.8] transition-colors duration-500  ${
+                isDark ? "text-neutral-300" : "text-neutral-700"
+              }`}
+            >
               {item.content}
             </div>
-          </div>
+          </motion.div>
         ))}
+
+        {/* Timeline Line */}
         <div
-          style={{
-            height: height + "px",
-          }}
-          className="absolute md:left-8 left-8 top-0 overflow-hidden w-[2px] bg-[linear-gradient(to_bottom,var(--tw-gradient-stops))] from-transparent from-[0%] via-neutral-200 dark:via-neutral-700 to-transparent to-[99%]  [mask-image:linear-gradient(to_bottom,transparent_0%,black_10%,black_90%,transparent_100%)] "
+          className="absolute md:left-8 left-6 top-0 w-[3px] rounded-full overflow-hidden"
+          style={{ height: height + "px" }}
         >
+          {/* Background Line */}
+          <div
+            className={`absolute inset-x-0 top-0 w-full h-full rounded-full transition-colors duration-500 ${
+              isDark ? "bg-neutral-700" : "bg-neutral-300"
+            }`}
+          />
+
+          {/* Scroll Animated Line */}
           <motion.div
             style={{
               height: heightTransform,
               opacity: opacityTransform,
             }}
-            className="absolute inset-x-0 top-0  w-[2px] bg-gradient-to-t from-green-500 via-purple-500 to-transparent from-[0%] via-[10%] rounded-full"
+            className="absolute inset-x-0 top-0 w-full rounded-full bg-gradient-to-b from-green-400 via-purple-500 to-pink-500"
           />
         </div>
       </div>

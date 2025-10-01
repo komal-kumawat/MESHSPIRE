@@ -1,7 +1,9 @@
 @import "tailwindcss";
 
+/* Dark variant */
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* Utility: Hide scrollbar */
 @utility no-scrollbar {
   -ms-overflow-style: none; /* IE and Edge */
   scrollbar-width: none; /* Firefox */
@@ -12,7 +14,24 @@
   }
 }
 
+/* Theme variables */
+@theme {
+  --color-primary: oklch(43.2% 0.232 292.759);
+  --color-secondary: oklch(72.3% 0.219 149.579);
+
+  /* Default (light mode) */
+  --color-font: #141414;
+  --background: #ffffff;
+  --foreground: #141414;
+
+  /* Font families */
+  --font-primary: var(--font-geist, "Geist", sans-serif);
+  --font-secondary: var(--font-dm-sans, "DM Sans", sans-serif);
+}
+
+/* Dark mode overrides */
 .dark {
   --background: #141414;
   --foreground: #e9edf0;
+  --color-font: #e9edf0;
 }

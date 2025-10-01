@@ -27,11 +27,12 @@ export default function Navbar() {
   return (
     <nav
       className="
-        w-full sticky top-0 z-50 px-4 sm:px-6 py-4
-        border-b border-black/10 dark:border-gray-700
-        bg-white/70 dark:bg-black/70 backdrop-blur-md
-        transition-colors duration-300
-      "
+      w-full sticky top-0 z-50 px-4 sm:px-6 py-4
+      border-b border-[var(--foreground)]/10
+      bg-[var(--background)]/70 backdrop-blur-md
+      text-[var(--color-font)]
+      transition-colors duration-300
+    "
     >
       <div className="flex items-center justify-between max-w-7xl mx-auto w-full">
         <Link href="/" className="flex items-center cursor-pointer">
@@ -44,7 +45,7 @@ export default function Navbar() {
                 ? "/logo_dark.svg"
                 : "/logo_light.svg"
             }
-            alt="Silver logo"
+            alt="Meshspire logo"
             className="w-28 h-auto sm:w-32 md:w-36"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -53,7 +54,7 @@ export default function Navbar() {
         </Link>
 
         <div
-          className="hidden md:flex items-center px-2 font-mono relative gap-6"
+          className="hidden md:flex items-center px-2 font-[var(--font-secondary)] relative gap-6"
           onMouseLeave={() => setHovered(null)}
         >
           {navItems.map((item) => (
@@ -81,7 +82,7 @@ export default function Navbar() {
                 onMouseEnter={() => setHovered(item.name)}
                 onFocus={() => setHovered(item.name)}
                 className="
-                font-semibold
+                font-[var(--font-secondary)]
                   relative z-10 transition-colors
                   text-gray-700 hover:text-black
                   dark:text-gray-300 dark:hover:text-white
@@ -98,12 +99,12 @@ export default function Navbar() {
 
           <a
             href="#footer"
-            className="
-              bg-green-600 text-black border border-transparent rounded-full px-6 py-1.5
-              transition duration-300 hover:bg-white hover:text-black hover:border-black
-              dark:bg-green-600 dark:text-white dark:border-transparent
-              dark:hover:bg-black dark:hover:text-white dark:hover:border-white
-            "
+            className="       font-[var(--font-secondary)]
+  bg-[var(--color-primary)] text-[var(--background)] border border-transparent rounded-full px-6 py-1.5
+  transition duration-300 hover:bg-[var(--background)] hover:text-[var(--color-font)] hover:border-[var(--foreground)]
+  dark:bg-[var(--color-primary)] dark:text-[var(--foreground)] dark:border-transparent
+  dark:hover:bg-[var(--background)] dark:hover:text-[var(--color-font)] dark:hover:border-[var(--foreground)]
+"
           >
             Get Started
           </a>

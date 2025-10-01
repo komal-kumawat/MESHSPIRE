@@ -33,7 +33,7 @@ export default function Signin() {
     setLoading(true);
     setErrorMsg("");
     try {
-      const res = await API.post<SigninResponse>("api/v0/user/signin", form);
+      const res = await API.post<SigninResponse>("/user/signin", form);
       console.log("Signin response:", res.data); // 👀 log to verify
 
       // ✅ take name from res.data.user.name, token from res.data.access

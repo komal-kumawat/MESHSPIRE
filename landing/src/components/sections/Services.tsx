@@ -83,7 +83,6 @@ const Content = () => {
         bg-[var(--background)] text-[var(--color-font)] 
       "
     >
-      {/* Section Header */}
       <div className="flex flex-col items-center justify-center gap-4 w-full">
         <div
           className="
@@ -92,7 +91,6 @@ const Content = () => {
             border-[var(--foreground)]/20 bg-[var(--background)]/60
           "
         >
-          {/* Decorative Icons */}
           <Icon className="absolute h-6 w-6 -top-4 -left-4 text-[var(--color-font)]/70 transition-colors" />
           <Icon className="absolute h-6 w-6 -bottom-4 -left-4 text-[var(--color-font)]/70 transition-colors" />
           <Icon className="absolute h-6 w-6 -top-4 -right-4 text-[var(--color-font)]/70 transition-colors" />
@@ -110,14 +108,11 @@ const Content = () => {
         </div>
       </div>
 
-      {/* Timeline + Animated SVG */}
       <div className="flex flex-col md:flex-row items-center justify-center gap-10 md:gap-28 w-full max-w-7xl">
-        {/* Timeline */}
         <div ref={timelineRef} className="hidden md:flex w-full md:w-1/2">
           <Timeline data={timelineData()} hoverEffect />
         </div>
 
-        {/* Animated Flow */}
         <div
           className="hidden md:flex w-full md:w-1/2 justify-center items-start relative"
           style={{
@@ -135,7 +130,6 @@ const Content = () => {
           </div>
         </div>
 
-        {/* Mobile Timeline */}
         <div className="flex md:hidden flex-col gap-12 w-full">
           <Timeline data={timelineData()} hoverEffect />
         </div>

@@ -108,7 +108,7 @@ const Content = () => {
         </div>
       </div>
 
-      <div className="flex flex-col md:flex-row items-center justify-center gap-10 md:gap-28 w-full max-w-7xl">
+      <div className="flex flex-col md:flex-row items-center justify-center gap-10 md:gap-14 w-full max-w-7xl">
         <div ref={timelineRef} className="hidden md:flex w-full md:w-1/2">
           <Timeline data={timelineData()} hoverEffect />
         </div>

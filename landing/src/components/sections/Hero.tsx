@@ -17,9 +17,11 @@ const Hero = () => {
   return (
     <section
       id="home"
-      className={`relative max-w-7xl mx-auto pt-12 px-4 flex flex-col items-center justify-center overflow-hidden overflow-x-hidden ${
-        isDark ? "bg-black text-white" : "bg-white text-black"
-      }`}
+      className={`
+        relative max-w-7xl mx-auto pt-12 px-4 flex flex-col items-center justify-center
+        overflow-hidden overflow-x-hidden
+        bg-[var(--background)] text-[var(--color-font)]
+      `}
     >
       <div className="absolute inset-0 z-0 flex items-center justify-center">
         <div className="w-[400px] md:w-[1000px] h-[430px] md:h-full mx-auto"></div>
@@ -27,11 +29,13 @@ const Hero = () => {
 
       <div className="relative z-10 flex flex-col items-center justify-center pt-6">
         <button
-          className={`${
-            isDark
-              ? "bg-slate-900 text-white border-white hover:bg-black"
-              : "bg-white text-black border-black hover:bg-black hover:text-white hover:border-white transition-colors duration-500 ease-in-out"
-          } font-small font-catamaran px-6 md:px-10 py-1 text-sm md:text-base transition-all duration-300 rounded-full mb-6 md:mb-0`}
+          className="
+    bg-[var(--background)] text-[var(--color-font)] border border-[var(--foreground)]
+    hover:bg-[var(--hover-dark)] hover:text-[var(--hover-light)]
+    font-small font-[var(--font-secondary)]
+    px-6 md:px-10 py-1 text-sm md:text-base 
+    transition-all duration-500 ease-in-out rounded-full mb-6 md:mb-0
+  "
           style={{ borderWidth: "0.5px" }}
         >
           Launching Oct 2025

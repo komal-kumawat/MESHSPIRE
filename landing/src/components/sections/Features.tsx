@@ -11,43 +11,43 @@ const Content = () => {
 
   const cardData = [
     {
-      icon: "/icons/ease.svg",
+      icon: isDark?"/icons/ease.svg":"/icons/curve-alt1.png",
       title: "Ease of use",
       description:
         "It's as easy as using an Apple, but not as expensive as buying one.",
     },
     {
-      icon: "/icons/cloud.svg",
+      icon: isDark?"/icons/cloud.svg":"/icons/cloud.png",
       title: "100% uptime",
       description: "We can’t be taken down by anyone",
     },
     {
-      icon: "/icons/fast.svg",
+      icon:isDark?"/icons/fast.svg":"/icons/fast.png",
       title: "The fastest",
       description: "We will connect you to your tutors in limited time",
     },
     {
-      icon: "/icons/heart.svg",
+      icon: isDark?"/icons/heart.svg":"/icons/heart.png",
       title: "Student first",
       description: "Students are the priority, always and every time",
     },
     {
-      icon: "/icons/refund.svg",
+      icon:isDark?"/icons/refund.svg":"/icons/refund.png",
       title: "Money back",
       description: "If we can’t serve you. You need not pay",
     },
     {
-      icon: "/icons/money.svg",
+      icon:isDark?"/icons/money.svg":"/icons/money.png",
       title: "Best pricing",
       description: "Lowest learning prices. We don’t overcharge",
     },
     {
-      icon: "/icons/tutor.svg",
+      icon: isDark?"/icons/tutor.svg":"/icons/tutor.png",
       title: "Quality tutors",
       description: "We will match you to the best quality tutors",
     },
     {
-      icon: "/icons/cluster.svg",
+      icon: isDark?"/icons/cluster.svg":"/icons/cluster.png",
       title: "Learning cluster",
       description: "You just need one app for all your learning",
     },

@@ -126,21 +126,34 @@ export default function Navbar() {
       </div>
 
       {isOpen && (
-        <div className="md:hidden bg-white/95 dark:bg-black/95 backdrop-blur-md shadow-lg border-t border-gray-200 dark:border-gray-700 transition-colors duration-300">
+        <div
+          className="
+      md:hidden bg-[var(--background)]/95 backdrop-blur-md shadow-lg 
+      border-t border-[var(--foreground)]/20 transition-colors duration-300
+      font-[var(--font-secondary)]
+    "
+        >
           <div className="flex flex-col items-center space-y-5 py-10">
             {navItems.map((item) => (
               <Link
                 key={item.name}
                 href={item.href}
-                className="transition-colors text-gray-700 hover:text-black dark:text-gray-300 dark:hover:text-white"
+                className="
+            transition-colors text-[var(--color-font)] hover:text-[var(--foreground)]
+          "
                 onClick={() => setIsOpen(false)}
               >
                 {item.name}
               </Link>
             ))}
+
             <a
               href="#footer"
-              className="rounded-full border px-6 py-1.5 transition-colors bg-gray-900 text-white border-gray-900 hover:bg-white hover:text-black dark:bg-gray-100 dark:text-black dark:border-gray-100 dark:hover:bg-black dark:hover:text-white"
+              className="
+          rounded-full border px-6 py-1.5 transition-colors
+          bg-[var(--color-primary)] text-[var(--background)] dark:text-[var(--foreground)]  border-[var(--color-primary)]
+          hover:bg-[var(--background)] hover:text-[var(--color-font)] hover:border-[var(--foreground)]
+        "
               onClick={() => setIsOpen(false)}
             >
               Connect

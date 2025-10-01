@@ -119,7 +119,7 @@ const Content = () => {
                 alt={card.title}
                 width={32}
                 height={32}
-                className="mb-3 z-10"
+                className="mb-3 z-10 "
               />
               <h2
                 className={`text-xl font-khula font-semibold mb-1 z-10 ${isDark ? "text-white" : "text-black"

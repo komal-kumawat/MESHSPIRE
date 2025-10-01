@@ -23,15 +23,12 @@ const Hero = () => {
         bg-[var(--background)] text-[var(--color-font)]
       `}
     >
-      <div className="absolute inset-0 z-0 flex items-center justify-center">
-        <div className="w-[400px] md:w-[1000px] h-[430px] md:h-full mx-auto"></div>
-      </div>
-
       <div className="relative z-10 flex flex-col items-center justify-center pt-6">
         <button
           className="
     bg-[var(--background)] text-[var(--color-font)] border border-[var(--foreground)]
-    hover:bg-[var(--hover-dark)] hover:text-[var(--hover-light)]
+    hover:bg-[var(--hover-light)]
+    dark:hover:bg-[var(--hover-dark)]
     font-small font-[var(--font-secondary)]
     px-6 md:px-10 py-1 text-sm md:text-base 
     transition-all duration-500 ease-in-out rounded-full mb-6 md:mb-0
@@ -42,40 +39,46 @@ const Hero = () => {
         </button>
 
         <div className="relative inline-block pt-4 md:pt-20 text-center">
-          <h1 className="md:text-6xl text-4xl font-khula font-extrabold tracking-tighter relative z-10">
+          <h1 className="md:text-6xl text-4xl font-[var(--font-primary)] relative z-10">
             Fastest and most efficient
           </h1>
         </div>
 
-        <h1 className="md:text-6xl text-4xl font-khula font-extrabold tracking-tighter text-center">
+        <h1 className="md:text-6xl text-4xl font-[var(--font-primary)]  text-center">
           way to learn
         </h1>
 
-        <p className="md:text-xl text-base font-catamaran pt-10 text-center px-6">
+        <p className="md:text-xl text-base font-[var(--font-secondary)] pt-10 text-center px-6">
           A super fast peer to peer learning platform
         </p>
-        <p className="md:text-xl text-base font-catamaran text-center px-6">
+        <p className="md:text-xl text-base font-[var(--font-secondary)] text-center px-6">
           Find the teacher which is most suited to your learning style
         </p>
 
-        <div className="flex flex-col md:flex-row items-center justify-center pt-12 gap-6 md:gap-[120px]">
+        <div className="flex flex-col md:flex-row items-center justify-center pt-12 gap-4 md:gap-[120px]">
+          {/* Login Button */}
           <Link
             href="https://dev.dn03fv11bz1ey.amplifyapp.com/"
-            className={`${
-              isDark
-                ? "bg-green-600 hover:bg-green-900 text-white"
-                : "bg-green-400 hover:bg-green-600 text-black"
-            } font-catamaran font-bold px-10 py-2 md:px-20 rounded-full transition-colors duration-300 cursor-pointer inline-block text-sm md:text-base`}
+            className="
+     rounded-full border px-18 py-1.5 transition-all duration-300
+          bg-[var(--color-primary)] text-[var(--background)] dark:text-[var(--foreground)]  border-[var(--color-primary)]
+          hover:bg-[var(--background)] hover:text-[var(--color-font)] hover:border-[var(--foreground)]
+    "
           >
             Login
           </Link>
+
+          {/* Contact Button */}
           <Link
             href="#footer"
-            className={`${
-              isDark
-                ? "bg-black hover:bg-white text-white hover:text-black border-white"
-                : "bg-white hover:bg-black text-black hover:text-white border-black"
-            } font-catamaran font-bold px-10 py-2 md:px-14 transition-all duration-300 rounded-full w-[160px] md:w-[200px] text-sm md:text-base text-center flex items-center justify-center`}
+            className="
+      bg-[var(--background)] text-[var(--color-font)] border border-[var(--foreground)]
+      hover:bg-[var(--foreground)] hover:text-[var(--background)]
+      font-[var(--font-secondary)] 
+      px-10 py-2 md:px-14 rounded-full
+      transition-all duration-300
+      w-[160px] md:w-[200px] text-sm md:text-base text-center flex items-center justify-center
+    "
           >
             Contact us
           </Link>

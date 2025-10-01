@@ -153,6 +153,7 @@ export default function Navbar() {
           rounded-full border px-6 py-1.5 transition-colors
           bg-[var(--color-primary)] text-[var(--background)] dark:text-[var(--foreground)]  border-[var(--color-primary)]
           hover:bg-[var(--background)] hover:text-[var(--color-font)] hover:border-[var(--foreground)]
+           font-[var(--font-secondary)]
         "
               onClick={() => setIsOpen(false)}
             >

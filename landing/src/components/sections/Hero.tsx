@@ -1,6 +1,6 @@
 "use client";
 
-import  { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useTheme } from "next-themes";
 
@@ -10,7 +10,7 @@ const Hero = () => {
 
   useEffect(() => setMounted(true), []);
 
-  if (!mounted) return null; // avoid hydration mismatch
+  if (!mounted) return null;
 
   const isDark = theme === "dark";
 
@@ -21,7 +21,6 @@ const Hero = () => {
         isDark ? "bg-black text-white" : "bg-white text-black"
       }`}
     >
-      {/* Background effects */}
       <div className="absolute inset-0 z-0 flex items-center justify-center">
         <div className="w-[400px] md:w-[1000px] h-[430px] md:h-full mx-auto"></div>
       </div>
@@ -32,7 +31,6 @@ const Hero = () => {
             isDark
               ? "bg-slate-900 text-white border-white hover:bg-black"
               : "bg-white text-black border-black hover:bg-black hover:text-white hover:border-white transition-colors duration-500 ease-in-out"
-
           } font-small font-catamaran px-6 md:px-10 py-1 text-sm md:text-base transition-all duration-300 rounded-full mb-6 md:mb-0`}
           style={{ borderWidth: "0.5px" }}
         >
@@ -81,8 +79,7 @@ const Hero = () => {
       </div>
 
       <img
-        // src={isDark ? "/Dashboard-Dark.png" : "/Dashboard-Light.png"}
-        src={"/Dashboard-Dark.png"}
+        src={isDark ? "/Dashboard-Dark.png" : "/Dashboard-Light.png"}
         alt="Dashboard"
         width={1280}
         height={750}

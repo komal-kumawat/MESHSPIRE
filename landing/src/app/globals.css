@@ -18,7 +18,7 @@
   --background: #ffffff;
   --foreground: #141414;
   --hover-dark: oklch(20.8% 0.042 265.755); /* darker hover for light theme */
-  --hover-light: oklch(96.8% 0.007 247.896); /* lighter hover for dark theme */
+  --hover-light: oklch(92.9% 0.013 255.508); /* lighter hover for dark theme */
 }
 
 /* Theme variables */
@@ -31,7 +31,7 @@
   --background: #ffffff;
   --foreground: #141414;
   --hover-dark: oklch(20.8% 0.042 265.755);
-  --hover-light: oklch(96.8% 0.007 247.896);
+  --hover-light: oklch(92.9% 0.013 255.508);
 
   /* Font families */
   --font-primary: var(--font-geist, "Geist", sans-serif);

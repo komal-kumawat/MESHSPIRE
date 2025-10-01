@@ -56,7 +56,6 @@ const Hero = () => {
         </p>
 
         <div className="flex flex-col md:flex-row items-center justify-center pt-12 gap-4 md:gap-[120px]">
-          {/* Login Button */}
           <Link
             href="https://dev.dn03fv11bz1ey.amplifyapp.com/"
             className="
@@ -68,7 +67,6 @@ const Hero = () => {
             Login
           </Link>
 
-          {/* Contact Button */}
           <Link
             href="#footer"
             className="

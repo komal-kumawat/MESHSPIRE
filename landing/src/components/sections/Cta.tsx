@@ -61,7 +61,7 @@ const CTA = () => {
         </h1>
 
         <Link
-          href="https://meshspire.vercel.app/"
+          href="https://dev.dn03fv11bz1ey.amplifyapp.com/"
 
           className={`font-catamaran font-bold px-20 py-2 mt-20 rounded-full transition-colors duration-300 cursor-pointer inline-block shadow-lg
             ${isDark

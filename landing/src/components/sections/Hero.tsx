@@ -58,7 +58,7 @@ const Hero = () => {
 
         <div className="flex flex-col md:flex-row items-center justify-center pt-12 gap-6 md:gap-[120px]">
           <Link
-            href="https://meshspire.vercel.app/"
+            href="https://dev.dn03fv11bz1ey.amplifyapp.com/"
             className={`${
               isDark
                 ? "bg-green-600 hover:bg-green-900 text-white"

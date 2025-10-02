@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "https://meshspire.onrender.com/api/v0",
+  baseURL: "https://meshspire-core-vjqd.onrender.com/api/v0",
   headers: {
     "Content-Type": "application/json",
   },

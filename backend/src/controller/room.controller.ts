@@ -1,7 +1,8 @@
 import { Server, Socket } from "socket.io";
 
-// roomId -> socket IDs
+// Map roomId -> array of socket IDs
 const roomToSockets: Map<string, string[]> = new Map();
+// Map socketId -> roomId
 const socketToRoom: Map<string, string> = new Map();
 
 export function RoomController(io: Server, socket: Socket) {
@@ -11,14 +12,24 @@ export function RoomController(io: Server, socket: Socket) {
   socket.on("join-room", ({ roomId }: { roomId: string }) => {
     if (!roomId) return;
 
+    // Create room if doesn't exist
     if (!roomToSockets.has(roomId)) roomToSockets.set(roomId, []);
     const sockets = roomToSockets.get(roomId)!;
 
-    sockets.push(socket.id);
+    // Avoid duplicates
+    if (!sockets.includes(socket.id)) sockets.push(socket.id);
+
     socketToRoom.set(socket.id, roomId);
     socket.join(roomId);
 
     console.log(`Socket ${socket.id} joined room ${roomId}`);
+
+    // Notify others in the room about the new participant
+    sockets.forEach((socketId) => {
+      if (socketId !== socket.id) {
+        io.to(socketId).emit("new-participant", { socketId: socket.id });
+      }
+    });
   });
 
   /** Handle offer */
@@ -37,7 +48,11 @@ export function RoomController(io: Server, socket: Socket) {
   });
 
   /** User clicks "Send My Video" */
-  socket.on("send-my-video", ({ roomId }: { roomId: string }) => {
+  // We don't trust client roomId; server uses socketToRoom
+  socket.on("send-my-video", () => {
+    const roomId = socketToRoom.get(socket.id);
+    if (!roomId) return;
+
     const socketsInRoom = roomToSockets.get(roomId) || [];
     socketsInRoom.forEach((socketId) => {
       if (socketId !== socket.id) {
@@ -46,21 +61,37 @@ export function RoomController(io: Server, socket: Socket) {
     });
   });
 
-  /** Disconnect */
+  /** Leave room manually */
+  socket.on("leave-room", () => {
+    const roomId = socketToRoom.get(socket.id);
+    if (!roomId) return;
+    leaveRoom(socket.id, roomId);
+  });
+
+  /** Handle disconnect */
   socket.on("disconnect", () => {
     const roomId = socketToRoom.get(socket.id);
     if (!roomId) return;
+    leaveRoom(socket.id, roomId);
+  });
 
+  /** Helper function to remove a socket from a room */
+  function leaveRoom(socketId: string, roomId: string) {
     const sockets = roomToSockets.get(roomId);
     if (!sockets) return;
 
-    const index = sockets.indexOf(socket.id);
+    const index = sockets.indexOf(socketId);
     if (index > -1) sockets.splice(index, 1);
 
-    if (sockets.length === 1) io.to(sockets[0]).emit("partner-left");
-    if (sockets.length === 0) roomToSockets.delete(roomId);
-    socketToRoom.delete(socket.id);
+    // Notify remaining participants
+    sockets.forEach((sId) => {
+      io.to(sId).emit("partner-left", { socketId });
+    });
 
-    console.log("Socket disconnected:", socket.id);
-  });
+    if (sockets.length === 0) roomToSockets.delete(roomId);
+    socketToRoom.delete(socketId);
+
+    socket.leave(roomId);
+    console.log(`Socket ${socketId} left room ${roomId}`);
+  }
 }

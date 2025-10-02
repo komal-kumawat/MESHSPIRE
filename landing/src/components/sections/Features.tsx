@@ -4,15 +4,15 @@ import React from "react";
 import { Icon } from "../ui/Icon";
 import { useTheme } from "next-themes";
 
-// Import all icons as React components (via SVGR / Next.js support)
-import EaseIcon from "@/public/icons/ease.svg";
-import CloudIcon from "@/public/icons/cloud.svg";
-import FastIcon from "@/public/icons/fast.svg";
-import HeartIcon from "@/public/icons/heart.svg";
-import RefundIcon from "@/public/icons/refund.svg";
-import MoneyIcon from "@/public/icons/money.svg";
-import TutorIcon from "@/public/icons/tutor.svg";
-import ClusterIcon from "@/public/icons/cluster.svg";
+// Import all icons as React components (SVGR will handle this)
+import EaseIcon from "@/icons/ease.svg";
+import CloudIcon from "@/icons/cloud.svg";
+import FastIcon from "@/icons/fast.svg";
+import HeartIcon from "@/icons/heart.svg";
+import RefundIcon from "@/icons/refund.svg";
+import MoneyIcon from "@/icons/money.svg";
+import TutorIcon from "@/icons/tutor.svg";
+import ClusterIcon from "@/icons/cluster.svg";
 
 const Content = () => {
   const { theme } = useTheme();
@@ -99,6 +99,7 @@ const Content = () => {
 
       {/* Cards */}
       <div className="flex flex-col max-w-7xl">
+        {/* Top row */}
         <div className="flex flex-wrap justify-center items-start">
           {cardData.slice(0, 4).map((card, index) => {
             const IconComp = card.icon;
@@ -128,7 +129,7 @@ const Content = () => {
                 <div className="absolute left-0 top-[22px] w-[6px] h-[30px] rounded-tr-sm rounded-br-sm z-10 bg-[var(--color-font)] transition-colors" />
 
                 {/* SVG Icon */}
-                <IconComp className="w-8 h-8 mb-3 z-10 text-[var(--color-font)] transition-colors" />
+                <IconComp className="w-10 h-10 text-[var(--color-font)] transition-colors" />
 
                 <h2
                   className="
@@ -179,10 +180,11 @@ const Content = () => {
                     }
                   `}
                 />
+                {/* Left Accent Line */}
                 <div className="absolute left-0 top-[22px] w-[6px] h-[30px] rounded-tr-sm rounded-br-sm z-10 bg-[var(--color-font)] transition-colors" />
 
                 {/* SVG Icon */}
-                <IconComp className="w-8 h-8 mb-3 z-10 text-[var(--color-font)] transition-colors" />
+                <IconComp className="w-10 h-10 text-[var(--color-font)] transition-colors" />
 
                 <h2
                   className="

@@ -3,18 +3,30 @@ import { StatusCodes } from "http-status-codes";
 import bcrypt from "bcryptjs";
 import jwt, { Secret, SignOptions } from "jsonwebtoken";
 import User, { IUser } from "../models/user.model";
-
+import {z} from "zod";
 const router = Router();
+
+const signupSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  email: z.string().email("Invalid email"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+});
+
+const signinSchema = z.object({
+  email: z.string().email("Invalid email"),
+  password: z.string().min(1, "Password is required"),
+});
+
 
 router.post("/signup", async (req: Request, res: Response) => {
   try {
-    const { name, email, password } = req.body || {};
-
-    if (!email || !password) {
-      return res
-        .status(StatusCodes.BAD_REQUEST)
-        .json({ message: "Email & password required" });
+    const parsed = signupSchema.safeParse(req.body);
+    if(!parsed.success){
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        message:"Enter valid information"
+      })
     }
+    const { name, email, password } = parsed.data;
 
     const existing = await User.findOne({ email });
     if (existing) {
@@ -81,13 +93,13 @@ router.post("/signup", async (req: Request, res: Response) => {
 
 router.post("/signin", async (req: Request, res: Response) => {
   try {
-    const { email, password } = req.body || {};
-
-    if (!email || !password) {
-      return res
-        .status(StatusCodes.BAD_REQUEST)
-        .json({ message: "Email & password required" });
+    const parsed = signinSchema.safeParse(req.body);
+    if(!parsed.success){
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        message:"enter valid information"
+      })
     }
+    const { email, password } = parsed.data;
 
     const user = await User.findOne({ email });
     if (!user) {

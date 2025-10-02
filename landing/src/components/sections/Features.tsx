@@ -129,7 +129,7 @@ const Content = () => {
                 <div className="absolute left-0 top-[22px] w-[6px] h-[30px] rounded-tr-sm rounded-br-sm z-10 bg-[var(--color-font)] transition-colors" />
 
                 {/* SVG Icon */}
-                <IconComp className="w-10 h-10 text-[var(--color-font)] transition-colors" />
+                <IconComp className="w-10 h-10 text-[var(--color-font)] relative z-10" />
 
                 <h2
                   className="
@@ -144,7 +144,7 @@ const Content = () => {
                   className="
                     text-sm md:text-base opacity-90 font-[var(--font-secondary)] z-10 
                     transition-colors duration-700
-                    text-[var(--color-font)]/80
+                    text-[var(--color-font)]/70
                   "
                 >
                   {card.description}
@@ -184,7 +184,7 @@ const Content = () => {
                 <div className="absolute left-0 top-[22px] w-[6px] h-[30px] rounded-tr-sm rounded-br-sm z-10 bg-[var(--color-font)] transition-colors" />
 
                 {/* SVG Icon */}
-                <IconComp className="w-10 h-10 text-[var(--color-font)] transition-colors" />
+                <IconComp className="w-10 h-10 text-[var(--color-font)] dark:text-white relative z-10" />
 
                 <h2
                   className="
@@ -199,7 +199,7 @@ const Content = () => {
                   className="
                     text-sm md:text-base opacity-90 font-[var(--font-secondary)] z-10 
                     transition-colors duration-700
-                    text-[var(--color-font)]/80
+                    text-[var(--color-font)]/70
                   "
                 >
                   {card.description}

@@ -77,7 +77,7 @@ const Content = () => {
     <section
       id="services"
       className="
-        py-16 px-6 mt-32 flex flex-col items-center justify-center mx-4 
+        py-22 px-6 mt-32 flex flex-col items-center justify-center mx-4 
          gap-24 overflow-x-hidden 
         transition-colors duration-700
         bg-[var(--background)] text-[var(--color-font)] 
@@ -108,13 +108,13 @@ const Content = () => {
         </div>
       </div>
 
-      <div className="flex flex-col md:flex-row items-center justify-center gap-10 md:gap-14 w-full max-w-7xl">
-        <div ref={timelineRef} className="hidden md:flex w-full md:w-1/2">
+      <div className="flex flex-col md:flex-row items-center justify-center gap-10 md:gap-14 w-full max-w-7xl font-[var(--font-primary)] ">
+        <div ref={timelineRef} className="hidden md:flex w-full md:w-1/2 mt-10">
           <Timeline data={timelineData()} hoverEffect />
         </div>
 
         <div
-          className="hidden md:flex w-full md:w-1/2 justify-center items-start relative"
+          className="hidden md:flex w-full md:w-1/2 justify-center items-start relative font-[var(--font-primary)] "
           style={{
             height: timelineHeight ? `${timelineHeight - 250}px` : "400px",
           }}

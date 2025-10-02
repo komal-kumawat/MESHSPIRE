@@ -11,7 +11,7 @@ const CTA = () => {
   return (
     <section
       id="cta"
-      className="overflow-x-hidden relative py-20 px-4 mt-20 mb-24 flex flex-col items-center justify-center 
+      className="overflow-y-hidden relative py-20 px-4 mt-20 mb-24 flex flex-col items-center justify-center 
                  max-w-7xl mx-auto rounded-2xl gap-12"
     >
       {/* Background grid */}
@@ -46,28 +46,21 @@ const CTA = () => {
 
       {/* Content */}
       <div className="relative z-10 flex flex-col items-center justify-center gap-2">
-        <h1
-          className={`md:text-6xl text-3xl pt-20 font-khula font-extrabold tracking-tighter text-center md:text-left ${isDark ? "text-white" : "text-gray-900"
-            }`}
-        >
+        <h1 className="md:text-6xl text-4xl pt-20 font-[var(--font-primary)] text-center relative z-10">
           Your All-in-one Learning
         </h1>
 
-        <h1
-          className={`md:text-6xl text-3xl pt-4 font-khula font-extrabold tracking-tighter items-center ${isDark ? "text-white" : "text-gray-900"
-            }`}
-        >
+        <h1 className="md:text-6xl text-4xl pt-4 font-[var(--font-primary)] text-center">
           Companion
         </h1>
 
         <Link
           href="https://dev.dn03fv11bz1ey.amplifyapp.com/"
-
-          className={`font-catamaran font-bold px-20 py-2 mt-20 rounded-full transition-colors duration-300 cursor-pointer inline-block shadow-lg
-            ${isDark
-              ? "bg-green-600 hover:bg-green-900 text-white"
-              : "bg-green-600 hover:bg-green-700 text-white"
-            }`}
+          className="mt-10
+    rounded-full border px-18 py-1.5 transition-all duration-300
+    bg-[var(--color-primary)] text-[var(--background)] dark:text-[var(--foreground)] border-[var(--color-primary)]
+    hover:bg-[var(--background)] hover:text-[var(--color-font)] hover:border-[var(--foreground)]
+  "
         >
           Login
         </Link>

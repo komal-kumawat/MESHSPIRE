@@ -99,7 +99,7 @@ export default function Navbar() {
 
           <a
             href="#footer"
-            className="       font-[var(--font-secondary)]
+            className="font-[var(--font-secondary)]
   bg-[var(--color-primary)] text-[var(--background)] border border-transparent rounded-full px-6 py-1.5
   transition duration-300 hover:bg-[var(--background)] hover:text-[var(--color-font)] hover:border-[var(--foreground)]
   dark:bg-[var(--color-primary)] dark:text-[var(--foreground)] dark:border-transparent

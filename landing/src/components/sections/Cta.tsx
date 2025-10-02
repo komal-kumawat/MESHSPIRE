@@ -11,7 +11,7 @@ const CTA = () => {
   return (
     <section
       id="cta"
-      className="overflow-y-hidden relative py-20 px-4 mt-20 mb-24 flex flex-col items-center justify-center 
+      className="overflow-x-hidden overflow-y-hidden relative py-20 px-4 mt-20 mb-24 flex flex-col items-center justify-center 
                  max-w-7xl mx-auto rounded-2xl gap-12"
     >
       {/* Background grid */}

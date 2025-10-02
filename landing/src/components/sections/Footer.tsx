@@ -32,7 +32,7 @@ const Footer = () => {
         </div>
 
         {/* Nav Links */}
-        <div className="flex flex-wrap justify-center items-center font-catamaran gap-8 sm:gap-16 mt-12 text-sm sm:text-base">
+        <div className="flex flex-wrap justify-center items-center font-catamaran gap-4 md:gap-8 sm:gap-16 mt-12 text-sm sm:text-base">
           <Link
             href="#services"
             className="text-gray-600 font-medium tracking-tight hover:text-black transition-all duration-300 dark:text-slate-400 dark:hover:text-white"

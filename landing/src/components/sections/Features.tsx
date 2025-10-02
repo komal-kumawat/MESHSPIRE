@@ -66,7 +66,7 @@ const Content = () => {
     <section
       id="features"
       className="
-        overflow-x-hidden mt-10 py-12 px-4 flex flex-col items-center justify-center mx-4 
+        overflow-x-hidden md:mt-10 py-10 md:py-12 px-4 flex flex-col items-center justify-center mx-4 
         rounded-2xl md:gap-12 md:mb-16
         transition-colors duration-700
         bg-[var(--background)] text-[var(--color-font)]

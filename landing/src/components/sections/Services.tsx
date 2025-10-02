@@ -77,8 +77,8 @@ const Content = () => {
     <section
       id="services"
       className="
-        py-22 px-6 mt-32 flex flex-col items-center justify-center mx-4 
-         gap-24 overflow-x-hidden 
+        py-20 md:py-22 px-6 md:mt-32 flex flex-col items-center justify-center mx-4 
+        gap-10 md:gap-24 overflow-x-hidden 
         transition-colors duration-700
         bg-[var(--background)] text-[var(--color-font)] 
       "

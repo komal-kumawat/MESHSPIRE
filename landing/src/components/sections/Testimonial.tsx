@@ -55,18 +55,20 @@ export default function TestimonialsSection() {
     >
       <div className="flex flex-col items-center justify-center gap-2 mb-12">
         <div
-          className="border border-gray-300 flex flex-col items-center md:items-start mx-auto p-3 md:p-6 max-w-xs md:max-w-none relative 
-                        dark:border-white/[0.2]"
+          className="border border-gray-300 flex flex-col items-center md:items-start mx-auto p-2 md:p-6 max-w-xs md:max-w-none relative 
+                dark:border-white/[0.2]"
         >
           <Icon className="absolute h-6 w-6 -top-3 -left-3 text-gray-600 dark:text-white" />
           <Icon className="absolute h-6 w-6 -bottom-3 -left-3 text-gray-600 dark:text-white" />
           <Icon className="absolute h-6 w-6 -top-3 -right-3 text-gray-600 dark:text-white" />
           <Icon className="absolute h-6 w-6 -bottom-3 -right-3 text-gray-600 dark:text-white" />
+
           <h2
-            className=" text-2xl md:text-2xl lg:text-3xl 
-            font-[var(--font-primary)] 
-            transition-colors duration-700
-            text-[var(--color-font)]"
+            className="text-2xl md:text-2xl lg:text-3xl 
+                 font-[var(--font-primary)] 
+                 transition-colors duration-700
+                 text-[var(--color-font)]
+                 text-center md:text-left"
           >
             Loved by people everywhere
           </h2>

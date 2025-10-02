@@ -1,15 +1,17 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { HiOutlineEye, HiOutlineEyeOff } from "react-icons/hi";
 import API from "../api";
 
 export default function Signup() {
   const [form, setForm] = useState({
-    name: "",      // combine firstName + lastName
+    name: "",      
     email: "",
     password: "",
-    avatarUrl: "", // optional, can leave empty
+    avatarUrl: "", 
   });
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -47,13 +49,22 @@ export default function Signup() {
             name="email"
             onChange={handleChange}
           />
-          <input
-            className="w-full px-4 py-3 bg-white/10 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400 transition"
-            type="password"
-            placeholder="Password"
-            name="password"
-            onChange={handleChange}
-          />
+          <div className="relative w-full">
+            <input
+              type={showPassword ? "text" : "password"}
+              placeholder="Password"
+              name="password"
+              onChange={handleChange}
+              className="w-full px-4 py-3 bg-white/10 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400 transition pr-10"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
+            >
+              {showPassword ? <HiOutlineEyeOff size={20} /> : <HiOutlineEye size={20} />}
+            </button>
+          </div>
 
           <button
             onClick={handleSubmit}

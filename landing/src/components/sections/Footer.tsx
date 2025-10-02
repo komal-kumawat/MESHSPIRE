@@ -9,7 +9,7 @@ const Footer = () => {
       className="overflow-x-hidden font-[var(--font-secondary)] py-6 px-4 mt-20 top-10 flex items-center 
                  bg-[var(--hover-light)] text-[var(--color-font)] max-w-7xl mx-auto justify-center 
                  flex-col gap-4 rounded-3xl shadow-sm
-                 dark:bg-[var(--hover-dark)] dark:text-[var(--foreground: #e9edf0;)]"
+                 dark:bg-slate-900 "
     >
       <div className="flex flex-col items-center justify-center">
         <div className="mt-10">

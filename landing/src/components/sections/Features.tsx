@@ -75,7 +75,7 @@ const Content = () => {
       {/* Title */}
       <div
         className="
-          border-2 flex flex-col items-start mx-auto p-3 md:p-6 relative mb-25
+          border-2 flex flex-col items-start mx-auto p-3 md:p-4 relative mb-25
           border-[var(--foreground)]/20 bg-[var(--background)]/60
           transition-colors duration-700
         "
@@ -87,7 +87,7 @@ const Content = () => {
 
         <h2
           className="
-            text-2xl md:text-3xl lg:text-4xl 
+            text-2xl md:text-2xl lg:text-3xl 
             font-[var(--font-primary)] 
             transition-colors duration-700
             text-[var(--color-font)]
@@ -133,7 +133,7 @@ const Content = () => {
 
                 <h2
                   className="
-                    text-lg md:text-xl font-[var(--font-primary)] mb-1 z-10 
+                    text-lg md:text-2xl font-[var(--font-primary)] mb-2 mt-2 z-10 
                     transition-colors duration-700
                     text-[var(--color-font)]
                   "
@@ -144,7 +144,7 @@ const Content = () => {
                   className="
                     text-sm md:text-base opacity-90 font-[var(--font-secondary)] z-10 
                     transition-colors duration-700
-                    text-[var(--color-font)]
+                    text-[var(--color-font)]/80
                   "
                 >
                   {card.description}
@@ -188,7 +188,7 @@ const Content = () => {
 
                 <h2
                   className="
-                    text-lg md:text-xl font-[var(--font-primary)] mb-1 z-10 
+                            text-lg md:text-2xl font-[var(--font-primary)] mb-2 mt-2 z-10 
                     transition-colors duration-700
                     text-[var(--color-font)]
                   "
@@ -199,7 +199,7 @@ const Content = () => {
                   className="
                     text-sm md:text-base opacity-90 font-[var(--font-secondary)] z-10 
                     transition-colors duration-700
-                    text-[var(--color-font)]
+                    text-[var(--color-font)]/80
                   "
                 >
                   {card.description}

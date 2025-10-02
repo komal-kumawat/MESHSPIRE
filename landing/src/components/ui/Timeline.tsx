@@ -87,7 +87,7 @@ export const Timeline = ({
 
             <div
               className={`pl-16 md:pl-20 pr-4 w-full text-[14px] md:text-lg leading-[1.8] transition-colors duration-500 font-[var(--font-secondary)]   ${
-                isDark ? "text-neutral-300" : "text-neutral-700"
+                isDark ? "text-neutral-400" : "text-neutral-700"
               }`}
             >
               {item.content}

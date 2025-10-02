@@ -44,3 +44,9 @@
   --foreground: #e9edf0;
   --color-font: #e9edf0;
 }
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --glow-color: rgba(186, 127, 252, 0.3);
+  }
+}

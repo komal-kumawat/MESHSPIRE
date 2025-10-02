@@ -11,7 +11,7 @@ const CTA = () => {
   return (
     <section
       id="cta"
-      className="overflow-x-hidden overflow-y-hidden relative py-20 px-4 mt-20 mb-24 flex flex-col items-center justify-center 
+      className="overflow-x-hidden overflow-y-hidden relative py-30 px-4 mt-4 flex flex-col items-center justify-center 
                  max-w-7xl mx-auto rounded-2xl gap-12"
     >
       {/* Background grid */}
@@ -34,13 +34,13 @@ const CTA = () => {
 
       {/* Radial glow */}
       <div
-        className="absolute top-[300px] left-1/2 w-[600px] h-[600px] -translate-x-1/2 -translate-y-1/2 
-                   rounded-full pointer-events-none z-0"
+        className="absolute top-[270px] left-1/2 w-[500px] h-[500px] -translate-x-1/2 -translate-y-1/2 
+             rounded-full pointer-events-none z-0"
         aria-hidden="true"
         style={{
           background:
-            "radial-gradient(circle, rgba(200,200,200,0.2) 0%, transparent 70%)",
-          filter: "blur(10px)",
+            "radial-gradient(circle, var(--glow-color) 0%, transparent 80%)",
+          filter: "blur(20px)",
         }}
       />
 

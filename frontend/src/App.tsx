@@ -3,6 +3,7 @@ import Signin from "./Pages/Signin"
 import Signup from "./Pages/Signup"
 import Dashboard from "./Pages/Dashboard"
 import Room  from "./Pages/RoomPage"
+import Meeting from "./Pages/Meeting"
 
 const App = () => {
   return (
@@ -12,7 +13,7 @@ const App = () => {
       <Route path = "/signin" element = {<Signin/>}></Route>
       <Route path = "/dashboard" element = {<Dashboard/>}></Route>
       <Route path = "/room/:roomid" element = {<Room/>}></Route>
-
+      <Route path="/meeting" element={<Meeting/>}></Route>
     </Routes>
     </BrowserRouter>
   )

@@ -28,7 +28,7 @@ const Navbar: React.FC = () => {
       {/* Right: Search Bar, Notification & User */}
       <div className="flex items-center gap-4 relative">
         {/* Search Bar */}
-        <div className="relative hidden md:flex items-center ">
+        <div className="relative hidden lg:flex items-center ">
           <input
             type="text"
             placeholder="Search..."

@@ -37,6 +37,7 @@ const Sidebar = () => {
       const iconCenter = btn.offsetTop + btn.offsetHeight / 2;
       setIndicatorTop(iconCenter - 16); // 16 = half of indicator height (h-8)
     }
+    setIsExpanded(false);
   }, [active]);
 
   const handleClick = (id: string, path: string) => {

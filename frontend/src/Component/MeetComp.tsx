@@ -13,8 +13,8 @@ const MeetComp: React.FC<MeetProps> = ({
 
     theoremName,
     teacherName,
-    onJoin,
-    onDetails,
+    // onJoin,
+    // onDetails,
 }) => {
     const navigate = useNavigate();
     return (

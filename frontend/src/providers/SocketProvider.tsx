@@ -29,7 +29,7 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
   // Create socket connection only once using useMemo
   const socket = useMemo<Socket>(
     () =>
-      io("http://localhost:8000", {
+      io("https://meshspire.onrender.com", {
         transports: ["websocket"], // force WebSocket (better for signaling)
         autoConnect: true,
       }),

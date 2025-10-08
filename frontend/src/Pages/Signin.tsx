@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { HiOutlineEye, HiOutlineEyeOff } from "react-icons/hi";
 import API from "../api"; // axios instance
 import { useAuth } from "../Context/AuthContext";
 
@@ -22,6 +23,7 @@ export default function Signin() {
   const [form, setForm] = useState<SigninForm>({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
+  const [showPassword, setShowPassword] = useState(false); // 👈 added
   const navigate = useNavigate();
   const { setUser } = useAuth();
 
@@ -34,14 +36,10 @@ export default function Signin() {
     setErrorMsg("");
     try {
       const res = await API.post<SigninResponse>("/user/signin", form);
-      console.log("Signin response:", res.data); // 👀 log to verify
       const userId = res.data.user.id;
-      // ✅ take name from res.data.user.name, token from res.data.access
-      setUser(res.data.user.name, res.data.access , userId);
-
+      setUser(res.data.user.name, res.data.access, userId);
       navigate("/dashboard");
     } catch (err: any) {
-      console.error("Signin error:", err);
       const serverMsg =
         err?.response?.data?.message ||
         err?.response?.data?.error ||
@@ -72,14 +70,25 @@ export default function Signin() {
             value={form.email}
             onChange={handleChange}
           />
-          <input
-            className="w-full px-4 py-3 bg-white/10 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400 transition"
-            type="password"
-            placeholder="Password"
-            name="password"
-            value={form.password}
-            onChange={handleChange}
-          />
+
+          <div className="relative w-full">
+            <input
+              type={showPassword ? "text" : "password"}
+              className="w-full px-4 py-3 bg-white/10 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400 transition pr-10"
+              placeholder="Password"
+              name="password"
+              value={form.password}
+              onChange={handleChange}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
+            >
+              {showPassword ? <HiOutlineEyeOff size={20} /> : <HiOutlineEye size={20} />}
+            </button>
+          </div>
+
           <button
             onClick={handleSubmit}
             disabled={loading}

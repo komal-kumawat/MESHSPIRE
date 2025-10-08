@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 
 export interface IProfile extends Document{
+    userId: mongoose.Types.ObjectId;  
     name:string;
     avatar?:string;
     gender:"male"|"female"|"other" ;
@@ -12,6 +13,8 @@ export interface IProfile extends Document{
 
 }
 const ProfileSchema = new mongoose.Schema<IProfile>({
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+
     name:{type:String , required:true , minlength:3},
     avatar:{type:String},
     gender:{type:String , enum:["male","female","other"]},

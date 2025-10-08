@@ -11,9 +11,9 @@ interface User {
   age?: number;
   avatar?: string;
   bio?: string;
-  skills?: string;
+  skills?: string;     // for form input (comma separated)
   role: string;
-  languages?: string;
+  languages?: string;  // for form input (comma separated)
 }
 
 const UpdateProfile: React.FC = () => {
@@ -37,12 +37,13 @@ const UpdateProfile: React.FC = () => {
 
   useEffect(() => {
     if (!userId) return;
+
     const fetchProfile = async () => {
       try {
         const userRes = await API.get(`/user/me`);
         const { name, email } = userRes.data;
 
-        let profileData: Partial<User> = {};
+        let profileData: any = {};
         try {
           const profileRes = await API.get(`/profile/${userId}`);
           profileData = profileRes.data;
@@ -57,14 +58,15 @@ const UpdateProfile: React.FC = () => {
           age: profileData.age || 0,
           avatar: profileData.avatar || "",
           bio: profileData.bio || "",
-          skills: profileData.skills?.join(", ") || "",
+          skills: profileData.skills ? profileData.skills.join(", ") : "",
           role: profileData.role || "",
-          languages: profileData.languages?.join(", ") || "",
+          languages: profileData.languages ? profileData.languages.join(", ") : "",
         });
       } catch (err) {
         console.error("Error fetching profile:", err);
       }
     };
+
     fetchProfile();
   }, [userId]);
 
@@ -72,8 +74,6 @@ const UpdateProfile: React.FC = () => {
     const { name, value } = e.target;
     setUser(prev => ({ ...prev, [name]: value }));
   };
-
-  
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -83,9 +83,16 @@ const UpdateProfile: React.FC = () => {
     setMessage(null);
 
     try {
-      await API.put(`/profile/update`, user);
+      // Convert comma-separated strings to arrays for API
+      const payload = {
+        ...user,
+        skills: user.skills ? user.skills.split(",").map(s => s.trim()) : [],
+        languages: user.languages ? user.languages.split(",").map(l => l.trim()) : [],
+      };
+
+      await API.put(`/profile/update`, payload);
       setMessage("Profile updated successfully!");
-      navigate(`/profile/${userId}`); // navigate to profile page
+      navigate(`/profile/${userId}`);
     } catch (err) {
       setMessage("Failed to update profile");
     } finally {

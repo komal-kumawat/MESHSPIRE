@@ -35,9 +35,9 @@ export default function Signin() {
     try {
       const res = await API.post<SigninResponse>("/user/signin", form);
       console.log("Signin response:", res.data); // 👀 log to verify
-
+      const userId = res.data.user.id;
       // ✅ take name from res.data.user.name, token from res.data.access
-      setUser(res.data.user.name, res.data.access);
+      setUser(res.data.user.name, res.data.access , userId);
 
       navigate("/dashboard");
     } catch (err: any) {

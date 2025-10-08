@@ -6,7 +6,7 @@ import NotificationsIcon from '@mui/icons-material/Notifications';
 import SearchIcon from '@mui/icons-material/Search';
 
 const Navbar: React.FC = () => {
-  const { username, logout } = useAuth();
+  const { username, logout  , userId} = useAuth();
   const [userDropDown, setUserDropDown] = useState(false);
   const navigate = useNavigate();
   const dropdownRef = useRef<HTMLDivElement | null>(null);
@@ -71,7 +71,7 @@ const Navbar: React.FC = () => {
               <div className="px-4 py-2 border-b border-gray-700">
                 {username ? `Hello, ${username.charAt(0).toUpperCase() + username.slice(1)}` : "Hello, Guest"}
               </div>
-              <div className="px-4 py-2 border-b border-gray-700 cursor-pointer " onClick={()=>navigate("/profile")}>
+              <div className="px-4 py-2 border-b border-gray-700 cursor-pointer " onClick={()=>navigate(`/profile/${userId}`)}>
                 Profile
               </div>
               <button

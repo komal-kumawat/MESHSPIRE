@@ -6,7 +6,6 @@ import Profile from "../models/profile.model";
 
 const profileRoute = Router();
 
-// Zod schema for validation
 const profileSchema = z.object({
   name: z.string().min(3, "Name must be at least 3 characters"),
   avatar: z.string().url().optional(),
@@ -22,14 +21,15 @@ const profileSchema = z.object({
   languages: z.array(z.string()).default([]),
 });
 
-// Create profile
 profileRoute.post(
   "/create",
   authMiddleware,
   async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
       if (!req.user?.id) {
-        return res.status(StatusCodes.UNAUTHORIZED).json({ message: "Unauthorized" });
+        return res
+          .status(StatusCodes.UNAUTHORIZED)
+          .json({ message: "Unauthorized" });
       }
 
       const parsed = profileSchema.safeParse(req.body);
@@ -60,66 +60,81 @@ profileRoute.post(
   }
 );
 
-// Get profile by userId
-profileRoute.get("/:id", authMiddleware, async (req: AuthRequest, res: Response) => {
-  try {
-    const userId = req.params.id;
-    const profile = await Profile.findOne({ userId }).select("-__v");
-    if (!profile) {
-      return res.status(StatusCodes.NOT_FOUND).json({ message: "Profile not found" });
+profileRoute.get(
+  "/:id",
+  authMiddleware,
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const userId = req.params.id;
+      const profile = await Profile.findOne({ userId }).select("-__v");
+      if (!profile) {
+        return res
+          .status(StatusCodes.NOT_FOUND)
+          .json({ message: "Profile not found" });
+      }
+      res.status(StatusCodes.OK).json(profile);
+    } catch (err) {
+      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err);
     }
-    res.status(StatusCodes.OK).json(profile);
-  } catch (err) {
-    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err);
   }
-});
+);
 
-// Update profile
-profileRoute.put("/update", authMiddleware, async (req: AuthRequest, res: Response) => {
-  try {
-    const userId = req.user?.id;
-    if (!userId) {
-      return res.status(StatusCodes.UNAUTHORIZED).json({ message: "Unauthorized" });
-    }
+profileRoute.put(
+  "/update",
+  authMiddleware,
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const userId = req.user?.id;
+      if (!userId) {
+        return res
+          .status(StatusCodes.UNAUTHORIZED)
+          .json({ message: "Unauthorized" });
+      }
 
-    // Convert comma-separated strings to arrays if needed
-    const {
-      name,
-      avatar,
-      gender,
-      age,
-      bio,
-      skills,
-      role,
-      languages,
-    } = req.body;
+      const { name, avatar, gender, age, bio, skills, role, languages } =
+        req.body;
 
-    const updatedProfile = await Profile.findOneAndUpdate(
-      { userId }, // find by userId
-      {
-        $set: {
-          ...(name && { name }),
-          ...(avatar && { avatar }),
-          ...(gender && { gender }),
-          ...(age !== undefined && { age }),
-          ...(bio && { bio }),
-          ...(skills ? { skills: Array.isArray(skills) ? skills : skills.split(",").map((s: string) => s.trim()) } : {}),
-          ...(role && { role }),
-          ...(languages ? { languages: Array.isArray(languages) ? languages : languages.split(",").map((l: string) => l.trim()) } : {}),
+      const updatedProfile = await Profile.findOneAndUpdate(
+        { userId },
+        {
+          $set: {
+            ...(name && { name }),
+            ...(avatar && { avatar }),
+            ...(gender && { gender }),
+            ...(age !== undefined && { age }),
+            ...(bio && { bio }),
+            ...(skills
+              ? {
+                  skills: Array.isArray(skills)
+                    ? skills
+                    : skills.split(",").map((s: string) => s.trim()),
+                }
+              : {}),
+            ...(role && { role }),
+            ...(languages
+              ? {
+                  languages: Array.isArray(languages)
+                    ? languages
+                    : languages.split(",").map((l: string) => l.trim()),
+                }
+              : {}),
+          },
         },
-      },
-      { new: true, runValidators: true }
-    );
+        { new: true, runValidators: true }
+      );
 
-    if (!updatedProfile) {
-      return res.status(StatusCodes.NOT_FOUND).json({ message: "Profile not found" });
+      if (!updatedProfile) {
+        return res
+          .status(StatusCodes.NOT_FOUND)
+          .json({ message: "Profile not found" });
+      }
+
+      res.status(StatusCodes.OK).json(updatedProfile);
+    } catch (err) {
+      console.error(err);
+      return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err);
     }
-
-    res.status(StatusCodes.OK).json(updatedProfile);
-  } catch (err) {
-    console.error(err);
-    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err);
   }
-});
+);
 
 export default profileRoute;

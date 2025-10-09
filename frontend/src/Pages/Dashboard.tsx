@@ -1,57 +1,51 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React from "react";
 import Navbar from "../Component/Navbar";
+import Sidebar from "../Component/Sidebar";
+import MeetComp from "../Component/MeetComp";
 
-const Dashboard = () => {
-  const navigate = useNavigate();
-  const [roomId, setRoomId] = useState("");
+interface Meeting {
+  id: number;
+  theoremName: string;
+  teacherName: string;
+}
 
-  // Generate random room ID
-  const startMeeting = () => {
-    const randomId = Math.random().toString(36).substring(2, 10); // 8 chars
-    navigate(`/room/${randomId}`);
-  };
-
-  // Join existing room
-  const joinMeeting = () => {
-    if (roomId.trim() !== "") {
-      navigate(`/room/${roomId}`);
-    } else {
-      alert("Please enter a Room ID");
-    }
-  };
+const Dashboard: React.FC = () => {
+  // Array of meetings
+  const meetings: Meeting[] = [
+    { id: 1, theoremName: "Pythagoras Theorem", teacherName: "Mr. Sharma" },
+    { id: 2, theoremName: "Fermat's Last Theorem", teacherName: "Ms. Gupta" },
+    { id: 3, theoremName: "Euler's Formula", teacherName: "Dr. Mehta" },
+    { id: 4, theoremName: "Binomial Theorem", teacherName: "Mr. Singh" },
+    { id: 5, theoremName: "Taylor Series", teacherName: "Ms. Verma" },
+    { id: 6, theoremName: "Lagrange Multipliers", teacherName: "Dr. Kapoor" },
+  ];
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white">
-      {/* Sticky Navbar */}
-      <Navbar />
+    <div className="min-h-screen bg-gray-950 text-white flex flex-col">
+      <div className="flex flex-1">
+        <Sidebar />
 
-      {/* Main Content */}
-      <div className="flex flex-col items-center justify-center h-[calc(100vh-80px)] gap-6 px-4">
-        <h1 className="text-4xl font-bold mb-4">Dashboard</h1>
+        {/* Main content */}
+        <div className="flex flex-col flex-1 ml-10 md:ml-10">
+          <Navbar />
 
-        <button
-          onClick={startMeeting}
-          className="px-6 py-3 bg-blue-600 rounded-xl hover:bg-blue-500 transition-all font-semibold shadow-md"
-        >
-          Start Meeting
-        </button>
+          <div className="px-4 sm:px-6 lg:px-10 py-8 flex flex-col items-center py-20 pl-10">
+            {/* Optional Title */}
+            <h1 className="text-5xl font-bold text-white py-5">Welcome to MeshSpire</h1>
 
-        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto items-center">
-          <input
-            type="text"
-            placeholder="Enter Room ID"
-            value={roomId}
-            onChange={(e) => setRoomId(e.target.value)}
-            className="px-4 py-2 rounded-xl text-white bg-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full sm:w-auto"
-          />
-
-          <button
-            onClick={joinMeeting}
-            className="px-4 py-2 bg-green-600 rounded-xl hover:bg-green-500 transition-all font-semibold shadow-md w-full sm:w-auto"
-          >
-            Join
-          </button>
+            {/* Grid layout for MeetComp */}
+            <div className="grid grid-cols-1  lg:grid-cols-3 gap-6 w-full max-w-[1200px] ">
+              {meetings.map((meeting) => (
+                <MeetComp
+                  key={meeting.id}
+                  theoremName={meeting.theoremName}
+                  teacherName={meeting.teacherName}
+                  onJoin={() => console.log(`Joining ${meeting.theoremName}...`)}
+                  onDetails={() => console.log(`Showing details of ${meeting.theoremName}...`)}
+                />
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     </div>

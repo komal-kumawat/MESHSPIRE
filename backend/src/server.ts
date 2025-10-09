@@ -9,6 +9,7 @@ import helmet from "helmet";
 import userRoutes from "./routes/user.route";
 import roomRoutes from "./routes/room.route";
 import { RoomController } from "./controller/room.controller";
+import profileRoute from "./routes/profile.route";
 
 dotenv.config();
 
@@ -28,7 +29,7 @@ app.use(
 
 app.use("/api/v0/user", userRoutes);
 app.use("/api/v0/room", roomRoutes);
-
+app.use("/api/v0/profile" , profileRoute);
 const server = createServer(app);
 const io = new IOServer(server, {
   cors: {

@@ -14,7 +14,6 @@ const Meeting: React.FC = () => {
   const [, setIsCameraOn] = useState(false);
   const [isSidebarExpanded, setIsSidebarExpanded] = useState<boolean>(false);
 
-
   const cardData = location.state || {
     title: "Untitled Meeting",
     category: "General",
@@ -56,12 +55,16 @@ const Meeting: React.FC = () => {
     const url = `${window.location.origin}/room/${randomId}`;
     setRoomId(randomId);
     setRoomURL(url);
-    navigate(`/room/${randomId}`, { state: cardData });
+    navigate(`/room/${randomId}`, {
+      state: { ...cardData, autoSendVideo: true },
+    });
   };
 
   const joinMeeting = () => {
     if (roomId.trim() !== "") {
-      navigate(`/room/${roomId}`, { state: cardData });
+      navigate(`/room/${roomId}`, {
+        state: { ...cardData, autoSendVideo: true },
+      });
     } else {
       alert("Please enter a Room ID");
     }
@@ -99,12 +102,13 @@ const Meeting: React.FC = () => {
   return (
     <div className="flex flex-col h-screen bg-gray-950 text-white overflow-hidden">
       <Sidebar onExpandChange={setIsSidebarExpanded} />
-      <div className={`flex-1 transition-all duration-300 ${isSidebarExpanded ? "ml-56" : "ml-20"
-        }`}>
+      <div
+        className={`flex-1 transition-all duration-300 ${
+          isSidebarExpanded ? "ml-56" : "ml-20"
+        }`}
+      >
         <Navbar isSidebarExpanded={true} />
-        {/* </div> */}
 
-        {/* <div className="flex flex-1"> */}
         <main className="flex-1 flex items-center justify-center bg-gray-950 px-6 py-10 md:py-40 transition-all duration-300">
           <div className="flex flex-col lg:flex-row items-center justify-center gap-16 w-full max-w-6xl">
             <div className="flex flex-col items-start text-left space-y-6">

@@ -8,7 +8,7 @@ import MicIcon from "@mui/icons-material/Mic";
 import MicOffIcon from "@mui/icons-material/MicOff";
 import ScreenShareIcon from "@mui/icons-material/ScreenShare";
 import StopScreenShareIcon from "@mui/icons-material/StopScreenShare";
-import VideoCallIcon from "@mui/icons-material/VideoCall";
+import ChatIcon from "@mui/icons-material/Chat";
 import FullscreenIcon from "@mui/icons-material/Fullscreen";
 
 interface PendingCandidates {
@@ -26,10 +26,11 @@ const Room: React.FC = () => {
   }>({});
   const { roomid: roomIdParam } = useParams<{ roomid: string }>();
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
-  const [peerConnections, setPeerConnections] = useState<{
-    [key: string]: RTCPeerConnection;
-  }>({});
+
+  const peerConnectionsRef = useRef<Record<string, RTCPeerConnection>>({});
   const pendingCandidates = useRef<PendingCandidates>({});
+  const localStreamRef = useRef<MediaStream | null>(null);
+
   const [videoOn, setVideoOn] = useState(true);
   const [mute, setMute] = useState(false);
   const [screenSharing, setScreenSharing] = useState(false);
@@ -40,12 +41,17 @@ const Room: React.FC = () => {
     title: "Untitled Meeting",
     category: "General",
   };
+  const autoSendVideo =
+    (location.state && (location.state as any).autoSendVideo) || false;
   const copyRoomId = () => {
     if (roomId) navigator.clipboard.writeText(roomId);
   };
   const [isFullScreen, setIsFullScreen] = useState(false);
-
   const roomId = roomIdParam || sessionStorage.getItem("currentRoom");
+
+  useEffect(() => {
+    localStreamRef.current = localStream;
+  }, [localStream]);
 
   const getUserMediaStream = useCallback(async () => {
     try {
@@ -73,116 +79,248 @@ const Room: React.FC = () => {
     joinRoom();
   }, [joinRoom]);
 
+  const addLocalTracksToPC = useCallback((pc: RTCPeerConnection) => {
+    const stream = localStreamRef.current;
+    if (!stream || !pc) return;
+    const existingSenderTrackIds = new Set(
+      pc
+        .getSenders()
+        .map((s) => s.track?.id)
+        .filter(Boolean)
+    );
+    stream.getTracks().forEach((track) => {
+      if (!existingSenderTrackIds.has(track.id)) {
+        try {
+          pc.addTrack(track, stream);
+        } catch (err) {
+          console.warn("Warning: addTrack failed (maybe already added):", err);
+        }
+      }
+    });
+  }, []);
+
   const createPeerConnection = useCallback(
-    (socketId: string) => {
+    (remoteSocketId: string) => {
+      if (peerConnectionsRef.current[remoteSocketId])
+        return peerConnectionsRef.current[remoteSocketId];
+
       const pc = new RTCPeerConnection({
         iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
       });
 
-      if (localStream) {
-        localStream
-          .getTracks()
-          .forEach((track) => pc.addTrack(track, localStream));
-      }
+      addLocalTracksToPC(pc);
 
       pc.ontrack = (event) => {
-        setRemoteStreams((prev) => ({ ...prev, [socketId]: event.streams[0] }));
+        setRemoteStreams((prev) => {
+          const prevStream = prev[remoteSocketId];
+          if (event.streams && event.streams[0]) {
+            return { ...prev, [remoteSocketId]: event.streams[0] };
+          } else {
+            if (prevStream) {
+              try {
+                prevStream.addTrack(event.track);
+              } catch (e) {
+                console.warn("Could not add track to existing stream:", e);
+              }
+
+              return { ...prev };
+            } else {
+              const newStream = new MediaStream();
+              try {
+                newStream.addTrack(event.track);
+              } catch (e) {
+                console.warn("Could not add track to new stream:", e);
+              }
+              return { ...prev, [remoteSocketId]: newStream };
+            }
+          }
+        });
       };
 
       pc.onicecandidate = (e) => {
-        if (e.candidate)
+        if (e.candidate) {
           socket.emit("ice-candidate", {
-            target: socketId,
+            target: remoteSocketId,
             candidate: e.candidate,
           });
+        }
       };
 
-      setPeerConnections((prev) => ({ ...prev, [socketId]: pc }));
+      pc.onconnectionstatechange = () => {
+        console.log(
+          `Peer ${remoteSocketId} connectionState:`,
+          pc.connectionState
+        );
+
+        if (
+          pc.connectionState === "failed" ||
+          pc.connectionState === "disconnected"
+        ) {
+          console.warn(
+            `Connection with ${remoteSocketId} is ${pc.connectionState}`
+          );
+        }
+      };
+
+      peerConnectionsRef.current[remoteSocketId] = pc;
       return pc;
     },
-    [localStream, socket]
+    [addLocalTracksToPC, socket]
   );
 
-  // @ts-ignore
   useEffect(() => {
-    const handleNewParticipant = ({ socketId }: { socketId: string }) => {
-      if (!peerConnections[socketId]) createPeerConnection(socketId);
+    if (!socket) return;
+
+    const handleNewParticipant = async ({ socketId }: { socketId: string }) => {
+      try {
+        if (peerConnectionsRef.current[socketId]) return;
+
+        const pc = createPeerConnection(socketId);
+
+        const offer = await pc.createOffer();
+        await pc.setLocalDescription(offer);
+        socket.emit("offer", { target: socketId, offer: pc.localDescription });
+      } catch (err) {
+        console.error("handleNewParticipant error:", err);
+      }
     };
+
+    const handleOffer = async ({
+      from,
+      offer,
+    }: {
+      from: string;
+      offer: RTCSessionDescriptionInit;
+    }) => {
+      try {
+        let pc = peerConnectionsRef.current[from];
+        if (!pc) {
+          pc = createPeerConnection(from);
+        }
+
+        await pc.setRemoteDescription(new RTCSessionDescription(offer));
+
+        if (pendingCandidates.current[from]) {
+          for (const c of pendingCandidates.current[from]) {
+            try {
+              await pc.addIceCandidate(new RTCIceCandidate(c));
+            } catch (e) {
+              console.warn("flushing queued candidate failed:", e);
+            }
+          }
+          delete pendingCandidates.current[from];
+        }
+
+        const answer = await pc.createAnswer();
+        await pc.setLocalDescription(answer);
+        socket.emit("answer", { target: from, answer: pc.localDescription });
+      } catch (err) {
+        console.error("handleOffer error:", err);
+      }
+    };
+
+    const handleAnswer = async ({
+      from,
+      answer,
+    }: {
+      from: string;
+      answer: RTCSessionDescriptionInit;
+    }) => {
+      try {
+        const pc = peerConnectionsRef.current[from];
+        if (!pc) {
+          console.warn("Received answer for unknown pc:", from);
+          return;
+        }
+
+        await pc.setRemoteDescription(new RTCSessionDescription(answer));
+
+        if (pendingCandidates.current[from]) {
+          for (const c of pendingCandidates.current[from]) {
+            try {
+              await pc.addIceCandidate(new RTCIceCandidate(c));
+            } catch (e) {
+              console.warn("addIceCandidate (after answer) failed:", e);
+            }
+          }
+          delete pendingCandidates.current[from];
+        }
+      } catch (err) {
+        console.error("handleAnswer error:", err);
+      }
+    };
+
+    const handleIceCandidate = async ({
+      from,
+      candidate,
+    }: {
+      from: string;
+      candidate: RTCIceCandidateInit;
+    }) => {
+      try {
+        if (!candidate) return;
+        const pc = peerConnectionsRef.current[from];
+        if (!pc) {
+          if (!pendingCandidates.current[from])
+            pendingCandidates.current[from] = [];
+          pendingCandidates.current[from].push(candidate);
+          return;
+        }
+
+        const remoteDesc = pc.remoteDescription;
+        if (!remoteDesc || !remoteDesc.type) {
+          if (!pendingCandidates.current[from])
+            pendingCandidates.current[from] = [];
+          pendingCandidates.current[from].push(candidate);
+          return;
+        }
+
+        try {
+          await pc.addIceCandidate(new RTCIceCandidate(candidate));
+        } catch (e) {
+          console.warn("addIceCandidate failed (attempt):", e);
+
+          if (!pendingCandidates.current[from])
+            pendingCandidates.current[from] = [];
+          pendingCandidates.current[from].push(candidate);
+        }
+      } catch (err) {
+        console.error("handleIceCandidate error:", err);
+      }
+    };
+
     socket.on("new-participant", handleNewParticipant);
-    return () => socket.off("new-participant", handleNewParticipant);
-  }, [socket, peerConnections, createPeerConnection]);
-  // @ts-ignore
-  useEffect(() => {
-    const handleOffer = async ({ from, offer }: any) => {
-      let pc = peerConnections[from];
-      if (!pc) pc = createPeerConnection(from);
-
-      await pc.setRemoteDescription(offer);
-
-      if (pendingCandidates.current[from]) {
-        for (const c of pendingCandidates.current[from]) {
-          await pc.addIceCandidate(c);
-        }
-        delete pendingCandidates.current[from];
-      }
-
-      const answer = await pc.createAnswer();
-      await pc.setLocalDescription(answer);
-      socket.emit("answer", { target: from, answer });
-    };
     socket.on("offer", handleOffer);
-    return () => socket.off("offer", handleOffer);
-  }, [socket, peerConnections, createPeerConnection]);
-  // @ts-ignore
-  useEffect(() => {
-    const handleAnswer = async ({ from, answer }: any) => {
-      const pc = peerConnections[from];
-      if (!pc) return;
-
-      await pc.setRemoteDescription(answer);
-
-      if (pendingCandidates.current[from]) {
-        for (const c of pendingCandidates.current[from]) {
-          await pc.addIceCandidate(c);
-        }
-        delete pendingCandidates.current[from];
-      }
-    };
     socket.on("answer", handleAnswer);
-    return () => socket.off("answer", handleAnswer);
-  }, [peerConnections, socket]);
-  // @ts-ignore
-  useEffect(() => {
-    const handleIceCandidate = async ({ from, candidate }: any) => {
-      const pc = peerConnections[from];
-      if (!pc) {
-        if (!pendingCandidates.current[from])
-          pendingCandidates.current[from] = [];
-        pendingCandidates.current[from].push(candidate);
-        return;
-      }
-
-      if (pc.remoteDescription) await pc.addIceCandidate(candidate);
-      else {
-        if (!pendingCandidates.current[from])
-          pendingCandidates.current[from] = [];
-        pendingCandidates.current[from].push(candidate);
-      }
-    };
     socket.on("ice-candidate", handleIceCandidate);
-    return () => socket.off("ice-candidate", handleIceCandidate);
-  }, [peerConnections, socket]);
 
-  const sendMyVideo = () => {
-    if (!localStream) return;
-    Object.entries(peerConnections).forEach(([socketId, pc]) => {
-      pc.createOffer().then((offer) => {
-        pc.setLocalDescription(offer);
-        socket.emit("offer", { target: socketId, offer });
-      });
+    return () => {
+      socket.off("new-participant", handleNewParticipant);
+      socket.off("offer", handleOffer);
+      socket.off("answer", handleAnswer);
+      socket.off("ice-candidate", handleIceCandidate);
+    };
+  }, [socket, createPeerConnection]);
+
+  const sendMyVideo = useCallback(() => {
+    const pcs = peerConnectionsRef.current;
+    Object.entries(pcs).forEach(async ([socketId, pc]) => {
+      try {
+        addLocalTracksToPC(pc);
+        const offer = await pc.createOffer();
+        await pc.setLocalDescription(offer);
+        socket.emit("offer", { target: socketId, offer: pc.localDescription });
+      } catch (err) {
+        console.error("sendMyVideo error:", err);
+      }
     });
-    if (roomId) socket.emit("send-my-video", { roomId });
-  };
+  }, [addLocalTracksToPC, socket]);
+
+  useEffect(() => {
+    if (autoSendVideo && localStream) {
+      setTimeout(() => sendMyVideo(), 200);
+    }
+  }, [autoSendVideo, localStream, sendMyVideo]);
 
   const toggleAudio = () => {
     if (!localStream) return;
@@ -211,7 +349,7 @@ const Room: React.FC = () => {
       const screenTrack = screenStream.getVideoTracks()[0];
       screenTrackRef.current = screenTrack;
 
-      Object.values(peerConnections).forEach((pc) => {
+      Object.values(peerConnectionsRef.current).forEach((pc) => {
         const sender = pc.getSenders().find((s) => s.track?.kind === "video");
         if (sender) sender.replaceTrack(screenTrack);
       });
@@ -228,12 +366,11 @@ const Room: React.FC = () => {
   const stopScreenShare = () => {
     if (!localStream || !screenTrackRef.current) return;
     const videoTrack = localStream.getVideoTracks()[0];
-    Object.values(peerConnections).forEach((pc) => {
+    Object.values(peerConnectionsRef.current).forEach((pc) => {
       const sender = pc.getSenders().find((s) => s.track?.kind === "video");
       if (sender && videoTrack) sender.replaceTrack(videoTrack);
     });
     if (localVideoRef.current) localVideoRef.current.srcObject = localStream;
-
     screenTrackRef.current.stop();
     screenTrackRef.current = null;
     setScreenSharing(false);
@@ -242,8 +379,15 @@ const Room: React.FC = () => {
   const endCall = () => {
     if (localStream) localStream.getTracks().forEach((track) => track.stop());
     if (screenTrackRef.current) screenTrackRef.current.stop();
-    Object.values(peerConnections).forEach((pc) => pc.close());
-    setPeerConnections({});
+
+    Object.values(peerConnectionsRef.current).forEach((pc) => {
+      try {
+        pc.close();
+      } catch (e) {
+        console.warn("Error closing pc:", e);
+      }
+    });
+    peerConnectionsRef.current = {};
     setRemoteStreams({});
     setLocalStream(null);
     if (localVideoRef.current) localVideoRef.current.srcObject = null;
@@ -252,6 +396,7 @@ const Room: React.FC = () => {
     navigate("/dashboard");
   };
 
+  // reconnect handling
   // @ts-ignore
   useEffect(() => {
     const handleReconnect = () => joinRoom();
@@ -286,7 +431,9 @@ const Room: React.FC = () => {
             autoPlay
             playsInline
             ref={(video) => {
-              if (video) video.srcObject = stream;
+              if (!video) return;
+
+              if (video.srcObject !== stream) video.srcObject = stream;
             }}
             className="w-full h-full object-cover bg-black rounded-2xl"
           />
@@ -345,8 +492,12 @@ const Room: React.FC = () => {
         <button onClick={endCall} className={buttonStyles}>
           <CallEndIcon fontSize="medium" />
         </button>
-        <button onClick={sendMyVideo} className={buttonStyles}>
-          <VideoCallIcon fontSize="medium" />
+
+        <button
+          onClick={() => alert("Chat feature coming soon!")}
+          className={buttonStyles}
+        >
+          <ChatIcon fontSize="medium" />
         </button>
       </div>
     </div>

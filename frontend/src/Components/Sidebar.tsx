@@ -6,7 +6,7 @@ import ChatIcon from "@mui/icons-material/Chat";
 import SettingsIcon from "@mui/icons-material/Settings";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import EqualizerIcon from "@mui/icons-material/Equalizer";
-import ExpandedLogo from "../assets/logo_dark.svg"
+import ExpandedLogo from "../assets/logo_dark.svg";
 interface SidebarProps {
   onExpandChange?: (expanded: boolean) => void;
 }
@@ -77,19 +77,19 @@ const Sidebar: React.FC<SidebarProps> = ({ onExpandChange }) => {
       onMouseLeave={handleMouseLeave}
     >
       <div className="flex items-center justify-center w-full">
-        {isExpanded ?
+        {isExpanded ? (
           <img
             src={ExpandedLogo}
             alt="Logo"
             className={`transition-all duration-300 w-40`}
           />
-          :
+        ) : (
           <img
             src={logo}
             alt="Logo"
             className={`transition-all duration-300 w-10`}
           />
-        }
+        )}
       </div>
 
       <div className="relative w-full flex flex-col items-start mt-4 px-2">
@@ -106,9 +106,10 @@ const Sidebar: React.FC<SidebarProps> = ({ onExpandChange }) => {
             }}
             onClick={() => handleClick(btn.id, btn.path)}
             className={`group relative flex items-center w-full py-3 px-3 my-1 rounded-xl transition-all duration-300
-              ${active === btn.id
-                ? "bg-gray-800 text-white"
-                : "text-gray-200 hover:bg-gray-800 hover:text-white"
+              ${
+                active === btn.id
+                  ? "bg-gray-800 text-white"
+                  : "text-gray-200 hover:bg-gray-800 hover:text-white"
               }
             `}
           >
@@ -116,8 +117,9 @@ const Sidebar: React.FC<SidebarProps> = ({ onExpandChange }) => {
               {btn.icon}
             </span>
             <span
-              className={`ml-4 text-sm font-medium whitespace-nowrap transition-opacity duration-300 ${isExpanded ? "opacity-100" : "opacity-0"
-                }`}
+              className={`ml-4 text-sm font-medium whitespace-nowrap transition-opacity duration-300 ${
+                isExpanded ? "opacity-100" : "opacity-0"
+              }`}
             >
               {btn.label}
             </span>

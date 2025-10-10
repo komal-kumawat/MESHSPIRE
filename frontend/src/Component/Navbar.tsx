@@ -71,7 +71,7 @@ const Navbar: React.FC<NavbarProps> = ({ isSidebarExpanded }) => {
           />
 
           {userDropDown && (
-            <div className="absolute right-0 mt-3 w-44 bg-[rgba(20,20,20,0.9)] backdrop-blur-md text-white rounded-xl shadow-xl border border-[rgba(255,255,255,0.15)]">
+            <div className="absolute -right-4 top-10 mt-3 w-40 bg-slate-900/70 backdrop-blur-md text-white rounded-xl shadow-xl border border-[rgba(255,255,255,0.15)]">
               <div className="px-4 py-2 border-b border-gray-700">
                 {username
                   ? `Hello, ${

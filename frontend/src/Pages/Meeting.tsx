@@ -2,7 +2,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
-// 🧩 Layout components
 import Navbar from "../Components/Navbar";
 import Sidebar from "../Components/Sidebar";
 
@@ -14,14 +13,12 @@ const Meeting: React.FC = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isCameraOn, setIsCameraOn] = useState(false);
 
-  // 🪄 Get card details from navigation state
   const cardData = location.state || {
     title: "Untitled Meeting",
     category: "General",
     rating: 4.5,
   };
 
-  // 🎥 Access user's webcam for preview
   useEffect(() => {
     let stream: MediaStream | null = null;
 
@@ -43,7 +40,6 @@ const Meeting: React.FC = () => {
 
     startVideo();
 
-    // 🧹 Cleanup on route change or unmount
     return () => {
       if (stream) {
         stream.getTracks().forEach((track) => track.stop());
@@ -53,7 +49,6 @@ const Meeting: React.FC = () => {
     };
   }, [location.pathname]);
 
-  // 🚀 Start a new meeting and pass data to Room
   const startMeeting = () => {
     const randomId = Math.random().toString(36).substring(2, 10);
     const url = `${window.location.origin}/room/${randomId}`;
@@ -62,7 +57,6 @@ const Meeting: React.FC = () => {
     navigate(`/room/${randomId}`, { state: cardData });
   };
 
-  // 🔗 Join existing meeting and pass data too
   const joinMeeting = () => {
     if (roomId.trim() !== "") {
       navigate(`/room/${roomId}`, { state: cardData });
@@ -108,10 +102,8 @@ const Meeting: React.FC = () => {
       </div>
 
       <div className="flex flex-1">
-        {/* Main Content */}
         <main className="flex-1 flex items-center justify-center bg-gray-950 px-6 py-10">
           <div className="flex flex-col lg:flex-row items-center justify-center gap-16 w-full max-w-6xl">
-            {/* Left: Meeting info */}
             <div className="flex flex-col items-start text-left space-y-6">
               <h1 className="text-5xl font-bold text-white">
                 {cardData.title}
@@ -178,7 +170,6 @@ const Meeting: React.FC = () => {
               )}
             </div>
 
-            {/* Right: Video preview */}
             <div className="w-full max-w-md aspect-video rounded-2xl overflow-hidden border border-white/10 bg-slate-900/80 shadow-xl">
               <video
                 ref={videoRef}

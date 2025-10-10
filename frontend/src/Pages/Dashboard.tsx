@@ -31,7 +31,9 @@ const Dashboard: React.FC = () => {
 
           <div className="px-4 sm:px-6 lg:px-10 py-8 flex flex-col items-center py-20 pl-10">
             {/* Optional Title */}
-            <h1 className="text-5xl font-bold text-white py-5">Welcome to MeshSpire</h1>
+            <h1 className="text-5xl font-bold text-white py-5">
+              Welcome to MeshSpire
+            </h1>
 
             {/* Grid layout for MeetComp */}
             <div className="grid grid-cols-1  lg:grid-cols-3 gap-6 w-full max-w-[1200px] ">
@@ -40,8 +42,12 @@ const Dashboard: React.FC = () => {
                   key={meeting.id}
                   theoremName={meeting.theoremName}
                   teacherName={meeting.teacherName}
-                  onJoin={() => console.log(`Joining ${meeting.theoremName}...`)}
-                  onDetails={() => console.log(`Showing details of ${meeting.theoremName}...`)}
+                  onJoin={() =>
+                    console.log(`Joining ${meeting.theoremName}...`)
+                  }
+                  onDetails={() =>
+                    console.log(`Showing details of ${meeting.theoremName}...`)
+                  }
                 />
               ))}
             </div>

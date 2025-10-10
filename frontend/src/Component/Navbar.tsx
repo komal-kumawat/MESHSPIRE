@@ -1,12 +1,12 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useAuth } from "../Context/AuthContext";
 import { useNavigate } from "react-router-dom";
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-import NotificationsIcon from '@mui/icons-material/Notifications';
-import SearchIcon from '@mui/icons-material/Search';
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import NotificationsIcon from "@mui/icons-material/Notifications";
+import SearchIcon from "@mui/icons-material/Search";
 
 const Navbar: React.FC = () => {
-  const { username, logout  , userId} = useAuth();
+  const { username, logout, userId } = useAuth();
   const [userDropDown, setUserDropDown] = useState(false);
   const navigate = useNavigate();
   const dropdownRef = useRef<HTMLDivElement | null>(null);
@@ -19,7 +19,10 @@ const Navbar: React.FC = () => {
   // Close dropdown on clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setUserDropDown(false);
       }
     };
@@ -37,7 +40,9 @@ const Navbar: React.FC = () => {
         className="text-white font-extrabold text-2xl hover:text-cyan-400 transition-colors cursor-pointer"
         onClick={() => navigate("/dashboard")}
       >
-        {username ? `Hello, ${username.charAt(0).toUpperCase() + username.slice(1)}` : "Hello, Guest"}
+        {username
+          ? `Hello, ${username.charAt(0).toUpperCase() + username.slice(1)}`
+          : "Hello, Guest"}
       </div>
 
       {/* Right: Search Bar, Notification & User */}
@@ -69,9 +74,16 @@ const Navbar: React.FC = () => {
           {userDropDown && (
             <div className="absolute right-0 mt-3 w-40 bg-gray-800 text-white rounded-xl shadow-lg border border-gray-700 z-50">
               <div className="px-4 py-2 border-b border-gray-700">
-                {username ? `Hello, ${username.charAt(0).toUpperCase() + username.slice(1)}` : "Hello, Guest"}
+                {username
+                  ? `Hello, ${
+                      username.charAt(0).toUpperCase() + username.slice(1)
+                    }`
+                  : "Hello, Guest"}
               </div>
-              <div className="px-4 py-2 border-b border-gray-700 cursor-pointer " onClick={()=>navigate(`/profile/${userId}`)}>
+              <div
+                className="px-4 py-2 border-b border-gray-700 cursor-pointer "
+                onClick={() => navigate(`/profile/${userId}`)}
+              >
                 Profile
               </div>
               <button

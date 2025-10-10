@@ -5,17 +5,56 @@ import Room from "./Pages/RoomPage";
 import Meeting from "./Pages/Meeting";
 import Profile from "./Pages/Profile";
 import UpdateProfile from "./Pages/UpdateProfile";
+import ProtectedRoute from "./Components/PrivateRoute"; // ✅ use ProtectedRoute
 
 const App = () => {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<AuthPage />}></Route>
-        <Route path="/dashboard" element={<Dashboard />}></Route>
-        <Route path="/room/:roomid" element={<Room />}></Route>
-        <Route path="/meeting" element={<Meeting />}></Route>
-        <Route path="/profile/:id" element={<Profile />}></Route>
-        <Route path="/update-profile" element={<UpdateProfile />}></Route>
+        {/* Public Route */}
+        <Route path="/" element={<AuthPage />} />
+
+        {/* Protected Routes */}
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/room/:roomid"
+          element={
+            <ProtectedRoute>
+              <Room />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/meeting"
+          element={
+            <ProtectedRoute>
+              <Meeting />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/profile/:id"
+          element={
+            <ProtectedRoute>
+              <Profile />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/update-profile"
+          element={
+            <ProtectedRoute>
+              <UpdateProfile />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </BrowserRouter>
   );

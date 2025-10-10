@@ -6,12 +6,13 @@ import User, { IUser } from "../models/user.model";
 import { z } from "zod";
 import passport from "passport";
 import "../config/passport.config";
+import Profile from "../models/profile.model";
 
 const router = Router();
 
 const signupSchema = z.object({
   name: z.string().min(3, "Name is required"),
-  email: z.string().email("Invalid email"),
+  email: z.string().trim().email("Invalid email"),
   password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
@@ -70,6 +71,18 @@ router.post("/signup", async (req: Request, res: Response) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = await User.create({ name, email, password: hashedPassword });
+
+    await Profile.create({
+      userId: user._id,
+      name: user.name,
+      gender: "other",
+      role: "student",
+      skills: [],
+      bio: "",
+      languages: [],
+    });
+
+
     // @ts-ignore
     const { access, refresh } = generateTokens(user._id.toString());
 

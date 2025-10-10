@@ -12,6 +12,8 @@ const Meeting: React.FC = () => {
   const [roomURL, setRoomURL] = useState<string>("");
   const videoRef = useRef<HTMLVideoElement>(null);
   const [, setIsCameraOn] = useState(false);
+  const [isSidebarExpanded, setIsSidebarExpanded] = useState<boolean>(false);
+
 
   const cardData = location.state || {
     title: "Untitled Meeting",
@@ -96,13 +98,14 @@ const Meeting: React.FC = () => {
 
   return (
     <div className="flex flex-col h-screen bg-gray-950 text-white overflow-hidden">
-      <Sidebar />
-      <div className="ml-20">
+      <Sidebar onExpandChange={setIsSidebarExpanded} />
+      <div className={`flex-1 transition-all duration-300 ${isSidebarExpanded ? "ml-56" : "ml-20"
+        }`}>
         <Navbar isSidebarExpanded={true} />
-      </div>
+        {/* </div> */}
 
-      <div className="flex flex-1">
-        <main className="flex-1 flex items-center justify-center bg-gray-950 px-6 py-10">
+        {/* <div className="flex flex-1"> */}
+        <main className="flex-1 flex items-center justify-center bg-gray-950 px-6 py-10 md:py-40 transition-all duration-300">
           <div className="flex flex-col lg:flex-row items-center justify-center gap-16 w-full max-w-6xl">
             <div className="flex flex-col items-start text-left space-y-6">
               <h1 className="text-5xl font-bold text-white">

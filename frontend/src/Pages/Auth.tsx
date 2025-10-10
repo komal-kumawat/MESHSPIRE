@@ -4,6 +4,7 @@ import { FcGoogle } from "react-icons/fc";
 import { motion, AnimatePresence } from "framer-motion";
 import API from "../api";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../Context/AuthContext";
 
 export default function AuthPage() {
   const [isSignin, setIsSignin] = useState(true);
@@ -11,7 +12,7 @@ export default function AuthPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const navigate = useNavigate();
-
+  const {setUser} = useAuth();
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -32,11 +33,12 @@ export default function AuthPage() {
           email: form.email,
           password: form.password,
         });
+        setUser(res.data.user.name , res.data.access , res.data.user.id);
         localStorage.setItem("token", res.data.access);
         navigate("/dashboard");
       } else {
         const res = await API.post("/user/signup", form);
-        localStorage.setItem("token", res.data.token);
+        localStorage.setItem("token", res.data.access);
         setIsSignin(true);
       }
     } catch (err: any) {

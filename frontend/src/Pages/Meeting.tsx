@@ -14,7 +14,7 @@ const Meeting: React.FC = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isCameraOn, setIsCameraOn] = useState(false);
 
-  // 🪄 Get card details from navigation state (passed via navigate("/meeting", { state: { ... } }))
+  // 🪄 Get card details from navigation state
   const cardData = location.state || {
     title: "Untitled Meeting",
     category: "General",
@@ -51,19 +51,21 @@ const Meeting: React.FC = () => {
         setIsCameraOn(false);
       }
     };
-  }, [location.pathname]); // rerun and cleanup on route change
+  }, [location.pathname]);
 
+  // 🚀 Start a new meeting and pass data to Room
   const startMeeting = () => {
     const randomId = Math.random().toString(36).substring(2, 10);
     const url = `${window.location.origin}/room/${randomId}`;
     setRoomId(randomId);
     setRoomURL(url);
-    navigate(`/room/${randomId}`);
+    navigate(`/room/${randomId}`, { state: cardData });
   };
 
+  // 🔗 Join existing meeting and pass data too
   const joinMeeting = () => {
     if (roomId.trim() !== "") {
-      navigate(`/room/${roomId}`);
+      navigate(`/room/${roomId}`, { state: cardData });
     } else {
       alert("Please enter a Room ID");
     }
@@ -106,7 +108,6 @@ const Meeting: React.FC = () => {
       </div>
 
       <div className="flex flex-1">
-        {/* Sidebar */}
         {/* Main Content */}
         <main className="flex-1 flex items-center justify-center bg-gray-950 px-6 py-10">
           <div className="flex flex-col lg:flex-row items-center justify-center gap-16 w-full max-w-6xl">

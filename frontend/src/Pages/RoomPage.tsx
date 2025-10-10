@@ -43,11 +43,19 @@ const Room: React.FC = () => {
   };
   const autoSendVideo =
     (location.state && (location.state as any).autoSendVideo) || false;
-  const copyRoomId = () => {
-    if (roomId) navigator.clipboard.writeText(roomId);
-  };
-  const [isFullScreen, setIsFullScreen] = useState(false);
+  const [showAlert, setShowAlert] = useState(false);
+  const [showChatAlert, setShowChatAlert] = useState(false);
   const roomId = roomIdParam || sessionStorage.getItem("currentRoom");
+
+  const copyRoomId = () => {
+    if (roomId) {
+      navigator.clipboard.writeText(roomId);
+      setShowAlert(true);
+      setTimeout(() => setShowAlert(false), 2000);
+    }
+  };
+
+  const [isFullScreen, setIsFullScreen] = useState(false);
 
   useEffect(() => {
     localStreamRef.current = localStream;
@@ -122,7 +130,6 @@ const Room: React.FC = () => {
               } catch (e) {
                 console.warn("Could not add track to existing stream:", e);
               }
-
               return { ...prev };
             } else {
               const newStream = new MediaStream();
@@ -418,6 +425,17 @@ const Room: React.FC = () => {
         </h3>
       </div>
 
+      {showAlert && (
+        <div className="absolute top-4 right-4 bg-violet-800 border-2 border-gray-400 text-white px-4 py-2 rounded-xl shadow-lg transition-opacity duration-700 animate-pulse">
+          ✅ Room ID copied!
+        </div>
+      )}
+      {showChatAlert && (
+        <div className="absolute top-16 right-4 bg-violet-800 border-2 border-gray-400 text-white px-4 py-2 rounded-xl shadow-lg transition-opacity duration-700 animate-pulse">
+          💬 Chat feature coming soon!
+        </div>
+      )}
+
       {Object.entries(remoteStreams).map(([id, stream]) => (
         <div
           key={id}
@@ -432,7 +450,6 @@ const Room: React.FC = () => {
             playsInline
             ref={(video) => {
               if (!video) return;
-
               if (video.srcObject !== stream) video.srcObject = stream;
             }}
             className="w-full h-full object-cover bg-black rounded-2xl"
@@ -494,7 +511,10 @@ const Room: React.FC = () => {
         </button>
 
         <button
-          onClick={() => alert("Chat feature coming soon!")}
+          onClick={() => {
+            setShowChatAlert(true);
+            setTimeout(() => setShowChatAlert(false), 2000);
+          }}
           className={buttonStyles}
         >
           <ChatIcon fontSize="medium" />

@@ -14,13 +14,17 @@ import {
 } from "@tabler/icons-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useOutsideClick } from "../../hooks/useOutsideClick";
+import { useNavigate } from "react-router-dom";
 
+// -------------------------
+// Interfaces & Types
+// -------------------------
 interface CarouselProps {
   items: JSX.Element[];
   initialScroll?: number;
 }
 
-type Card = {
+type CardType = {
   src: string;
   title: string;
   category: string;
@@ -28,6 +32,9 @@ type Card = {
   content: React.ReactNode;
 };
 
+// -------------------------
+// Context
+// -------------------------
 export const CarouselContext = createContext<{
   onCardClose: (index: number) => void;
   currentIndex: number;
@@ -36,10 +43,13 @@ export const CarouselContext = createContext<{
   currentIndex: 0,
 });
 
+// -------------------------
+// Carousel Component
+// -------------------------
 export const Carousel = ({ items, initialScroll = 0 }: CarouselProps) => {
-  const carouselRef = React.useRef<HTMLDivElement>(null);
-  const [canScrollLeft, setCanScrollLeft] = React.useState(false);
-  const [canScrollRight, setCanScrollRight] = React.useState(true);
+  const carouselRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
@@ -128,14 +138,18 @@ export const Carousel = ({ items, initialScroll = 0 }: CarouselProps) => {
   );
 };
 
+// -------------------------
+// Card Component
+// -------------------------
 export const Card = ({
   card,
   index,
 }: {
-  card: Card;
+  card: CardType;
   index: number;
   layout?: boolean;
 }) => {
+  const navigate = useNavigate(); // ✅ inside the component
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const { onCardClose } = useContext(CarouselContext);
@@ -149,13 +163,18 @@ export const Card = ({
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [open]);
-
+  //@ts-ignore
   useOutsideClick(containerRef, () => handleClose());
 
   const handleOpen = () => setOpen(true);
   const handleClose = () => {
     setOpen(false);
     onCardClose(index);
+  };
+
+  const handleNavigate = () => {
+    setOpen(false);
+    navigate("/meeting");
   };
 
   const renderStars = (rating: number) => {
@@ -221,6 +240,7 @@ export const Card = ({
                 <div className="text-gray-200">{card.content}</div>
 
                 <button
+                  onClick={handleNavigate}
                   className="px-8 py-2 font-medium text-white rounded-2xl
                     bg-gradient-to-r from-violet-900 via-violet-800 to-violet-900
                     hover:bg-violet-900 transition-all duration-300"
@@ -259,11 +279,20 @@ export const Card = ({
 
         <div className="mt-4">
           <button
-            className="px-8 py-2 font-medium text-white rounded-xl
+            onClick={handleNavigate}
+            className="px-8 py-2 mr-8 font-medium text-white rounded-xl
               bg-gradient-to-r from-violet-900 via-violet-800 to-violet-900
               hover:bg-violet-700 transition-all duration-300 cursor-pointer"
           >
             Start Now
+          </button>
+          <button
+            onClick={handleOpen}
+            className="px-8 py-2 font-medium text-white rounded-xl
+              bg-gradient-to-r from-gray-800 via-gray-800 to-gray-800
+              hover:bg-violet-700 transition-all duration-300 cursor-pointer"
+          >
+            Get Info
           </button>
         </div>
       </motion.div>

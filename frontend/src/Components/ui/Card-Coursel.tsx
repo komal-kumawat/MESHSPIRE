@@ -16,9 +16,6 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useOutsideClick } from "../../hooks/useOutsideClick";
 import { useNavigate } from "react-router-dom";
 
-// -------------------------
-// Interfaces & Types
-// -------------------------
 interface CarouselProps {
   items: JSX.Element[];
   initialScroll?: number;
@@ -32,9 +29,6 @@ type CardType = {
   content: React.ReactNode;
 };
 
-// -------------------------
-// Context
-// -------------------------
 export const CarouselContext = createContext<{
   onCardClose: (index: number) => void;
   currentIndex: number;
@@ -43,9 +37,6 @@ export const CarouselContext = createContext<{
   currentIndex: 0,
 });
 
-// -------------------------
-// Carousel Component
-// -------------------------
 export const Carousel = ({ items, initialScroll = 0 }: CarouselProps) => {
   const carouselRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
@@ -138,9 +129,6 @@ export const Carousel = ({ items, initialScroll = 0 }: CarouselProps) => {
   );
 };
 
-// -------------------------
-// Card Component
-// -------------------------
 export const Card = ({
   card,
   index,
@@ -149,7 +137,7 @@ export const Card = ({
   index: number;
   layout?: boolean;
 }) => {
-  const navigate = useNavigate(); // ✅ inside the component
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const { onCardClose } = useContext(CarouselContext);

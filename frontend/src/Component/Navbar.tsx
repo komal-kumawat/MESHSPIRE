@@ -16,7 +16,6 @@ const Navbar: React.FC = () => {
     navigate("/");
   };
 
-  // Close dropdown on clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -35,7 +34,6 @@ const Navbar: React.FC = () => {
 
   return (
     <nav className="sticky top-0 z-50 backdrop-blur-md px-8 py-4 flex items-center justify-between ml-[100px] md:mr-[100px]">
-      {/* Left: Greeting */}
       <div
         className="text-white font-extrabold text-2xl hover:text-cyan-400 transition-colors cursor-pointer"
         onClick={() => navigate("/dashboard")}
@@ -45,9 +43,7 @@ const Navbar: React.FC = () => {
           : "Hello, Guest"}
       </div>
 
-      {/* Right: Search Bar, Notification & User */}
       <div className="flex items-center gap-4 relative">
-        {/* Search Bar */}
         <div className="relative hidden lg:flex items-center ">
           <input
             type="text"
@@ -57,12 +53,10 @@ const Navbar: React.FC = () => {
           <SearchIcon className="absolute right-3 text-gray-400 cursor-pointer" />
         </div>
 
-        {/* Notification Icon */}
         <div className="relative cursor-pointer">
           <NotificationsIcon className="text-gray-300 hover:text-cyan-400 transition-colors" />
         </div>
 
-        {/* User Icon */}
         <div className="relative" ref={dropdownRef}>
           <AccountCircleIcon
             fontSize="large"
@@ -70,7 +64,6 @@ const Navbar: React.FC = () => {
             onClick={() => setUserDropDown(!userDropDown)}
           />
 
-          {/* Dropdown */}
           {userDropDown && (
             <div className="absolute right-0 mt-3 w-40 bg-gray-800 text-white rounded-xl shadow-lg border border-gray-700 z-50">
               <div className="px-4 py-2 border-b border-gray-700">

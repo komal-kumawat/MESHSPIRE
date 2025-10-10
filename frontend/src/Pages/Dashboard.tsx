@@ -10,7 +10,6 @@ interface Meeting {
 }
 
 const Dashboard: React.FC = () => {
-  // Array of meetings
   const meetings: Meeting[] = [
     { id: 1, theoremName: "Pythagoras Theorem", teacherName: "Mr. Sharma" },
     { id: 2, theoremName: "Fermat's Last Theorem", teacherName: "Ms. Gupta" },
@@ -25,17 +24,14 @@ const Dashboard: React.FC = () => {
       <div className="flex flex-1">
         <Sidebar />
 
-        {/* Main content */}
         <div className="flex flex-col flex-1 ml-10 md:ml-10">
           <Navbar />
 
           <div className="px-4 sm:px-6 lg:px-10 py-8 flex flex-col items-center pl-10">
-            {/* Optional Title */}
             <h1 className="text-5xl font-bold text-white py-5">
               Welcome to MeshSpire
             </h1>
 
-            {/* Grid layout for MeetComp */}
             <div className="grid grid-cols-1  lg:grid-cols-3 gap-6 w-full max-w-[1200px] ">
               {meetings.map((meeting) => (
                 <MeetComp

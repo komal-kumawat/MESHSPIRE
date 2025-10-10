@@ -1,7 +1,9 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL,
+  baseURL:
+    import.meta.env.VITE_API_BASE_URL ||
+    "https://meshspire-core-prod.onrender.com/api/v0",
   headers: {
     "Content-Type": "application/json",
   },
@@ -11,10 +13,8 @@ const API = axios.create({
 API.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
 
-  if (token && config.headers) {
-    if ("set" in config.headers && typeof config.headers.set === "function") {
-      config.headers.set("Authorization", `Bearer ${token}`);
-    }
+  if (token) {
+    config.headers["Authorization"] = `Bearer ${token}`;
   }
 
   return config;

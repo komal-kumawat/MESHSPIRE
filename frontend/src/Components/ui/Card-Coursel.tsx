@@ -159,10 +159,15 @@ export const Card = ({
     setOpen(false);
     onCardClose(index);
   };
-
   const handleNavigate = () => {
     setOpen(false);
-    navigate("/meeting");
+    navigate("/meeting", {
+      state: {
+        title: card.title,
+        category: card.category,
+        rating: card.rating,
+      },
+    });
   };
 
   const renderStars = (rating: number) => {

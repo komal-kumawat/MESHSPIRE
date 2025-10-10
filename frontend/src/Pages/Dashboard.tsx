@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Navbar from "../Components/Navbar";
 import Sidebar from "../Components/Sidebar";
-import { Carousel, Card } from "../Components/ui/card-coursel";
+import { Carousel, Card } from "../Components/ui/Card-Coursel";
 import image1 from "../assets/calculus.png";
 import image2 from "../assets/algebra.png";
 import image3 from "../assets/digital_logic.png";

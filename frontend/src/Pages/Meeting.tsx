@@ -11,7 +11,7 @@ const Meeting: React.FC = () => {
   const [roomId, setRoomId] = useState<string>("");
   const [roomURL, setRoomURL] = useState<string>("");
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [isCameraOn, setIsCameraOn] = useState(false);
+  const [, setIsCameraOn] = useState(false);
 
   const cardData = location.state || {
     title: "Untitled Meeting",

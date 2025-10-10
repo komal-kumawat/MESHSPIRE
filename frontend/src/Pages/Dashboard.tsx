@@ -29,7 +29,7 @@ const Dashboard: React.FC = () => {
         <div className="flex flex-col flex-1 ml-10 md:ml-10">
           <Navbar />
 
-          <div className="px-4 sm:px-6 lg:px-10 py-8 flex flex-col items-center py-20 pl-10">
+          <div className="px-4 sm:px-6 lg:px-10 py-8 flex flex-col items-center pl-10">
             {/* Optional Title */}
             <h1 className="text-5xl font-bold text-white py-5">
               Welcome to MeshSpire

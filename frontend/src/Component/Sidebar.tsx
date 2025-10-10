@@ -68,7 +68,7 @@ const Sidebar = () => {
             ref={(el) => { buttonsRef.current[index] = el; }}
             onClick={() => handleClick(btn.id, btn.path)}
             className={`relative flex items-center w-full p-4 rounded-lg transition-all gap-3
-              ${active === btn.id ? "bg-gray-700" : "bg-transparent"}
+              
             `}
           >
             <span className="text-white">{btn.icon}</span>

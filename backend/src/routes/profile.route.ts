@@ -3,28 +3,31 @@ import { z } from "zod";
 import { authMiddleware, AuthRequest } from "../middleware/auth.middleware";
 import { StatusCodes } from "http-status-codes";
 import Profile from "../models/profile.model";
+import multer from "multer";
+import { handleAvatarUpload } from "../controller/avatarUpload";
+import User from "../models/user.model"; // ✅ Import User model to update name
 
 const profileRoute = Router();
+const upload = multer();
 
+// ✅ Validation schema
 const profileSchema = z.object({
   name: z.string().min(3, "Name must be at least 3 characters"),
-  avatar: z.string().url().optional(),
-  gender: z.enum(["male", "female", "other"], {
-    message: "Gender must be male, female, or other",
-  }),
+  avatar: z.string().optional(),
+  gender: z.enum(["male", "female", "other"]).optional(),
   age: z.number().min(5, "Age must be at least 5").max(120).optional(),
   bio: z.string().max(300).optional(),
-  skills: z.array(z.string()).default([]),
-  role: z.enum(["student", "teacher"], {
-    message: "Role must be student or teacher",
-  }),
-  languages: z.array(z.string()).default([]),
+  skills: z.array(z.string()).optional(),
+  role: z.enum(["student", "teacher"]).optional(),
+  languages: z.array(z.string()).optional(),
 });
 
+// ✅ CREATE PROFILE
 profileRoute.post(
   "/create",
   authMiddleware,
-  async (req: AuthRequest, res: Response, next: NextFunction) => {
+  upload.single("avatar"),
+  async (req: AuthRequest, res: Response) => {
     try {
       if (!req.user?.id) {
         return res
@@ -46,13 +49,16 @@ profileRoute.post(
           .json({ message: "Profile already exists" });
       }
 
+      const avatar = handleAvatarUpload(req.file);
       const newProfile = await Profile.create({
         ...parsed.data,
         userId: req.user.id,
+        ...(avatar && { avatar }),
       });
 
       res.status(StatusCodes.CREATED).json({ profile: newProfile });
     } catch (err) {
+      console.error(err);
       res
         .status(StatusCodes.INTERNAL_SERVER_ERROR)
         .json({ message: "Error while creating profile", err });
@@ -60,6 +66,7 @@ profileRoute.post(
   }
 );
 
+// ✅ GET PROFILE
 profileRoute.get(
   "/:id",
   authMiddleware,
@@ -79,9 +86,11 @@ profileRoute.get(
   }
 );
 
+// ✅ UPDATE PROFILE (name editable + avatar remove/add)
 profileRoute.put(
   "/update",
   authMiddleware,
+  upload.single("avatar"),
   async (req: AuthRequest, res: Response) => {
     try {
       const userId = req.user?.id;
@@ -91,15 +100,26 @@ profileRoute.put(
           .json({ message: "Unauthorized" });
       }
 
-      const { name, avatar, gender, age, bio, skills, role, languages } =
-        req.body;
+      const { name, gender, age, bio, skills, role, languages } = req.body;
+
+      let avatar;
+      if (req.file) {
+        avatar = handleAvatarUpload(req.file);
+      } else if (req.body.avatar === "") {
+        avatar = ""; // ✅ Remove avatar from DB
+      }
+
+      // ✅ Update name in User collection also
+      if (name) {
+        await User.findByIdAndUpdate(userId, { name });
+      }
 
       const updatedProfile = await Profile.findOneAndUpdate(
         { userId },
         {
           $set: {
             ...(name && { name }),
-            ...(avatar && { avatar }),
+            ...(avatar !== undefined && { avatar }),
             ...(gender && { gender }),
             ...(age !== undefined && { age }),
             ...(bio && { bio }),

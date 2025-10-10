@@ -83,6 +83,8 @@ const Profile: React.FC = () => {
           <h2 className="text-2xl font-bold text-white">{user.name}</h2>
           <p className="text-cyan-400 font-semibold">{user.role}</p>
           <p className="text-gray-400 text-sm mt-2">{user.email}</p>
+          <button className="my-5 p-2 bg-cyan-500 font-bold text-white rounded-xl" onClick={() => { navigate("/dashboard") }}>Go back to Dashboard</button>
+
         </div>
 
         {/* RIGHT: Profile details */}

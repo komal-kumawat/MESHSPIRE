@@ -3,7 +3,9 @@ import { StatusCodes } from "http-status-codes";
 import bcrypt from "bcryptjs";
 import jwt, { Secret, SignOptions } from "jsonwebtoken";
 import User, { IUser } from "../models/user.model";
-import {z} from "zod";
+import Profile from "../models/profile.model.js";
+
+import { z } from "zod";
 const router = Router();
 
 const signupSchema = z.object({
@@ -21,11 +23,12 @@ const signinSchema = z.object({
 router.post("/signup", async (req: Request, res: Response) => {
   try {
     const parsed = signupSchema.safeParse(req.body);
-    if(!parsed.success){
+    if (!parsed.success) {
       return res.status(StatusCodes.BAD_REQUEST).json({
-        message:"Enter valid information"
-      })
+        message: "Enter valid information",
+      });
     }
+
     const { name, email, password } = parsed.data;
 
     const existing = await User.findOne({ email });
@@ -40,6 +43,19 @@ router.post("/signup", async (req: Request, res: Response) => {
       name,
       email,
       password: hashedPassword,
+    });
+
+    // ✅ Automatically create a default profile for this user
+    await Profile.create({
+      userId: user._id,
+      name: user.name,
+      avatar: "",
+      gender: "other",     // default
+      age: undefined,
+      bio: "",
+      skills: [],
+      role: "student",     // default role
+      languages: [],
     });
 
     if (!process.env.JWT_ACCESS_SECRET || !process.env.JWT_REFRESH_SECRET) {
@@ -82,6 +98,7 @@ router.post("/signup", async (req: Request, res: Response) => {
         email: user.email,
         avatarUrl: user.avatarUrl,
       },
+      message: "User and profile created successfully",
     });
   } catch (err) {
     console.error(err);
@@ -91,12 +108,13 @@ router.post("/signup", async (req: Request, res: Response) => {
   }
 });
 
+
 router.post("/signin", async (req: Request, res: Response) => {
   try {
     const parsed = signinSchema.safeParse(req.body);
-    if(!parsed.success){
+    if (!parsed.success) {
       return res.status(StatusCodes.BAD_REQUEST).json({
-        message:"enter valid information"
+        message: "enter valid information"
       })
     }
     const { email, password } = parsed.data;

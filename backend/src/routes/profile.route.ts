@@ -1,14 +1,14 @@
 import { NextFunction, Response, Router } from "express";
 import { z } from "zod";
-import { authMiddleware, AuthRequest } from "../middleware/auth.middleware";
+import { authMiddleware, AuthRequest } from "../middleware/auth.middleware.js";
 import { StatusCodes } from "http-status-codes";
-import Profile from "../models/profile.model";
+import Profile from "../models/profile.model.js";
+import User from "../models/user.model.js"; // ✅ import user model
 
 const profileRoute = Router();
 
-// Zod schema for validation
+// ✅ Zod schema for validation (no `name` now, since we’ll get it from User)
 const profileSchema = z.object({
-  name: z.string().min(3, "Name must be at least 3 characters"),
   avatar: z.string().url().optional(),
   gender: z.enum(["male", "female", "other"], {
     message: "Gender must be male, female, or other",
@@ -22,37 +22,57 @@ const profileSchema = z.object({
   languages: z.array(z.string()).default([]),
 });
 
-// Create profile
+// ✅ Create profile
 profileRoute.post(
   "/create",
   authMiddleware,
   async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-      if (!req.user?.id) {
-        return res.status(StatusCodes.UNAUTHORIZED).json({ message: "Unauthorized" });
+      const userId = req.user?.id;
+      if (!userId) {
+        return res
+          .status(StatusCodes.UNAUTHORIZED)
+          .json({ message: "Unauthorized" });
       }
 
+      // ✅ Validate input data (no name/email)
       const parsed = profileSchema.safeParse(req.body);
       if (!parsed.success) {
         return res
           .status(StatusCodes.BAD_REQUEST)
-          .json({ errors: parsed.error, message: "Invalid data" });
+          .json({  message: "Invalid data" });
       }
 
-      const existingProfile = await Profile.findOne({ userId: req.user.id });
+      // ✅ Check if profile already exists
+      const existingProfile = await Profile.findOne({ userId });
       if (existingProfile) {
         return res
           .status(StatusCodes.CONFLICT)
           .json({ message: "Profile already exists" });
       }
 
+      // ✅ Fetch user info from DB
+      const user = await User.findById(userId).select("name email");
+      if (!user) {
+        return res
+          .status(StatusCodes.NOT_FOUND)
+          .json({ message: "User not found" });
+      }
+
+      // ✅ Create new profile with user data included
       const newProfile = await Profile.create({
+        userId,
+        name: user.name,        // fetched from User model
+        email: user.email,      // fetched from User model
         ...parsed.data,
-        userId: req.user.id,
       });
 
-      res.status(StatusCodes.CREATED).json({ profile: newProfile });
+      res.status(StatusCodes.CREATED).json({
+        message: "Profile created successfully",
+        profile: newProfile,
+      });
     } catch (err) {
+      console.error("Error while creating profile:", err);
       res
         .status(StatusCodes.INTERNAL_SERVER_ERROR)
         .json({ message: "Error while creating profile", err });
@@ -60,13 +80,15 @@ profileRoute.post(
   }
 );
 
-// Get profile by userId
+// ✅ Get profile by userId
 profileRoute.get("/:id", authMiddleware, async (req: AuthRequest, res: Response) => {
   try {
     const userId = req.params.id;
     const profile = await Profile.findOne({ userId }).select("-__v");
     if (!profile) {
-      return res.status(StatusCodes.NOT_FOUND).json({ message: "Profile not found" });
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .json({ message: "Profile not found" });
     }
     res.status(StatusCodes.OK).json(profile);
   } catch (err) {
@@ -74,7 +96,7 @@ profileRoute.get("/:id", authMiddleware, async (req: AuthRequest, res: Response)
   }
 });
 
-// Update profile
+// ✅ Update profile
 profileRoute.put("/update", authMiddleware, async (req: AuthRequest, res: Response) => {
   try {
     const userId = req.user?.id;
@@ -82,40 +104,45 @@ profileRoute.put("/update", authMiddleware, async (req: AuthRequest, res: Respon
       return res.status(StatusCodes.UNAUTHORIZED).json({ message: "Unauthorized" });
     }
 
-    // Convert comma-separated strings to arrays if needed
-    const {
-      name,
-      avatar,
-      gender,
-      age,
-      bio,
-      skills,
-      role,
-      languages,
-    } = req.body;
+    const { avatar, gender, age, bio, skills, role, languages } = req.body;
 
     const updatedProfile = await Profile.findOneAndUpdate(
-      { userId }, // find by userId
+      { userId },
       {
         $set: {
-          ...(name && { name }),
           ...(avatar && { avatar }),
           ...(gender && { gender }),
           ...(age !== undefined && { age }),
           ...(bio && { bio }),
-          ...(skills ? { skills: Array.isArray(skills) ? skills : skills.split(",").map((s: string) => s.trim()) } : {}),
+          ...(skills
+            ? {
+                skills: Array.isArray(skills)
+                  ? skills
+                  : skills.split(",").map((s: string) => s.trim()),
+              }
+            : {}),
           ...(role && { role }),
-          ...(languages ? { languages: Array.isArray(languages) ? languages : languages.split(",").map((l: string) => l.trim()) } : {}),
+          ...(languages
+            ? {
+                languages: Array.isArray(languages)
+                  ? languages
+                  : languages.split(",").map((l: string) => l.trim()),
+              }
+            : {}),
         },
       },
       { new: true, runValidators: true }
     );
 
     if (!updatedProfile) {
-      return res.status(StatusCodes.NOT_FOUND).json({ message: "Profile not found" });
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .json({ message: "Profile not found" });
     }
 
-    res.status(StatusCodes.OK).json(updatedProfile);
+    res
+      .status(StatusCodes.OK)
+      .json({ message: "Profile updated successfully", updatedProfile });
   } catch (err) {
     console.error(err);
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err);

@@ -7,8 +7,8 @@ export interface IProfile extends Document{
     gender:"male"|"female"|"other" ;
     age?:number;
     bio?:string;
-    skills:string[];
-    role:'student'|'teacher';
+    skills?:string[];
+    role?:'student'|'teacher';
     languages:string[]
 
 }

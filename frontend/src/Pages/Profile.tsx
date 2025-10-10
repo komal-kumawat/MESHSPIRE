@@ -21,7 +21,7 @@ const Profile: React.FC = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-
+  const [hasProfile, setHasProfile] = useState<boolean>(false);
   useEffect(() => {
     if (!userId) return;
 
@@ -34,8 +34,10 @@ const Profile: React.FC = () => {
         try {
           const profileRes = await API.get(`/profile/${userId}`);
           profileData = profileRes.data;
+          setHasProfile(true);
         } catch {
           console.log("No profile data found.");
+          setHasProfile(false);
         }
 
         setUser({
@@ -110,14 +112,22 @@ const Profile: React.FC = () => {
             <p><span className="font-semibold text-white">Gender:</span> <span className="text-gray-300">{user.gender}</span></p>
             <p><span className="font-semibold text-white">Age:</span> <span className="text-gray-300">{user.age || "N/A"}</span></p>
           </div>
+          {hasProfile?
 
-          {/* Update Profile Button */}
           <button
             onClick={() => navigate("/update-profile")}
             className="w-full bg-cyan-500 hover:bg-cyan-600 text-white font-semibold py-3 rounded-lg transition mt-4"
           >
             Update Profile
           </button>
+          :<button
+            onClick={() => navigate("/create-profile")}
+            className="w-full bg-cyan-500 hover:bg-cyan-600 text-white font-semibold py-3 rounded-lg transition mt-4"
+          >
+            Create Profile
+          </button>
+
+          }
         </div>
       </div>
     </div>

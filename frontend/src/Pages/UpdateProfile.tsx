@@ -47,8 +47,10 @@ const UpdateProfile: React.FC = () => {
         try {
           const profileRes = await API.get(`/profile/${userId}`);
           profileData = profileRes.data;
+          
         } catch {
           console.log("No profile data found.");
+
         }
 
         setUser({
@@ -89,7 +91,7 @@ const UpdateProfile: React.FC = () => {
         skills: user.skills ? user.skills.split(",").map(s => s.trim()) : [],
         languages: user.languages ? user.languages.split(",").map(l => l.trim()) : [],
       };
-
+      
       await API.put(`/profile/update`, payload);
       setMessage("Profile updated successfully!");
       navigate(`/profile/${userId}`);

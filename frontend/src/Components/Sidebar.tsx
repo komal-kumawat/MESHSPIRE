@@ -5,7 +5,7 @@ import HomeIcon from "@mui/icons-material/Home";
 import ChatIcon from "@mui/icons-material/Chat";
 import SettingsIcon from "@mui/icons-material/Settings";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
-
+import EqualizerIcon from "@mui/icons-material/Equalizer";
 interface SidebarProps {
   onExpandChange?: (expanded: boolean) => void;
 }
@@ -25,6 +25,13 @@ const Sidebar: React.FC<SidebarProps> = ({ onExpandChange }) => {
       icon: <CalendarTodayIcon />,
       label: "Calendar",
       path: "/dashboard/#calendar",
+    },
+
+    {
+      id: "analytics",
+      icon: <EqualizerIcon />,
+      label: "Analytics",
+      path: "/dashboard/#analytics",
     },
     {
       id: "settings",
@@ -94,8 +101,8 @@ const Sidebar: React.FC<SidebarProps> = ({ onExpandChange }) => {
             className={`group relative flex items-center w-full py-3 px-3 my-1 rounded-xl transition-all duration-300
               ${
                 active === btn.id
-                  ? "bg-[rgba(255,255,255,0.25)] text-white"
-                  : "text-gray-300 hover:bg-[rgba(255,255,255,0.15)] hover:text-white"
+                  ? "bg-gray-800 text-white"
+                  : "text-gray-200 hover:bg-gray-800 hover:text-white"
               }
             `}
           >

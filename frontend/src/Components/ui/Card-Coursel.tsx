@@ -282,7 +282,7 @@ export const Card = ({
           <button
             onClick={handleOpen}
             className="px-8 py-2 font-medium text-white rounded-xl
-              bg-gradient-to-r from-gray-800 via-gray-800 to-gray-800
+              bg-gray-800
               hover:bg-violet-700 transition-all duration-300 cursor-pointer"
           >
             Get Info

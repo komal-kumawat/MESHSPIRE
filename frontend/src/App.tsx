@@ -5,7 +5,8 @@ import Room from "./Pages/RoomPage";
 import Meeting from "./Pages/Meeting";
 import Profile from "./Pages/Profile";
 import UpdateProfile from "./Pages/UpdateProfile";
-import ProtectedRoute from "./Components/PrivateRoute"; // ✅ use ProtectedRoute
+import ProtectedRoute from "./Components/PrivateRoute";
+import NotFound from "./Pages/NotFound";
 
 const App = () => {
   return (
@@ -13,7 +14,6 @@ const App = () => {
       <Routes>
         {/* Public Route */}
         <Route path="/" element={<AuthPage />} />
-
         {/* Protected Routes */}
         <Route
           path="/dashboard"
@@ -55,6 +55,7 @@ const App = () => {
             </ProtectedRoute>
           }
         />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
   );

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import Navbar from "../Component/Navbar";
 import Sidebar from "../Component/Sidebar";
 import MeetComp from "../Component/MeetComp";
@@ -10,6 +10,8 @@ interface Meeting {
 }
 
 const Dashboard: React.FC = () => {
+  const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
+
   const meetings: Meeting[] = [
     { id: 1, theoremName: "Pythagoras Theorem", teacherName: "Mr. Sharma" },
     { id: 2, theoremName: "Fermat's Last Theorem", teacherName: "Ms. Gupta" },
@@ -20,35 +22,35 @@ const Dashboard: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white flex flex-col">
-      <div className="flex flex-1">
-        <Sidebar />
+    <div className="min-h-screen bg-black text-white flex">
+      <Sidebar onExpandChange={setIsSidebarExpanded} />
 
-        <div className="flex flex-col flex-1 ml-10 md:ml-10">
-          <Navbar />
+      <div
+        className={`flex-1 transition-all duration-300 ${
+          isSidebarExpanded ? "ml-56" : "ml-20"
+        }`}
+      >
+        <Navbar isSidebarExpanded={isSidebarExpanded} />
 
-          <div className="px-4 sm:px-6 lg:px-10 py-8 flex flex-col items-center pl-10">
-            <h1 className="text-5xl font-bold text-white py-5">
-              Welcome to MeshSpire
-            </h1>
+        <main className="px-6 lg:px-10 py-10 transition-all duration-300">
+          <h1 className="text-5xl font-bold text-white mb-10 text-center">
+            Welcome to MeshSpire
+          </h1>
 
-            <div className="grid grid-cols-1  lg:grid-cols-3 gap-6 w-full max-w-[1200px] ">
-              {meetings.map((meeting) => (
-                <MeetComp
-                  key={meeting.id}
-                  theoremName={meeting.theoremName}
-                  teacherName={meeting.teacherName}
-                  onJoin={() =>
-                    console.log(`Joining ${meeting.theoremName}...`)
-                  }
-                  onDetails={() =>
-                    console.log(`Showing details of ${meeting.theoremName}...`)
-                  }
-                />
-              ))}
-            </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            {meetings.map((meeting) => (
+              <MeetComp
+                key={meeting.id}
+                theoremName={meeting.theoremName}
+                teacherName={meeting.teacherName}
+                onJoin={() => console.log(`Joining ${meeting.theoremName}...`)}
+                onDetails={() =>
+                  console.log(`Details of ${meeting.theoremName}...`)
+                }
+              />
+            ))}
           </div>
-        </div>
+        </main>
       </div>
     </div>
   );

@@ -6,28 +6,32 @@ import ChatIcon from "@mui/icons-material/Chat";
 import SettingsIcon from "@mui/icons-material/Settings";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 
-const Sidebar = () => {
+interface SidebarProps {
+  onExpandChange?: (expanded: boolean) => void;
+}
+
+const Sidebar: React.FC<SidebarProps> = ({ onExpandChange }) => {
   const [active, setActive] = useState("home");
   const [indicatorTop, setIndicatorTop] = useState(0);
+  const [isExpanded, setIsExpanded] = useState(false);
   const buttonsRef = useRef<(HTMLButtonElement | null)[]>([]);
   const navigate = useNavigate();
-
-//   // Determine screen width for expansion
-  const [isExpanded, setIsExpanded] = useState(false); // md breakpoint
-
-//   useEffect(() => {
-//     const handleResize = () => {
-//       setIsExpanded(window.innerWidth >= 768);
-//     };
-//     window.addEventListener("resize", handleResize);
-//     return () => window.removeEventListener("resize", handleResize);
-//   }, []);
 
   const buttons = [
     { id: "home", icon: <HomeIcon />, label: "Home", path: "/dashboard" },
     { id: "chat", icon: <ChatIcon />, label: "Chat", path: "/dashboard/#chat" },
-    { id: "calendar", icon: <CalendarTodayIcon />, label: "Calendar", path: "/dashboard/#calendar" },
-    { id: "settings", icon: <SettingsIcon />, label: "Settings", path: "/dashboard/#settings" },
+    {
+      id: "calendar",
+      icon: <CalendarTodayIcon />,
+      label: "Calendar",
+      path: "/dashboard/#calendar",
+    },
+    {
+      id: "settings",
+      icon: <SettingsIcon />,
+      label: "Settings",
+      path: "/dashboard/#settings",
+    },
   ];
 
   useEffect(() => {
@@ -35,9 +39,8 @@ const Sidebar = () => {
     const btn = buttonsRef.current[activeIndex];
     if (btn) {
       const iconCenter = btn.offsetTop + btn.offsetHeight / 2;
-      setIndicatorTop(iconCenter - 16); // 16 = half of indicator height (h-8)
+      setIndicatorTop(iconCenter - 16);
     }
-    setIsExpanded(false);
   }, [active]);
 
   const handleClick = (id: string, path: string) => {
@@ -45,34 +48,67 @@ const Sidebar = () => {
     navigate(path);
   };
 
+  const handleMouseEnter = () => {
+    setIsExpanded(true);
+    onExpandChange?.(true);
+  };
+
+  const handleMouseLeave = () => {
+    setIsExpanded(false);
+    onExpandChange?.(false);
+  };
+
   return (
     <div
-      className={`m-5 shadow-lg flex flex-col items-center py-4 gap-6 h-[95%] fixed bg-gray-900 rounded-xl transition-all duration-300
-        ${isExpanded ? "w-48" : "w-16"}
-      `}
+      className={`m-5 shadow-2xl flex flex-col items-center py-6 gap-6 h-[97%] fixed rounded-3xl
+      backdrop-blur-xl bg-slate-900/70 border border-[rgba(255,255,255,0.2)]
+      transition-all duration-300 ease-in-out
+      ${isExpanded ? "w-50" : "w-16"}
+    `}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
     >
-      {/* Logo */}
-      <img src={logo} alt="Logo" className={`mb-4 transition-all ${isExpanded ? "w-24" : "w-10"}`} />
+      <div className="flex items-center justify-center w-full">
+        <img
+          src={logo}
+          alt="Logo"
+          className={`transition-all duration-300 ${
+            isExpanded ? "w-10" : "w-10"
+          }`}
+        />
+      </div>
 
-      <div className="relative w-full flex flex-col items-center">
-        {/* Sliding Indicator */}
+      <div className="relative w-full flex flex-col items-start mt-4 px-2">
         <div
           className="absolute left-0 w-[4px] h-8 bg-white rounded-tr-md rounded-br-md transition-all duration-500"
-          style={{ top: indicatorTop - 1 }}
+          style={{ top: indicatorTop }}
         />
 
-        {/* Buttons */}
         {buttons.map((btn, index) => (
           <button
             key={btn.id}
-            ref={(el) => { buttonsRef.current[index] = el; }}
+            ref={(el) => {
+              buttonsRef.current[index] = el;
+            }}
             onClick={() => handleClick(btn.id, btn.path)}
-            className={`relative flex items-center w-full p-4 rounded-lg transition-all gap-3
-              ${active === btn.id ? "bg-gray-700" : "bg-transparent"}
+            className={`group relative flex items-center w-full py-3 px-3 my-1 rounded-xl transition-all duration-300
+              ${
+                active === btn.id
+                  ? "bg-[rgba(255,255,255,0.25)] text-white"
+                  : "text-gray-300 hover:bg-[rgba(255,255,255,0.15)] hover:text-white"
+              }
             `}
           >
-            <span className="text-white">{btn.icon}</span>
-            {isExpanded && <span className="text-white font-medium">{btn.label}</span>}
+            <span className="text-[1.6rem] flex justify-center items-center">
+              {btn.icon}
+            </span>
+            <span
+              className={`ml-4 text-sm font-medium whitespace-nowrap transition-opacity duration-300 ${
+                isExpanded ? "opacity-100" : "opacity-0"
+              }`}
+            >
+              {btn.label}
+            </span>
           </button>
         ))}
       </div>

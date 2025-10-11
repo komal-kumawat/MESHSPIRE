@@ -75,23 +75,20 @@ export default function AuthPage() {
           <div className="bg-white/10 backdrop-blur-sm rounded-full flex w-64 p-1 relative overflow-hidden">
             <motion.div
               layout
-              className={`absolute top-1 bottom-1 w-1/2 rounded-full bg-gradient-to-r from-green-600 to-green-700 shadow-lg transition-all duration-500 ${
-                isSignin ? "left-1" : "left-[48%]"
-              }`}
+              className={`absolute top-1 bottom-1 w-1/2 rounded-full bg-gradient-to-r from-green-600 to-green-700 shadow-lg transition-all duration-500 ${isSignin ? "left-1" : "left-[48%]"
+                }`}
             />
             <button
               onClick={() => setIsSignin(true)}
-              className={`relative z-10 w-1/2 py-2 rounded-full text-sm font-semibold transition-all ${
-                isSignin ? "text-white" : "text-gray-300 hover:text-white"
-              }`}
+              className={`relative z-10 w-1/2 py-2 rounded-full text-sm font-semibold transition-all ${isSignin ? "text-white" : "text-gray-300 hover:text-white"
+                }`}
             >
               Sign In
             </button>
             <button
               onClick={() => setIsSignin(false)}
-              className={`relative z-10 w-1/2 py-2 rounded-full text-sm font-semibold transition-all ${
-                !isSignin ? "text-white" : "text-gray-300 hover:text-white"
-              }`}
+              className={`relative z-10 w-1/2 py-2 rounded-full text-sm font-semibold transition-all ${!isSignin ? "text-white" : "text-gray-300 hover:text-white"
+                }`}
             >
               Sign Up
             </button>
@@ -185,7 +182,11 @@ export default function AuthPage() {
                 <h2 className="text-3xl font-bold text-center mb-6">
                   Create an Account
                 </h2>
-
+                {errorMsg && (
+                  <div className="mb-4 text-sm text-red-400 bg-white/5 p-2 rounded text-center">
+                    {errorMsg}
+                  </div>
+                )}
                 <div className="space-y-4">
                   <input
                     className="w-full px-4 py-3 bg-white/10 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-lime-400 placeholder-gray-300 transition"

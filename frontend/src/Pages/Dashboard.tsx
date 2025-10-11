@@ -79,7 +79,7 @@ const Dashboard: React.FC = () => {
   ));
 
   return (
-    <div className="min-h-screen bg-black text-white flex">
+    <div className="min-h-screen bg-black text-white flex ">
       <Sidebar onExpandChange={setIsSidebarExpanded} />
       <div
         className={`flex-1 transition-all duration-300 ${

@@ -49,9 +49,6 @@ function generateTokens(userId: string) {
   return { access, refresh };
 }
 
-// --------------------
-// Signup Route
-// --------------------
 router.post("/signup", async (req: Request, res: Response) => {
   try {
     const parsed = signupSchema.safeParse(req.body);
@@ -60,6 +57,7 @@ router.post("/signup", async (req: Request, res: Response) => {
         .status(StatusCodes.BAD_REQUEST)
         .json({ message: "Enter valid information" });
     }
+
     const { name, email, password } = parsed.data;
 
     const existing = await User.findOne({ email });
@@ -81,8 +79,6 @@ router.post("/signup", async (req: Request, res: Response) => {
       bio: "",
       languages: [],
     });
-
-
     // @ts-ignore
     const { access, refresh } = generateTokens(user._id.toString());
 
@@ -110,16 +106,13 @@ router.post("/signup", async (req: Request, res: Response) => {
   }
 });
 
-// --------------------
-// Signin Route
-// --------------------
 router.post("/signin", async (req: Request, res: Response) => {
   try {
     const parsed = signinSchema.safeParse(req.body);
     if (!parsed.success) {
       return res
         .status(StatusCodes.BAD_REQUEST)
-        .json({ message: "enter valid information" });
+        .json({ message: "Enter valid information" });
     }
 
     const { email, password } = parsed.data;
@@ -128,6 +121,12 @@ router.post("/signin", async (req: Request, res: Response) => {
       return res
         .status(StatusCodes.UNAUTHORIZED)
         .json({ message: "Invalid credentials" });
+
+    if (!user.password) {
+      return res
+        .status(StatusCodes.UNAUTHORIZED)
+        .json({ message: "This account uses Google Sign-In only" });
+    }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid)
@@ -156,17 +155,11 @@ router.post("/signin", async (req: Request, res: Response) => {
   }
 });
 
-// --------------------
-// Google OAuth Routes
-// --------------------
-
-// Step 1: Redirect user to Google
 router.get(
   "/auth/google",
   passport.authenticate("google", { scope: ["profile", "email"] })
 );
 
-// Step 2: Google callback
 router.get(
   "/auth/google/callback",
   passport.authenticate("google", { session: false, failureRedirect: "/" }),
@@ -183,7 +176,6 @@ router.get(
         maxAge: 7 * 24 * 60 * 60 * 1000,
       });
 
-      // Redirect back to frontend with access token
       const redirectUrl = `${process.env.FRONTEND_URL}/dashboard?token=${access}`;
       res.redirect(redirectUrl);
     } catch (err) {
@@ -193,9 +185,6 @@ router.get(
   }
 );
 
-// --------------------
-// Me Route
-// --------------------
 router.get("/me", async (req: Request, res: Response) => {
   try {
     const auth = req.headers.authorization;

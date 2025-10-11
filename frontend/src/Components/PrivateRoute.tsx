@@ -7,7 +7,12 @@ interface PrivateRouteProps {
 }
 
 const ProtectedRoute: React.FC<PrivateRouteProps> = ({ children }) => {
-  const { token } = useAuth();
+  const { token, loading } = useAuth();
+
+  if (loading) {
+    return <div className="text-center mt-10 text-gray-500">Loading...</div>;
+  }
+
 
   // If no token, redirect to signin page
   if (!token) {

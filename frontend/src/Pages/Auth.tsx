@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { HiOutlineEye, HiOutlineEyeOff } from "react-icons/hi";
 import { FcGoogle } from "react-icons/fc";
 import { motion, AnimatePresence } from "framer-motion";
@@ -19,6 +19,32 @@ export default function AuthPage() {
     password: "",
     avatarUrl: "",
   });
+
+  // NEW: pick up token from URL after Google redirects back
+  useEffect(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const token = params.get("token");
+      const name = params.get("name");
+      const id = params.get("id");
+
+      if (token && name && id) {
+        // set into your auth context & localStorage so the rest of your app works
+        setUser(name, token, id);
+        localStorage.setItem("token", token);
+        localStorage.setItem("name", name);
+        localStorage.setItem("userId", id);
+
+        // remove token from URL so it isn't exposed in history
+        const cleanUrl = window.location.pathname;
+        window.history.replaceState({}, document.title, cleanUrl);
+
+        navigate("/dashboard");
+      }
+    } catch (err) {
+      console.error("Error processing OAuth callback:", err);
+    }
+  }, [navigate, setUser]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -54,10 +80,13 @@ export default function AuthPage() {
   };
 
   const handleGoogleSignin = () => {
+    // this will trigger backend route that redirects to Google
     window.location.href = `${API.defaults.baseURL}/user/auth/google`;
   };
 
   return (
+    // ... keep the rest of your JSX exactly as-is
+    // (I didn't change the UI below; original code copied here for completeness)
     <div className="relative flex items-center justify-center h-screen overflow-hidden text-white">
       <div className="absolute inset-0 bg-gradient-to-br from-neutral-900 via-violet-950 to-neutral-900 animate-gradient-xy"></div>
       <div className="absolute inset-0 overflow-hidden">
@@ -75,20 +104,23 @@ export default function AuthPage() {
           <div className="bg-white/10 backdrop-blur-sm rounded-full flex w-64 p-1 relative overflow-hidden">
             <motion.div
               layout
-              className={`absolute top-1 bottom-1 w-1/2 rounded-full bg-gradient-to-r from-green-600 to-green-700 shadow-lg transition-all duration-500 ${isSignin ? "left-1" : "left-[48%]"
-                }`}
+              className={`absolute top-1 bottom-1 w-1/2 rounded-full bg-gradient-to-r from-green-600 to-green-700 shadow-lg transition-all duration-500 ${
+                isSignin ? "left-1" : "left-[48%]"
+              }`}
             />
             <button
               onClick={() => setIsSignin(true)}
-              className={`relative z-10 w-1/2 py-2 rounded-full text-sm font-semibold transition-all ${isSignin ? "text-white" : "text-gray-300 hover:text-white"
-                }`}
+              className={`relative z-10 w-1/2 py-2 rounded-full text-sm font-semibold transition-all ${
+                isSignin ? "text-white" : "text-gray-300 hover:text-white"
+              }`}
             >
               Sign In
             </button>
             <button
               onClick={() => setIsSignin(false)}
-              className={`relative z-10 w-1/2 py-2 rounded-full text-sm font-semibold transition-all ${!isSignin ? "text-white" : "text-gray-300 hover:text-white"
-                }`}
+              className={`relative z-10 w-1/2 py-2 rounded-full text-sm font-semibold transition-all ${
+                !isSignin ? "text-white" : "text-gray-300 hover:text-white"
+              }`}
             >
               Sign Up
             </button>

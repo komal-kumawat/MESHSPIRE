@@ -59,11 +59,11 @@ export default function AuthPage() {
 
   return (
     <div className="relative flex items-center justify-center h-screen overflow-hidden text-white">
-      <div className="absolute inset-0 bg-gradient-to-br from-neutral-800 via-purple-700 to-neutral-900 animate-gradient-xy"></div>
+      <div className="absolute inset-0 bg-gradient-to-br from-neutral-900 via-violet-950 to-neutral-900 animate-gradient-xy"></div>
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute w-[600px] h-[600px] bg-purple-800/20 rounded-full blur-3xl top-10 left-[-200px] animate-burn-slow"></div>
+        <div className="absolute w-[600px] h-[600px] bg-violet-950/40 rounded-full blur-3xl top-10 left-[-200px] animate-burn-slow"></div>
         <div className="absolute w-[500px] h-[500px] bg-slate-800/10 rounded-full blur-3xl bottom-0 right-[-150px] animate-burn-slower"></div>
-        <div className="absolute w-[400px] h-[400px] bg-purple-800/20 rounded-full blur-3xl top-1/3 right-1/3 animate-burn-slowest"></div>
+        <div className="absolute w-[400px] h-[400px] bg-violet-950/40 rounded-full blur-3xl top-1/3 right-1/3 animate-burn-slowest"></div>
       </div>
       <div className="absolute inset-0 bg-black/40 backdrop-blur-3xl"></div>
 

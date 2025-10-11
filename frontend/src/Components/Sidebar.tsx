@@ -7,7 +7,7 @@ import ChatIcon from "@mui/icons-material/Chat";
 import SettingsIcon from "@mui/icons-material/Settings";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import EqualizerIcon from "@mui/icons-material/Equalizer";
-
+import ExpandedLogo from "../assets/logo_dark.svg";
 interface SidebarProps {
   onExpandChange?: (expanded: boolean) => void;
 }
@@ -72,40 +72,30 @@ const Sidebar: React.FC<SidebarProps> = ({ onExpandChange }) => {
   };
 
   return (
-    <>
-      {/* Desktop Sidebar */}
-      <div
-        className={`hidden md:flex m-4 shadow-2xl flex-col items-center py-4 gap-6 h-[97%] fixed rounded-xl
-        backdrop-blur-xl bg-slate-900/70 border border-[rgba(255,255,255,0.2)]
-        transition-all duration-300 ease-in-out
-        ${isExpanded ? "w-52" : "w-16"}
-      `}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
-      >
-        {/* Logo */}
-        <div className="flex items-center justify-center w-full">
-          {isExpanded ? (
-            <img
-              src={ExpandedLogo}
-              alt="Logo"
-              className="transition-all duration-300 w-40"
-            />
-          ) : (
-            <img
-              src={logo}
-              alt="Logo"
-              className="transition-all duration-300 w-10"
-            />
-          )}
-        </div>
-
-        {/* Sidebar Buttons */}
-        <div className="relative w-full flex flex-col items-start mt-4 px-2">
-          <div
-            className="absolute left-0 w-[4px] h-8 bg-white rounded-tr-md rounded-br-md transition-all duration-500"
-            style={{ top: indicatorTop }}
+    <div
+      className={`m-4 shadow-2xl flex flex-col items-center py-4 gap-6 h-[97%] fixed rounded-xl
+      backdrop-blur-xl bg-slate-900/70 border border-[rgba(255,255,255,0.2)]
+      transition-all duration-300 ease-in-out
+      ${isExpanded ? "w-50" : "w-16"}
+    `}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
+      <div className="flex items-center justify-center w-full">
+        {isExpanded ? (
+          <img
+            src={ExpandedLogo}
+            alt="Logo"
+            className={`transition-all duration-300 w-40`}
           />
+        ) : (
+          <img
+            src={logo}
+            alt="Logo"
+            className={`transition-all duration-300 w-10`}
+          />
+        )}
+      </div>
 
           {buttons.map((btn, index) => (
             <button
@@ -143,14 +133,24 @@ const Sidebar: React.FC<SidebarProps> = ({ onExpandChange }) => {
           <button
             key={btn.id}
             onClick={() => handleClick(btn.id, btn.path)}
-            className={`flex flex-col items-center justify-center text-xs ${
-              active === btn.id
-                ? "text-green-400"
-                : "text-gray-400 hover:text-white"
-            }`}
+            className={`group relative flex items-center w-full py-3 px-3 my-1 rounded-xl transition-all duration-300
+              ${
+                active === btn.id
+                  ? "bg-gray-800 text-white"
+                  : "text-gray-200 hover:bg-gray-800 hover:text-white"
+              }
+            `}
           >
-            <span className="text-[1.6rem]">{btn.icon}</span>
-            <span>{btn.label}</span>
+            <span className="text-[1.6rem] flex justify-center items-center">
+              {btn.icon}
+            </span>
+            <span
+              className={`ml-4 text-sm font-medium whitespace-nowrap transition-opacity duration-300 ${
+                isExpanded ? "opacity-100" : "opacity-0"
+              }`}
+            >
+              {btn.label}
+            </span>
           </button>
         ))}
       </div>

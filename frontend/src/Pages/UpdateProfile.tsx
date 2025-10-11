@@ -1,3 +1,4 @@
+"use client";
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../Context/AuthContext";
 import API from "../api";
@@ -11,15 +12,14 @@ interface User {
   age?: number;
   avatar?: string;
   bio?: string;
-  skills?: string; // comma separated
+  skills?: string;
   role: string;
-  languages?: string; // comma separated
+  languages?: string;
 }
 
 const UpdateProfile: React.FC = () => {
   const { userId } = useAuth();
   const navigate = useNavigate();
-
   const [user, setUser] = useState<User>({
     name: "",
     email: "",
@@ -31,13 +31,12 @@ const UpdateProfile: React.FC = () => {
     role: "",
     languages: "",
   });
-
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | undefined>(undefined);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 
-  // Fetch user + profile
   useEffect(() => {
     if (!userId) return;
 
@@ -63,27 +62,30 @@ const UpdateProfile: React.FC = () => {
           bio: profileData.bio || "",
           skills: profileData.skills ? profileData.skills.join(", ") : "",
           role: profileData.role || "",
-          languages: profileData.languages ? profileData.languages.join(", ") : "",
+          languages: profileData.languages
+            ? profileData.languages.join(", ")
+            : "",
         });
-
         setPreview(profileData.avatar || undefined);
       } catch (err) {
         console.error("Error fetching profile:", err);
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchProfile();
   }, [userId]);
 
-  // Handle text input
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
   ) => {
     const { name, value } = e.target;
     setUser((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Handle avatar selection
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -97,19 +99,17 @@ const UpdateProfile: React.FC = () => {
     }
   };
 
-  // Remove avatar
   const handleRemovePhoto = () => {
     setSelectedFile(null);
     setPreview(undefined);
     setUser((prev) => ({ ...prev, avatar: "" }));
   };
 
-  // Submit profile
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!userId) return;
 
-    setLoading(true);
+    setSaving(true);
     setMessage(null);
 
     try {
@@ -121,17 +121,27 @@ const UpdateProfile: React.FC = () => {
       formData.append("role", user.role);
       formData.append(
         "skills",
-        user.skills ? user.skills.split(",").map((s) => s.trim()).join(",") : ""
+        user.skills
+          ? user.skills
+              .split(",")
+              .map((s) => s.trim())
+              .join(",")
+          : ""
       );
       formData.append(
         "languages",
-        user.languages ? user.languages.split(",").map((l) => l.trim()).join(",") : ""
+        user.languages
+          ? user.languages
+              .split(",")
+              .map((l) => l.trim())
+              .join(",")
+          : ""
       );
 
       if (selectedFile) {
         formData.append("avatar", selectedFile);
       } else if (preview === undefined) {
-        formData.append("avatar", ""); // remove avatar
+        formData.append("avatar", "");
       }
 
       await API.put(`/profile/update`, formData, {
@@ -139,179 +149,190 @@ const UpdateProfile: React.FC = () => {
       });
 
       setMessage("Profile updated successfully!");
-      navigate(`/profile/${userId}`);
+      setTimeout(() => navigate(`/profile/${userId}`), 1000);
     } catch (err) {
       console.error(err);
       setMessage("Failed to update profile");
     } finally {
-      setLoading(false);
+      setSaving(false);
     }
   };
 
+  const Skeleton = () => (
+    <div className="animate-pulse w-full max-w-5xl bg-slate-900/60 border border-white/10 rounded-2xl shadow-xl backdrop-blur-xl p-10">
+      <div className="flex flex-col md:flex-row gap-8">
+        <div className="flex flex-col items-center gap-4 md:w-1/3">
+          <div className="w-32 h-32 bg-slate-800 rounded-full"></div>
+          <div className="w-24 h-4 bg-slate-800 rounded"></div>
+          <div className="w-16 h-4 bg-slate-800 rounded"></div>
+        </div>
+        <div className="flex flex-col gap-4 md:w-2/3">
+          {Array(6)
+            .fill(0)
+            .map((_, i) => (
+              <div key={i} className="w-full h-12 bg-slate-800 rounded"></div>
+            ))}
+        </div>
+      </div>
+    </div>
+  );
+
   return (
-    <div className="min-h-screen bg-gray-950 flex justify-center items-start p-6">
-      <form
-        onSubmit={handleSubmit}
-        className="bg-gray-900 text-white rounded-2xl shadow-lg max-w-4xl w-full flex flex-col md:flex-row overflow-hidden"
-      >
-        {/* Left Column */}
-        <div className="md:w-1/3 bg-gray-800 p-6 flex flex-col items-center gap-4">
-          {preview ? (
-            <img
-              src={preview}
-              alt={user.name}
-              className="w-36 h-36 rounded-full object-cover border-2 border-cyan-400"
-            />
-          ) : (
-            <FaUserAlt size={120} className="text-gray-400" />
-          )}
+    <div className="flex flex-col min-h-screen bg-gray-950 text-white overflow-hidden">
+      <main className="flex flex-col items-center justify-center px-6 py-4 bg-gray-950 min-h-screen">
+        <h1 className="text-4xl text-center mb-4">UPDATE PROFILE</h1>
 
-          {/* Hidden file input */}
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleFileChange}
-            id="avatarInput"
-            className="hidden"
-          />
-
-          {/* Custom button */}
-          <button
-            type="button"
-            onClick={() => document.getElementById("avatarInput")?.click()}
-            className="mt-2 px-4 py-2 bg-cyan-500 hover:bg-cyan-600 text-white font-semibold rounded-lg transition"
+        {loading ? (
+          <Skeleton />
+        ) : (
+          <form
+            onSubmit={handleSubmit}
+            className="w-full max-w-5xl bg-slate-900/70 border border-white/10 rounded-2xl shadow-xl backdrop-blur-xl flex flex-col md:flex-row overflow-hidden max-h-[90vh]"
           >
-            Choose File
-          </button>
+            <div className="md:w-1/3 bg-slate-900/80 border-b md:border-b-0 md:border-r border-white/10 p-8 flex flex-col items-center gap-4">
+              {preview ? (
+                <img
+                  src={preview}
+                  alt={user.name}
+                  className="w-36 h-36 rounded-full object-cover border-4 border-violet-700 shadow-lg"
+                />
+              ) : (
+                <FaUserAlt size={120} className="text-gray-500" />
+              )}
 
-          {preview && (
-            <button
-              type="button"
-              onClick={handleRemovePhoto}
-              className="text-red-400 mt-2 text-sm hover:underline"
-            >
-              Remove Photo
-            </button>
-          )}
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+                id="avatarInput"
+                className="hidden"
+              />
 
+              <button
+                type="button"
+                onClick={() => document.getElementById("avatarInput")?.click()}
+                className="px-6 py-2 bg-gradient-to-r from-violet-900 via-violet-800 to-violet-900 hover:from-violet-800 hover:to-violet-700 transition-all duration-300 rounded-xl font-semibold shadow-md text-white"
+              >
+                Choose File
+              </button>
 
+              {preview && (
+                <button
+                  type="button"
+                  onClick={handleRemovePhoto}
+                  className="text-red-400 hover:text-red-300 text-sm"
+                >
+                  Remove Photo
+                </button>
+              )}
 
-          <p className="text-gray-400">{user.email}</p>
-          <p className="text-gray-400">{user.role}</p>
+              <p className="text-gray-400">{user.email}</p>
+              <p className="text-gray-400">{user.role}</p>
 
-          <button
-            className="my-5 p-2 bg-cyan-500 font-bold text-white rounded-xl hover:bg-cyan-600"
-            onClick={() => navigate("/dashboard")}
-            type="button"
-          >
-            Go back to Dashboard
-          </button>
-        </div>
+              <button
+                className="mt-4 px-6 py-2 bg-gradient-to-r from-gray-800 via-gray-800 to-gray-800 hover:from-gray-700 hover:to-gray-700 transition-all duration-300 rounded-2xl font-semibold shadow-lg text-white"
+                onClick={() => navigate("/dashboard")}
+                type="button"
+              >
+                Go back to Dashboard
+              </button>
+            </div>
 
-        {/* Right Column */}
-        <div className="md:w-2/3 p-6 flex flex-col gap-4">
-          <label>
-            Name
-            <input
-              type="string"
-              name="name"
-              value={user.name || ""}
-              onChange={handleChange}
-              className="w-full p-3 mt-1 rounded-lg bg-gray-800 border border-gray-700 focus:border-cyan-400 outline-none"
-            />
-          </label>
-          <label>
-            Gender
-            <select
-              name="gender"
-              value={user.gender}
-              onChange={handleChange}
-              className="w-full p-3 mt-1 rounded-lg bg-gray-800 border border-gray-700 focus:border-cyan-400 outline-none"
-            >
-              <option value="">Select Gender</option>
-              <option value="male">Male</option>
-              <option value="female">Female</option>
-              <option value="other">Other</option>
-            </select>
-          </label>
+            <div className="md:w-2/3 p-6 flex flex-col gap-6 overflow-y-auto scrollbar-thin scrollbar-thumb-violet-800 scrollbar-track-slate-900 max-h-[90vh]">
+              {[
+                { label: "Name", name: "name", type: "text" },
+                { label: "Age", name: "age", type: "number" },
+                {
+                  label: "Skills (comma separated)",
+                  name: "skills",
+                  type: "text",
+                },
+                {
+                  label: "Languages (comma separated)",
+                  name: "languages",
+                  type: "text",
+                },
+              ].map((field) => (
+                <label key={field.name} className="flex flex-col text-gray-200">
+                  {field.label}
+                  <input
+                    type={field.type}
+                    name={field.name}
+                    value={(user as any)[field.name]}
+                    onChange={handleChange}
+                    className="w-full mt-2 px-4 py-2 rounded-xl bg-slate-900/80 border border-white/10 focus:ring-2 focus:ring-violet-700 outline-none transition"
+                  />
+                </label>
+              ))}
 
-          <label>
-            Age
-            <input
-              type="number"
-              name="age"
-              value={user.age || ""}
-              onChange={handleChange}
-              className="w-full p-3 mt-1 rounded-lg bg-gray-800 border border-gray-700 focus:border-cyan-400 outline-none"
-            />
-          </label>
+              <label className="flex flex-col text-gray-200">
+                Gender
+                <select
+                  name="gender"
+                  value={user.gender}
+                  onChange={handleChange}
+                  className="w-full mt-2 px-4 py-2 rounded-xl bg-slate-900/80 border border-white/10 focus:ring-2 focus:ring-violet-700 outline-none transition"
+                >
+                  <option value="">Select Gender</option>
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                  <option value="other">Other</option>
+                </select>
+              </label>
 
+              <label className="flex flex-col text-gray-200">
+                Bio
+                <textarea
+                  name="bio"
+                  value={user.bio}
+                  onChange={handleChange}
+                  placeholder="Tell something about yourself"
+                  className="w-full mt-2 px-4 py-2 rounded-xl bg-slate-900/80 border border-white/10 focus:ring-2 focus:ring-violet-700 outline-none transition resize-none"
+                  rows={4}
+                />
+              </label>
 
-          <label>
-            Bio
-            <textarea
-              name="bio"
-              value={user.bio}
-              onChange={handleChange}
-              className="w-full p-3 mt-1 rounded-lg bg-gray-800 border border-gray-700 focus:border-cyan-400 outline-none resize-none"
-              placeholder="Tell something about yourself"
-            />
-          </label>
+              <label className="flex flex-col text-gray-200">
+                Role
+                <select
+                  name="role"
+                  value={user.role}
+                  onChange={handleChange}
+                  className="w-full mt-2 px-4 py-2 rounded-xl bg-slate-900/80 border border-white/10 focus:ring-2 focus:ring-violet-700 outline-none transition"
+                >
+                  <option value="">Select Role</option>
+                  <option value="student">Student</option>
+                  <option value="teacher">Teacher</option>
+                </select>
+              </label>
 
-          <label>
-            Skills (comma separated)
-            <input
-              type="text"
-              name="skills"
-              value={user.skills}
-              onChange={handleChange}
-              className="w-full p-3 mt-1 rounded-lg bg-gray-800 border border-gray-700 focus:border-cyan-400 outline-none"
-            />
-          </label>
-
-          <label>
-            Languages (comma separated)
-            <input
-              type="text"
-              name="languages"
-              value={user.languages}
-              onChange={handleChange}
-              className="w-full p-3 mt-1 rounded-lg bg-gray-800 border border-gray-700 focus:border-cyan-400 outline-none"
-            />
-          </label>
-
-          <label>
-            Role
-            <select
-              name="role"
-              value={user.role}
-              onChange={handleChange}
-              className="w-full p-3 mt-1 rounded-lg bg-gray-800 border border-gray-700 focus:border-cyan-400 outline-none"
-            >
-              <option value="">Select Role</option>
-              <option value="student">Student</option>
-              <option value="teacher">Teacher</option>
-            </select>
-          </label>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="mt-6 w-full bg-cyan-500 hover:bg-cyan-600 text-white font-semibold py-3 rounded-lg transition"
-          >
-            {loading ? "Updating..." : "Update Profile"}
-          </button>
-
-          {message && (
-            <p
-              className={`text-center mt-2 ${message.includes("successfully") ? "text-green-400" : "text-red-400"
+              <button
+                type="submit"
+                disabled={saving}
+                className={`mt-6 w-full py-2 rounded-2xl font-semibold text-lg shadow-lg transition-all duration-300 ${
+                  saving
+                    ? "bg-slate-700 text-gray-400 cursor-not-allowed"
+                    : "bg-gradient-to-r from-violet-900 via-violet-800 to-violet-900 hover:from-violet-800 hover:to-violet-700 text-white"
                 }`}
-            >
-              {message}
-            </p>
-          )}
-        </div>
-      </form>
+              >
+                {saving ? "Updating..." : "Update Profile"}
+              </button>
+
+              {message && (
+                <p
+                  className={`text-center mt-4 font-medium transition-all duration-300 ${
+                    message.includes("success")
+                      ? "text-green-400"
+                      : "text-red-400"
+                  }`}
+                >
+                  {message}
+                </p>
+              )}
+            </div>
+          </form>
+        )}
+      </main>
     </div>
   );
 };

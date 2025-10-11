@@ -11,11 +11,12 @@ interface NavbarProps {
 }
 
 const Navbar: React.FC<NavbarProps> = ({ isSidebarExpanded }) => {
-  const { username, logout, userId } = useAuth();
+  const { username ,logout, userId } = useAuth();
   const [userDropDown, setUserDropDown] = useState(false);
   const navigate = useNavigate();
   const dropdownRef = useRef<HTMLDivElement | null>(null);
   const [avatar, setAvatar] = useState("");
+  const [name , setName] = useState("");
   const handleLogout = () => {
     logout();
     navigate("/");
@@ -25,6 +26,7 @@ const Navbar: React.FC<NavbarProps> = ({ isSidebarExpanded }) => {
       try {
         const userRes = await API.get(`/profile/${userId}`);
         setAvatar(userRes.data.avatar);
+        setName(userRes.data.name);
 
       } catch (err) {
         console.error("error while fetching avatar")
@@ -61,9 +63,9 @@ const Navbar: React.FC<NavbarProps> = ({ isSidebarExpanded }) => {
         className="text-lg font-semibold cursor-pointer"
         onClick={() => navigate("/dashboard")}
       >
-        {username
-          ? `Hello, ${username.charAt(0).toUpperCase() + username.slice(1)}`
-          : "Hello, Guest"}
+        {name
+          ? `Hello, ${name.charAt(0).toUpperCase() + name.slice(1)}`
+          : `Hello ${username}`}
       </div>
 
       <div className="flex items-center gap-5 relative">
@@ -83,8 +85,8 @@ const Navbar: React.FC<NavbarProps> = ({ isSidebarExpanded }) => {
             <img
               src={avatar || "/default-avatar.png"} // fallback image
               alt="User Avatar"
-              width={50}
-              height={50}
+              width={30}
+              height={20}
               className="cursor-pointer rounded-full border border-gray-600 hover:scale-105 transition-transform duration-200"
               onClick={() => setUserDropDown(!userDropDown)}
             />
@@ -108,10 +110,10 @@ const Navbar: React.FC<NavbarProps> = ({ isSidebarExpanded }) => {
                 }`}
             >
               <div className="px-4 py-2 border-b border-gray-700">
-                {username
-                  ? `Hello, ${username.charAt(0).toUpperCase() + username.slice(1)
+                {name
+                  ? `Hello, ${name.charAt(0).toUpperCase() + name.slice(1)
                   }`
-                  : "Hello, Guest"}
+                  : `Hello, ${username}`}
               </div>
               <div
                 className="px-4 py-2 cursor-pointer hover:bg-[rgba(255,255,255,0.1)] transition"

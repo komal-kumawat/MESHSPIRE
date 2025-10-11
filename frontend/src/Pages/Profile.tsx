@@ -60,7 +60,6 @@ const Profile: React.FC = () => {
     fetchData();
   }, [userId]);
 
-  // Skeleton shimmer loader
   const Skeleton = () => (
     <div className="animate-pulse flex flex-col items-center gap-6 w-full max-w-5xl bg-slate-900/50 border border-white/10 rounded-2xl shadow-xl backdrop-blur-xl p-10">
       <div className="w-32 h-32 rounded-full bg-slate-800" />
@@ -84,7 +83,6 @@ const Profile: React.FC = () => {
           <div className="text-gray-300 text-xl">Profile not found.</div>
         ) : (
           <div className="w-full max-w-5xl bg-slate-900/70 border border-white/10 rounded-2xl shadow-xl backdrop-blur-xl flex flex-col md:flex-row overflow-hidden transition-all duration-500">
-            {/* LEFT - Avatar Section */}
             <div className="md:w-1/3 p-8 flex flex-col items-center justify-center bg-slate-900/80 border-b md:border-b-0 md:border-r border-white/10">
               {user.avatar ? (
                 <img
@@ -106,10 +104,7 @@ const Profile: React.FC = () => {
                 Go back to Dashboard
               </button>
             </div>
-
-            {/* RIGHT - Details */}
             <div className="md:w-2/3 p-8 flex flex-col gap-6">
-              {/* About */}
               <div className="bg-slate-900/60 border border-white/10 rounded-xl p-6 backdrop-blur-sm shadow-sm">
                 <h3 className="text-xl font-semibold text-white mb-2">About</h3>
                 <p className="text-gray-300">
@@ -117,7 +112,6 @@ const Profile: React.FC = () => {
                 </p>
               </div>
 
-              {/* Skills */}
               <div className="bg-slate-900/60 border border-white/10 rounded-xl p-6 backdrop-blur-sm shadow-sm">
                 <h3 className="text-xl font-semibold text-white mb-2">
                   Skills
@@ -129,7 +123,6 @@ const Profile: React.FC = () => {
                 </p>
               </div>
 
-              {/* Languages */}
               <div className="bg-slate-900/60 border border-white/10 rounded-xl p-6 backdrop-blur-sm shadow-sm">
                 <h3 className="text-xl font-semibold text-white mb-2">
                   Languages
@@ -141,7 +134,6 @@ const Profile: React.FC = () => {
                 </p>
               </div>
 
-              {/* Additional Info */}
               <div className="bg-slate-900/60 border border-white/10 rounded-xl p-6 grid grid-cols-2 gap-4 backdrop-blur-sm shadow-sm">
                 <p>
                   <span className="font-semibold text-white">Gender:</span>{" "}
@@ -153,7 +145,6 @@ const Profile: React.FC = () => {
                 </p>
               </div>
 
-              {/* Update Button */}
               <button
                 onClick={() => navigate("/update-profile")}
                 className="w-full mt-4 py-4 bg-gradient-to-r from-violet-900 via-violet-800 to-violet-900 hover:from-violet-800 hover:to-violet-700 transition-all duration-300 rounded-2xl font-semibold shadow-lg text-lg"

@@ -4,7 +4,6 @@ import { useAuth } from "../Context/AuthContext";
 import API from "../api";
 import { useNavigate } from "react-router-dom";
 import { FaUserAlt } from "react-icons/fa";
-import Navbar from "../Components/Navbar";
 
 interface User {
   name: string;
@@ -190,7 +189,6 @@ const UpdateProfile: React.FC = () => {
             onSubmit={handleSubmit}
             className="w-full max-w-5xl bg-slate-900/70 border border-white/10 rounded-2xl shadow-xl backdrop-blur-xl flex flex-col md:flex-row overflow-hidden max-h-[90vh]"
           >
-            {/* LEFT PANEL */}
             <div className="md:w-1/3 bg-slate-900/80 border-b md:border-b-0 md:border-r border-white/10 p-8 flex flex-col items-center gap-4">
               {preview ? (
                 <img
@@ -240,7 +238,6 @@ const UpdateProfile: React.FC = () => {
               </button>
             </div>
 
-            {/* RIGHT PANEL (scrollable only) */}
             <div className="md:w-2/3 p-6 flex flex-col gap-6 overflow-y-auto scrollbar-thin scrollbar-thumb-violet-800 scrollbar-track-slate-900 max-h-[90vh]">
               {[
                 { label: "Name", name: "name", type: "text" },

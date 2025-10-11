@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import SearchIcon from "@mui/icons-material/Search";
+import API from "../api";
 
 interface NavbarProps {
   isSidebarExpanded: boolean;
@@ -14,11 +15,25 @@ const Navbar: React.FC<NavbarProps> = ({ isSidebarExpanded }) => {
   const [userDropDown, setUserDropDown] = useState(false);
   const navigate = useNavigate();
   const dropdownRef = useRef<HTMLDivElement | null>(null);
-
+  const [avatar, setAvatar] = useState("");
   const handleLogout = () => {
     logout();
     navigate("/");
   };
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const userRes = await API.get(`/profile/${userId}`);
+        setAvatar(userRes.data.avatar);
+
+      } catch (err) {
+        console.error("error while fetching avatar")
+
+      }
+    }
+    fetchUser();
+
+  }, [userId])
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -64,27 +79,38 @@ const Navbar: React.FC<NavbarProps> = ({ isSidebarExpanded }) => {
         <NotificationsIcon className="text-gray-300 cursor-pointer hover:text-white transition" />
 
         <div className="relative" ref={dropdownRef}>
-          <AccountCircleIcon
-            fontSize="large"
-            className="text-gray-300 cursor-pointer hover:text-white transition"
-            onClick={() => setUserDropDown(!userDropDown)}
-          />
+          {avatar ?
+            <img
+              src={avatar || "/default-avatar.png"} // fallback image
+              alt="User Avatar"
+              width={50}
+              height={50}
+              className="cursor-pointer rounded-full border border-gray-600 hover:scale-105 transition-transform duration-200"
+              onClick={() => setUserDropDown(!userDropDown)}
+            />
+
+            :
+            <AccountCircleIcon
+              fontSize="large"
+              className="text-gray-300 cursor-pointer hover:text-white transition"
+              onClick={() => setUserDropDown(!userDropDown)}
+            />
+          }
+
 
           {userDropDown && (
             <div
               className={`absolute -right-4 top-10 mt-3 w-40 bg-slate-900/70 backdrop-blur-md text-white rounded-xl shadow-xl border border-[rgba(255,255,255,0.15)] 
     transform transition-all duration-300 ease-out
-    ${
-      userDropDown
-        ? "opacity-100 translate-y-0"
-        : "opacity-0 -translate-y-3 pointer-events-none"
-    }`}
+    ${userDropDown
+                  ? "opacity-100 translate-y-0"
+                  : "opacity-0 -translate-y-3 pointer-events-none"
+                }`}
             >
               <div className="px-4 py-2 border-b border-gray-700">
                 {username
-                  ? `Hello, ${
-                      username.charAt(0).toUpperCase() + username.slice(1)
-                    }`
+                  ? `Hello, ${username.charAt(0).toUpperCase() + username.slice(1)
+                  }`
                   : "Hello, Guest"}
               </div>
               <div

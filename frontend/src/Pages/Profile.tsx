@@ -74,8 +74,8 @@ const Profile: React.FC = () => {
 
   return (
     <div className="flex flex-col h-screen bg-gray-950 text-white overflow-hidden">
-      <main className="flex flex-col items-center justify-center px-6 py-10 md:py-20 bg-gray-950 min-h-screen">
-        <h1 className="text-5xl text-center mb-10">PROFILE</h1>
+      <main className="flex flex-col items-center justify-center px-6 py-10 md:py-10 bg-gray-950 ">
+        <h1 className="text-4xl text-center mb-4">PROFILE</h1>
 
         {loading ? (
           <Skeleton />

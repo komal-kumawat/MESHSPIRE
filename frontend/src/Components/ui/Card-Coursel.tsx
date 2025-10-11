@@ -216,7 +216,7 @@ export const Card = ({
                 shadow-2xl p-8 text-white"
             >
               <button
-                className="absolute top-4 right-4 flex h-8 w-8 items-center justify-center rounded-full bg-black/60 text-white"
+                className="absolute top-4 right-4 flex h-8 w-8 items-center justify-center rounded-full bg-gray-900 text-white"
                 onClick={handleClose}
               >
                 <IconX className="h-5 w-5" />
@@ -283,7 +283,7 @@ export const Card = ({
             onClick={handleOpen}
             className="px-8 py-2 font-medium text-white rounded-xl
               bg-gray-800
-              hover:bg-violet-700 transition-all duration-300 cursor-pointer"
+              hover:bg-gray-900 transition-all duration-300 cursor-pointer"
           >
             Get Info
           </button>

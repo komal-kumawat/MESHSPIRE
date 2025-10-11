@@ -68,7 +68,7 @@ const Dashboard: React.FC = () => {
         rating: m.rating,
         content: (
           <div>
-            <p className="text-gray-700">
+            <p className="text-gray-700 text-sm sm:text-base">
               Learn about {m.theoremName} with {m.teacherName}. Dive into its
               proofs, applications, and visual understanding.
             </p>
@@ -79,23 +79,30 @@ const Dashboard: React.FC = () => {
   ));
 
   return (
-    <div className="min-h-screen bg-black text-white flex ">
+    <div className="min-h-screen bg-black text-white flex flex-col md:flex-row w-full overflow-x-hidden">
+      {/* Sidebar */}
       <Sidebar onExpandChange={setIsSidebarExpanded} />
+
+      {/* Main Content */}
       <div
-        className={`flex-1 transition-all duration-300 ${
-          isSidebarExpanded ? "ml-56" : "ml-20"
-        }`}
+        className={`flex-1 transition-all duration-300 ${isSidebarExpanded ? "md:ml-60" : "md:ml-20"
+          } w-full `}
       >
         <Navbar isSidebarExpanded={isSidebarExpanded} />
-        <main className="px-6 py-8 transition-all duration-300">
-          <h1 className="text-3xl text-white mb-6 font-semibold">
+
+        <main className="px-4 sm:px-6 py-6 sm:py-8 transition-all duration-300">
+          <h1 className="text-2xl sm:text-3xl text-white mb-6 font-semibold text-center sm:text-left">
             Your Next Lessons
           </h1>
 
-          <Carousel items={cards} />
+          {/* Carousel */}
+          <div className="w-full overflow-x-hidden">
+            <Carousel items={cards} />
+          </div>
         </main>
       </div>
     </div>
+
   );
 };
 

@@ -11,12 +11,12 @@ interface NavbarProps {
 }
 
 const Navbar: React.FC<NavbarProps> = ({ isSidebarExpanded }) => {
-  const { username ,logout, userId } = useAuth();
+  const { username, logout, userId } = useAuth();
   const [userDropDown, setUserDropDown] = useState(false);
   const navigate = useNavigate();
   const dropdownRef = useRef<HTMLDivElement | null>(null);
   const [avatar, setAvatar] = useState("");
-  const [name , setName] = useState("");
+  const [name, setName] = useState("");
   const handleLogout = () => {
     logout();
     navigate("/");
@@ -57,7 +57,7 @@ const Navbar: React.FC<NavbarProps> = ({ isSidebarExpanded }) => {
     <nav
       className={`sticky top-0 z-40 backdrop-blur-xl  border border-[rgba(255,255,255,0.2)] 
       bg-slate-900/70 text-white py-2 flex items-center justify-between transition-all duration-300
-      ${isSidebarExpanded ? "ml-4" : "ml-4"} mr-4 rounded-xl mt-4 px-4`}
+      ${isSidebarExpanded ? "ml-4 mr-5 md:w-[67%] lg:w-[74%] xl:w-[80%]  " : "ml-4 md:w-[85%] lg:w-[90%] xl:w-[92%]  "}  rounded-xl mt-4 px-4  mr-4 `}
     >
       <div
         className="text-lg font-semibold cursor-pointer"
@@ -85,8 +85,7 @@ const Navbar: React.FC<NavbarProps> = ({ isSidebarExpanded }) => {
             <img
               src={avatar || "/default-avatar.png"} // fallback image
               alt="User Avatar"
-              width={30}
-              height={20}
+              width={25}
               className="cursor-pointer rounded-full border border-gray-600 hover:scale-105 transition-transform duration-200"
               onClick={() => setUserDropDown(!userDropDown)}
             />

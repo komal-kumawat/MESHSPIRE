@@ -14,7 +14,7 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({ onExpandChange }) => {
   const [active, setActive] = useState("home");
-  const [, setIndicatorTop] = useState(0);
+  const [indicatorTop, setIndicatorTop] = useState(0);
   const [isExpanded, setIsExpanded] = useState(false);
   const buttonsRef = useRef<(HTMLButtonElement | null)[]>([]);
   const navigate = useNavigate();
@@ -58,6 +58,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onExpandChange }) => {
 
   const handleMouseEnter = () => {
     if (window.innerWidth >= 768) {
+      // expand only on desktop
       setIsExpanded(true);
       onExpandChange?.(true);
     }
@@ -74,15 +75,15 @@ const Sidebar: React.FC<SidebarProps> = ({ onExpandChange }) => {
     <>
       {/* Desktop Sidebar */}
       <div
-        className={`m-4 shadow-2xl flex flex-col items-center py-4 gap-6 h-[97%] fixed rounded-xl
+        className={`hidden md:flex m-4 shadow-2xl flex-col items-center py-4 gap-6 h-[97%] fixed rounded-xl
         backdrop-blur-xl bg-slate-900/70 border border-[rgba(255,255,255,0.2)]
         transition-all duration-300 ease-in-out
-        ${isExpanded ? "w-48" : "w-16"}
-        hidden md:flex
+        ${isExpanded ? "w-52" : "w-16"}
       `}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >
+        {/* Logo */}
         <div className="flex items-center justify-center w-full">
           {isExpanded ? (
             <img
@@ -99,34 +100,41 @@ const Sidebar: React.FC<SidebarProps> = ({ onExpandChange }) => {
           )}
         </div>
 
-        {/* Navigation Buttons */}
-        {buttons.map((btn, index) => (
-          <button
-            key={btn.id}
-            ref={(el) => {
-              buttonsRef.current[index] = el;
-            }}
-            onClick={() => handleClick(btn.id, btn.path)}
-            className={`group relative flex items-center w-full py-3 px-3 my-1 rounded-xl transition-all duration-300
-              ${
-                active === btn.id
-                  ? "bg-gray-800 text-white"
-                  : "text-gray-200 hover:bg-gray-800 hover:text-white"
-              }
-            `}
-          >
-            <span className="text-[1.6rem] flex justify-center items-center">
-              {btn.icon}
-            </span>
-            <span
-              className={`ml-4 text-sm font-medium whitespace-nowrap transition-opacity duration-300 ${
-                isExpanded ? "opacity-100" : "opacity-0"
-              }`}
+        {/* Sidebar Buttons */}
+        <div className="relative w-full flex flex-col items-start mt-4 px-2">
+          <div
+            className="absolute left-0 w-[4px] h-8 bg-white rounded-tr-md rounded-br-md transition-all duration-500"
+            style={{ top: indicatorTop }}
+          />
+
+          {buttons.map((btn, index) => (
+            <button
+              key={btn.id}
+              ref={(el) => {
+                buttonsRef.current[index] = el;
+              }}
+              onClick={() => handleClick(btn.id, btn.path)}
+              className={`group relative flex items-center w-full py-3 px-3 my-1 rounded-xl transition-all duration-300
+                ${
+                  active === btn.id
+                    ? "bg-gray-800 text-white"
+                    : "text-gray-200 hover:bg-gray-800 hover:text-white"
+                }
+              `}
             >
-              {btn.label}
-            </span>
-          </button>
-        ))}
+              <span className="text-[1.6rem] flex justify-center items-center">
+                {btn.icon}
+              </span>
+              <span
+                className={`ml-4 text-sm font-medium whitespace-nowrap transition-opacity duration-300 ${
+                  isExpanded ? "opacity-100" : "opacity-0"
+                }`}
+              >
+                {btn.label}
+              </span>
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Mobile Bottom Navigation */}
@@ -135,16 +143,14 @@ const Sidebar: React.FC<SidebarProps> = ({ onExpandChange }) => {
           <button
             key={btn.id}
             onClick={() => handleClick(btn.id, btn.path)}
-            className={`flex flex-col items-center justify-center px-3 py-2 transition-all duration-300
-              ${
-                active === btn.id
-                  ? "text-white"
-                  : "text-gray-400 hover:text-white"
-              }
-            `}
+            className={`flex flex-col items-center justify-center text-xs ${
+              active === btn.id
+                ? "text-green-400"
+                : "text-gray-400 hover:text-white"
+            }`}
           >
             <span className="text-[1.6rem]">{btn.icon}</span>
-            <span className="text-xs mt-1">{btn.label}</span>
+            <span>{btn.label}</span>
           </button>
         ))}
       </div>

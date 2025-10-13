@@ -5,7 +5,9 @@ import Room from "./Pages/RoomPage";
 import Meeting from "./Pages/Meeting";
 import Profile from "./Pages/Profile";
 import UpdateProfile from "./Pages/UpdateProfile";
-import ProtectedRoute from "./Components/PrivateRoute"; // ✅ use ProtectedRoute
+import ProtectedRoute from "./Components/PrivateRoute";
+import NotFound from "./Pages/NotFound";
+import DashboardLayout from "./Pages/DashboardLayout";
 
 const App = () => {
   return (
@@ -13,48 +15,34 @@ const App = () => {
       <Routes>
         {/* Public Route */}
         <Route path="/" element={<AuthPage />} />
-
         {/* Protected Routes */}
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/room/:roomid"
-          element={
-            <ProtectedRoute>
-              <Room />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/meeting"
-          element={
-            <ProtectedRoute>
-              <Meeting />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/profile/:id"
-          element={
-            <ProtectedRoute>
-              <Profile />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/update-profile"
-          element={
-            <ProtectedRoute>
-              <UpdateProfile />
-            </ProtectedRoute>
-          }
-        />
+        <Route element={
+          <ProtectedRoute>
+            <DashboardLayout />
+          </ProtectedRoute>
+        }
+        >
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/meeting" element={<Meeting />} />
+        </Route>
+
+        <Route path="/room/:roomid" element={
+          <ProtectedRoute>
+            <Room />
+          </ProtectedRoute>} />
+
+        <Route path="/profile/:id" element={
+          <ProtectedRoute>
+            <Profile />
+          </ProtectedRoute>} />
+
+        <Route path="/update-profile" element={
+          <ProtectedRoute>
+            <UpdateProfile />
+          </ProtectedRoute>} />
+
+
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
   );

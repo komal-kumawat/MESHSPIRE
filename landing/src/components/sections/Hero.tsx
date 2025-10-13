@@ -33,7 +33,7 @@ const Hero = () => {
         <button
           className="
             bg-[var(--background)] text-[var(--color-font)] border border-[var(--foreground)]
-            hover:bg-[var(--hover-light)]
+            hover:bg-indigo-100/50
             dark:hover:bg-[var(--hover-dark)]
             font-small font-[var(--font-secondary)]
             px-6 md:px-10 py-1 text-sm md:text-base 
@@ -46,19 +46,20 @@ const Hero = () => {
 
         <div className="relative inline-block pt-4 md:pt-20 text-center">
           <h1 className="md:text-6xl text-4xl font-[var(--font-primary)] relative z-10">
-            Fastest and most efficient
+            Find Your Perfect Tutor
           </h1>
         </div>
 
-        <h1 className="md:text-6xl text-4xl font-[var(--font-primary)] text-center">
-          way to learn
+        <h1 className="md:text-6xl text-4xl leading-20 font-[var(--font-primary)] text-center">
+          Teach Your Perfect Student
         </h1>
 
         <p className="md:text-xl text-base font-[var(--font-secondary)] pt-10 text-center px-6">
-          A super fast peer to peer learning platform
+          A next-gen freelancing platform connecting students with tutors who
+          match their learning style
         </p>
         <p className="md:text-xl text-base font-[var(--font-secondary)] text-center px-6">
-          Find the teacher which is most suited to your learning style
+          empowering teachers to grow their income and impact
         </p>
 
         <div className="flex flex-col md:flex-row items-center justify-center pt-12 gap-4 md:gap-[120px]">

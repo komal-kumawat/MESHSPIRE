@@ -15,7 +15,7 @@ const MeetComp: React.FC<MeetProps> = ({
   const navigate = useNavigate();
 
   return (
-    <div className="backdrop-blur-lg bg-slate-900/60 border border-white/20 rounded-2xl overflow-hidden shadow-xl hover:bg-slate-900/80 transition-all duration-300 flex flex-col">
+    <div className="backdrop-blur-lg bg-slate-900/60 border border-white/20 rounded-2xl overflow-hidden shadow-xl hover:bg-slate-900/80 transition-all duration-300 flex flex-col w-full">
       <div className="h-40 w-full">
         <img
           src={imageUrl}

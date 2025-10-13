@@ -20,7 +20,6 @@ export default function AuthPage() {
     avatarUrl: "",
   });
 
-  // NEW: pick up token from URL after Google redirects back
   useEffect(() => {
     try {
       const params = new URLSearchParams(window.location.search);
@@ -29,16 +28,12 @@ export default function AuthPage() {
       const id = params.get("id");
 
       if (token && name && id) {
-        // set into your auth context & localStorage so the rest of your app works
         setUser(name, token, id);
         localStorage.setItem("token", token);
         localStorage.setItem("name", name);
         localStorage.setItem("userId", id);
-
-        // remove token from URL so it isn't exposed in history
         const cleanUrl = window.location.pathname;
         window.history.replaceState({}, document.title, cleanUrl);
-
         navigate("/dashboard");
       }
     } catch (err) {
@@ -80,28 +75,28 @@ export default function AuthPage() {
   };
 
   const handleGoogleSignin = () => {
-    // this will trigger backend route that redirects to Google
     window.location.href = `${API.defaults.baseURL}/user/auth/google`;
   };
 
   return (
-    // ... keep the rest of your JSX exactly as-is
-    // (I didn't change the UI below; original code copied here for completeness)
-    <div className="relative flex items-center justify-center h-screen overflow-hidden text-white">
+    <div className="relative flex items-center justify-center min-h-screen overflow-hidden text-white px-4 sm:px-6">
+      {/* Background Layers */}
       <div className="absolute inset-0 bg-gradient-to-br from-neutral-900 via-violet-950 to-neutral-900 animate-gradient-xy"></div>
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute w-[600px] h-[600px] bg-violet-950/40 rounded-full blur-3xl top-10 left-[-200px] animate-burn-slow"></div>
-        <div className="absolute w-[500px] h-[500px] bg-slate-800/10 rounded-full blur-3xl bottom-0 right-[-150px] animate-burn-slower"></div>
-        <div className="absolute w-[400px] h-[400px] bg-violet-950/40 rounded-full blur-3xl top-1/3 right-1/3 animate-burn-slowest"></div>
+        <div className="absolute w-[400px] sm:w-[500px] md:w-[600px] h-[400px] sm:h-[500px] md:h-[600px] bg-violet-950/40 rounded-full blur-3xl top-10 left-[-150px] animate-burn-slow"></div>
+        <div className="absolute w-[300px] sm:w-[400px] md:w-[500px] h-[300px] sm:h-[400px] md:h-[500px] bg-slate-800/10 rounded-full blur-3xl bottom-0 right-[-100px] animate-burn-slower"></div>
+        <div className="absolute w-[250px] sm:w-[350px] md:w-[400px] h-[250px] sm:h-[350px] md:h-[400px] bg-violet-950/40 rounded-full blur-3xl top-1/3 right-1/3 animate-burn-slowest"></div>
       </div>
       <div className="absolute inset-0 bg-black/40 backdrop-blur-3xl"></div>
 
+      {/* Auth Card */}
       <motion.div
         layout
-        className="relative z-10 backdrop-blur-xl bg-white/10 border border-white/20 rounded-2xl shadow-2xl p-8 w-96 min-h-[520px] flex flex-col justify-center"
+        className="relative z-10 backdrop-blur-xl bg-white/10 border border-white/20 rounded-2xl shadow-2xl p-6 sm:p-8 w-full max-w-sm sm:max-w-md md:w-96 min-h-[460px] sm:min-h-[520px] flex flex-col justify-center"
       >
-        <div className="flex justify-center mb-8 relative">
-          <div className="bg-white/10 backdrop-blur-sm rounded-full flex w-64 p-1 relative overflow-hidden">
+        {/* Toggle Buttons */}
+        <div className="flex justify-center mb-6 sm:mb-8 relative">
+          <div className="bg-white/10 backdrop-blur-sm rounded-full flex w-56 sm:w-64 p-1 relative overflow-hidden">
             <motion.div
               layout
               className={`absolute top-1 bottom-1 w-1/2 rounded-full bg-gradient-to-r from-green-600 to-green-700 shadow-lg transition-all duration-500 ${
@@ -110,7 +105,7 @@ export default function AuthPage() {
             />
             <button
               onClick={() => setIsSignin(true)}
-              className={`relative z-10 w-1/2 py-2 rounded-full text-sm font-semibold transition-all ${
+              className={`relative z-10 w-1/2 py-2 text-xs sm:text-sm rounded-full font-semibold transition-all ${
                 isSignin ? "text-white" : "text-gray-300 hover:text-white"
               }`}
             >
@@ -118,7 +113,7 @@ export default function AuthPage() {
             </button>
             <button
               onClick={() => setIsSignin(false)}
-              className={`relative z-10 w-1/2 py-2 rounded-full text-sm font-semibold transition-all ${
+              className={`relative z-10 w-1/2 py-2 text-xs sm:text-sm rounded-full font-semibold transition-all ${
                 !isSignin ? "text-white" : "text-gray-300 hover:text-white"
               }`}
             >
@@ -138,19 +133,19 @@ export default function AuthPage() {
               className="flex flex-col justify-between h-full"
             >
               <div>
-                <h2 className="text-3xl font-bold text-center mb-6">
+                <h2 className="text-2xl sm:text-3xl font-bold text-center mb-4 sm:mb-6">
                   Welcome Back
                 </h2>
 
                 {errorMsg && (
-                  <div className="mb-4 text-sm text-red-400 bg-white/5 p-2 rounded text-center">
+                  <div className="mb-4 text-xs sm:text-sm text-red-400 bg-white/5 p-2 rounded text-center">
                     {errorMsg}
                   </div>
                 )}
 
-                <div className="space-y-4">
+                <div className="space-y-3 sm:space-y-4">
                   <input
-                    className="w-full px-4 py-3 bg-white/10 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-lime-400 placeholder-gray-300 transition"
+                    className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-white/10 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-lime-400 placeholder-gray-300 transition text-sm sm:text-base"
                     placeholder="Email"
                     name="email"
                     onChange={handleChange}
@@ -162,7 +157,7 @@ export default function AuthPage() {
                       placeholder="Password"
                       name="password"
                       onChange={handleChange}
-                      className="w-full px-4 py-3 bg-white/10 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-lime-400 placeholder-gray-300 transition pr-10"
+                      className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-white/10 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-lime-400 placeholder-gray-300 transition pr-10 text-sm sm:text-base"
                     />
                     <button
                       type="button"
@@ -170,9 +165,9 @@ export default function AuthPage() {
                       className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-300 hover:text-white"
                     >
                       {showPassword ? (
-                        <HiOutlineEyeOff size={20} />
+                        <HiOutlineEyeOff size={18} />
                       ) : (
-                        <HiOutlineEye size={20} />
+                        <HiOutlineEye size={18} />
                       )}
                     </button>
                   </div>
@@ -180,24 +175,26 @@ export default function AuthPage() {
                   <button
                     onClick={handleSubmit}
                     disabled={loading}
-                    className="w-full py-3 rounded-xl bg-gradient-to-r from-green-600 to-green-700 hover:opacity-90 transition font-semibold shadow-lg disabled:opacity-50"
+                    className="w-full py-2.5 sm:py-3 rounded-xl bg-gradient-to-r from-green-600 to-green-700 hover:opacity-90 transition font-semibold shadow-lg disabled:opacity-50 text-sm sm:text-base"
                   >
                     {loading ? "Signing In..." : "Sign In"}
                   </button>
                 </div>
               </div>
 
-              <div className="mt-6">
-                <div className="flex items-center justify-center my-4">
+              <div className="mt-5 sm:mt-6">
+                <div className="flex items-center justify-center my-3 sm:my-4">
                   <div className="h-[1px] bg-white/20 w-1/3"></div>
-                  <span className="text-gray-300 text-sm mx-2">or</span>
+                  <span className="text-gray-300 text-xs sm:text-sm mx-2">
+                    or
+                  </span>
                   <div className="h-[1px] bg-white/20 w-1/3"></div>
                 </div>
                 <button
                   onClick={handleGoogleSignin}
-                  className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-white text-gray-800 font-semibold hover:bg-gray-100 transition"
+                  className="flex items-center justify-center gap-2 w-full py-2.5 sm:py-3 rounded-xl bg-white text-gray-800 font-semibold hover:bg-gray-100 transition text-sm sm:text-base"
                 >
-                  <FcGoogle size={22} /> Sign in with Google
+                  <FcGoogle size={20} /> Sign in with Google
                 </button>
               </div>
             </motion.div>
@@ -211,23 +208,23 @@ export default function AuthPage() {
               className="flex flex-col justify-between h-full"
             >
               <div>
-                <h2 className="text-3xl font-bold text-center mb-6">
+                <h2 className="text-2xl sm:text-3xl font-bold text-center mb-4 sm:mb-6">
                   Create an Account
                 </h2>
                 {errorMsg && (
-                  <div className="mb-4 text-sm text-red-400 bg-white/5 p-2 rounded text-center">
+                  <div className="mb-4 text-xs sm:text-sm text-red-400 bg-white/5 p-2 rounded text-center">
                     {errorMsg}
                   </div>
                 )}
-                <div className="space-y-4">
+                <div className="space-y-3 sm:space-y-4">
                   <input
-                    className="w-full px-4 py-3 bg-white/10 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-lime-400 placeholder-gray-300 transition"
+                    className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-white/10 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-lime-400 placeholder-gray-300 transition text-sm sm:text-base"
                     placeholder="Full Name"
                     name="name"
                     onChange={handleChange}
                   />
                   <input
-                    className="w-full px-4 py-3 bg-white/10 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-lime-400 placeholder-gray-300 transition"
+                    className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-white/10 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-lime-400 placeholder-gray-300 transition text-sm sm:text-base"
                     placeholder="Email"
                     name="email"
                     onChange={handleChange}
@@ -238,7 +235,7 @@ export default function AuthPage() {
                       placeholder="Password"
                       name="password"
                       onChange={handleChange}
-                      className="w-full px-4 py-3 bg-white/10 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-lime-400 placeholder-gray-300 transition pr-10"
+                      className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-white/10 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-lime-400 placeholder-gray-300 transition pr-10 text-sm sm:text-base"
                     />
                     <button
                       type="button"
@@ -246,9 +243,9 @@ export default function AuthPage() {
                       className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-300 hover:text-white"
                     >
                       {showPassword ? (
-                        <HiOutlineEyeOff size={20} />
+                        <HiOutlineEyeOff size={18} />
                       ) : (
-                        <HiOutlineEye size={20} />
+                        <HiOutlineEye size={18} />
                       )}
                     </button>
                   </div>
@@ -256,7 +253,7 @@ export default function AuthPage() {
                   <button
                     onClick={handleSubmit}
                     disabled={loading}
-                    className="w-full py-3 rounded-xl bg-gradient-to-r from-green-600 to-green-700 hover:opacity-90 transition font-semibold shadow-lg disabled:opacity-50"
+                    className="w-full py-2.5 sm:py-3 rounded-xl bg-gradient-to-r from-green-600 to-green-700 hover:opacity-90 transition font-semibold shadow-lg disabled:opacity-50 text-sm sm:text-base"
                   >
                     {loading ? "Signing Up..." : "Sign Up"}
                   </button>

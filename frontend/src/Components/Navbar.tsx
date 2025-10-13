@@ -55,7 +55,7 @@ const Navbar: React.FC<NavbarProps> = ({ isSidebarExpanded }) => {
 
   return (
     <nav
-      className={`sticky top-0 z-40 backdrop-blur-xl  border border-[rgba(255,255,255,0.2)] 
+      className={`sticky top-0 z-100 backdrop-blur-xl  border border-[rgba(255,255,255,0.2)] 
       bg-slate-900/70 text-white py-2 flex items-center justify-between transition-all duration-300
       ${isSidebarExpanded ? "ml-4 mr-5 md:w-[67%] lg:w-[74%] xl:w-[80%]  " : "ml-4 md:w-[85%] lg:w-[90%] xl:w-[92%]  "}  rounded-xl mt-4 px-4  mr-4 `}
     >

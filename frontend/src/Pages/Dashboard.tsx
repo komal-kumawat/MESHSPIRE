@@ -1,6 +1,4 @@
-import React, { useState } from "react";
-import Navbar from "../Components/Navbar";
-import Sidebar from "../Components/Sidebar";
+import React from "react";
 import { Carousel, Card } from "../Components/ui/Card-Coursel";
 import image1 from "../assets/calculus.png";
 import image2 from "../assets/algebra.png";
@@ -10,8 +8,6 @@ import image5 from "../assets/quantum-computing.png";
 import image6 from "../assets/python.png";
 
 const Dashboard: React.FC = () => {
-  const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
-
   const meetings = [
     {
       id: 1,
@@ -79,30 +75,18 @@ const Dashboard: React.FC = () => {
   ));
 
   return (
-    <div className="min-h-screen bg-black text-white flex flex-col md:flex-row w-full overflow-x-hidden">
-      {/* Sidebar */}
-      <Sidebar onExpandChange={setIsSidebarExpanded} />
+    <div className="min-h-screen bg-black text-white flex flex-col w-full overflow-x-hidden">
+      <main className="px-4 sm:px-6 py-6 sm:py-8 transition-all duration-300">
+        <h1 className="text-2xl sm:text-3xl text-white mb-6 font-semibold text-center sm:text-left">
+          Your Next Lessons
+        </h1>
 
-      {/* Main Content */}
-      <div
-        className={`flex-1 transition-all duration-300 ${isSidebarExpanded ? "md:ml-60" : "md:ml-20"
-          } w-full `}
-      >
-        <Navbar isSidebarExpanded={isSidebarExpanded} />
-
-        <main className="px-4 sm:px-6 py-6 sm:py-8 transition-all duration-300">
-          <h1 className="text-2xl sm:text-3xl text-white mb-6 font-semibold text-center sm:text-left">
-            Your Next Lessons
-          </h1>
-
-          {/* Carousel */}
-          <div className="w-full overflow-x-hidden">
-            <Carousel items={cards} />
-          </div>
-        </main>
-      </div>
+        {/* Carousel */}
+        <div className="w-full overflow-x-hidden">
+          <Carousel items={cards} />
+        </div>
+      </main>
     </div>
-
   );
 };
 

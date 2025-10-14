@@ -2,9 +2,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
-import Navbar from "../Components/Navbar";
-import Sidebar from "../Components/Sidebar";
-
 const Meeting: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -12,7 +9,6 @@ const Meeting: React.FC = () => {
   const [roomURL, setRoomURL] = useState<string>("");
   const videoRef = useRef<HTMLVideoElement>(null);
   const [, setIsCameraOn] = useState(false);
-  const [isSidebarExpanded, setIsSidebarExpanded] = useState<boolean>(false);
 
   const cardData = location.state || {
     title: "Untitled Meeting",
@@ -190,8 +186,7 @@ const Meeting: React.FC = () => {
             </div>
           </div>
         </main>
-      </div>
-    </div>
+
   );
 };
 

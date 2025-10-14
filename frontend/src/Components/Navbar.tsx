@@ -17,25 +17,24 @@ const Navbar: React.FC<NavbarProps> = ({ isSidebarExpanded }) => {
   const dropdownRef = useRef<HTMLDivElement | null>(null);
   const [avatar, setAvatar] = useState("");
   const [name, setName] = useState("");
+
   const handleLogout = () => {
     logout();
     navigate("/");
   };
+
   useEffect(() => {
     const fetchUser = async () => {
       try {
         const userRes = await API.get(`/profile/${userId}`);
         setAvatar(userRes.data.avatar);
         setName(userRes.data.name);
-
       } catch (err) {
-        console.error("error while fetching avatar")
-
+        console.error("error while fetching avatar");
       }
-    }
+    };
     fetchUser();
-
-  }, [userId])
+  }, [userId]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -55,9 +54,9 @@ const Navbar: React.FC<NavbarProps> = ({ isSidebarExpanded }) => {
 
   return (
     <nav
-      className={`sticky top-0 z-40 backdrop-blur-xl  border border-[rgba(255,255,255,0.2)] 
-      bg-slate-900/70 text-white py-2 flex items-center justify-between transition-all duration-300
-      ${isSidebarExpanded ? "ml-4 mr-5 md:w-[67%] lg:w-[74%] xl:w-[80%]  " : "ml-4 md:w-[85%] lg:w-[90%] xl:w-[92%]  "}  rounded-xl mt-4 px-4  mr-4 `}
+      className={`sticky top-0 z-100 backdrop-blur-xl border border-[rgba(255,255,255,0.2)] 
+      bg-slate-900/70 text-white py-3 flex items-center justify-between transition-all duration-300
+      ml-4 mr-5  rounded-xl mt-4 px-4 `}
     >
       <div
         className="text-lg font-semibold cursor-pointer"
@@ -69,7 +68,10 @@ const Navbar: React.FC<NavbarProps> = ({ isSidebarExpanded }) => {
       </div>
 
       <div className="flex items-center gap-5 relative">
-        <div className="relative hidden lg:flex items-center">
+        <div
+          className={`relative flex items-center transition-all duration-1000 ${isSidebarExpanded ? "hidden lg:flex" : "hidden md:flex"
+            }`}
+        >
           <input
             type="text"
             placeholder="Search..."
@@ -78,40 +80,38 @@ const Navbar: React.FC<NavbarProps> = ({ isSidebarExpanded }) => {
           <SearchIcon className="absolute right-3 text-gray-400 cursor-pointer" />
         </div>
 
+
         <NotificationsIcon className="text-gray-300 cursor-pointer hover:text-white transition" />
 
         <div className="relative" ref={dropdownRef}>
-          {avatar ?
+          {avatar ? (
             <img
-              src={avatar || "/default-avatar.png"} // fallback image
+              src={avatar || "/default-avatar.png"}
               alt="User Avatar"
               width={25}
               className="cursor-pointer rounded-full border border-gray-600 hover:scale-105 transition-transform duration-200"
               onClick={() => setUserDropDown(!userDropDown)}
             />
-
-            :
+          ) : (
             <AccountCircleIcon
               fontSize="large"
               className="text-gray-300 cursor-pointer hover:text-white transition"
               onClick={() => setUserDropDown(!userDropDown)}
             />
-          }
-
+          )}
 
           {userDropDown && (
             <div
               className={`absolute -right-4 top-10 mt-3 w-40 bg-slate-900/70 backdrop-blur-md text-white rounded-xl shadow-xl border border-[rgba(255,255,255,0.15)] 
-    transform transition-all duration-300 ease-out
-    ${userDropDown
+              transform transition-all duration-300 ease-out
+              ${userDropDown
                   ? "opacity-100 translate-y-0"
                   : "opacity-0 -translate-y-3 pointer-events-none"
                 }`}
             >
               <div className="px-4 py-2 border-b border-gray-700">
                 {name
-                  ? `Hello, ${name.charAt(0).toUpperCase() + name.slice(1)
-                  }`
+                  ? `Hello, ${name.charAt(0).toUpperCase() + name.slice(1)}`
                   : `Hello, ${username}`}
               </div>
               <div

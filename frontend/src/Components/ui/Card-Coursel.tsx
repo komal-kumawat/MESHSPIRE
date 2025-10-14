@@ -80,7 +80,7 @@ export const Carousel = ({ items, initialScroll = 0 }: CarouselProps) => {
     <CarouselContext.Provider
       value={{ onCardClose: handleCardClose, currentIndex }}
     >
-      <div className="relative w-full">
+      <div className="relative w-full  ">
         {/* Carousel Container */}
         <div
           className="flex w-full overflow-x-auto scroll-smooth no-scrollbar mb-6 sm:mb-8 px-2 sm:px-0"

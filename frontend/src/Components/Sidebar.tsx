@@ -75,7 +75,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onExpandChange }) => {
     <>
       {/* Desktop Sidebar */}
       <div
-        className={`hidden md:flex m-4 shadow-2xl flex-col items-center py-4 gap-6 h-[97%] fixed rounded-xl
+        className={`hidden z-200 md:flex m-4 shadow-2xl flex-col items-center py-4 gap-6 h-[97%] fixed rounded-xl
         backdrop-blur-xl bg-slate-900/70 border border-[rgba(255,255,255,0.2)]
         transition-all duration-300 ease-in-out
         ${isExpanded ? "w-52" : "w-16"}

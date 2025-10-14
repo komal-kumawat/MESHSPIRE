@@ -14,13 +14,15 @@ const DashboardLayout: React.FC = () => {
 
       <div
         className={`flex-1 transition-all duration-300 ${
-          isSidebarExpanded ? "md:ml-60 w-full lg:w-[calc(100%-15rem)]" : "md:ml-20 w-full md:w-[calc(100%-5rem)]"
+          isSidebarExpanded
+            ? "md:ml-60 w-full lg:w-[calc(100%-15rem)]"
+            : "md:ml-20 w-full md:w-[calc(100%-5rem)]"
         }`}
       >
         <Navbar isSidebarExpanded={isSidebarExpanded} />
 
         <main className="overflow-y-auto">
-          <Outlet /> 
+          <Outlet />
         </main>
       </div>
     </div>

@@ -96,7 +96,16 @@ const Meeting: React.FC = () => {
   };
 
   return (
-<main className="z-2 overflow-y-auto py-8 px-4 sm:px-6 md:px-10 mb-20 transition-all duration-300 lg:mt-40">
+    <div className="min-h-screen bg-black text-white flex flex-col md:flex-row w-full overflow-x-hidden">
+      <Sidebar onExpandChange={setIsSidebarExpanded} />
+      <div
+        className={`flex-1 transition-all duration-300 ${
+          isSidebarExpanded ? "md:ml-60" : "md:ml-20"
+        } w-full`}
+      >
+        <Navbar isSidebarExpanded={isSidebarExpanded} />
+
+        <main className="z-2 overflow-y-auto py-8 px-4 sm:px-6 md:px-10 mb-20 transition-all duration-300 lg:mt-40">
           <div className="flex flex-col lg:flex-row items-center justify-center gap-10 md:gap-16">
             {/* LEFT CONTENT */}
             <div className="flex flex-col space-y-5 sm:space-y-6 w-full lg:max-w-lg text-center sm:text-left">

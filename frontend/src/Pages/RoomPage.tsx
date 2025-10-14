@@ -15,8 +15,8 @@ interface PendingCandidates {
   [socketId: string]: RTCIceCandidateInit[];
 }
 
-const buttonStyles =
-  "w-14 h-14 flex items-center justify-center rounded-full bg-gray-800 hover:bg-gray-700 text-white shadow-md transition";
+// const buttonStyles =
+//   "w-14 h-14 flex items-center justify-center rounded-full bg-gray-800 hover:bg-gray-700 text-white shadow-md transition";
 
 const Room: React.FC = () => {
   const { socket } = useSocket();
@@ -56,6 +56,16 @@ const Room: React.FC = () => {
   };
 
   const [isFullScreen, setIsFullScreen] = useState(false);
+  const [showControls, setShowControls] = useState(false);
+
+  const showControlsTemporarily = () => {
+    setShowControls(true);
+
+    setTimeout(() => {
+      setShowControls(false);
+    }, 3000); // hide after 3 seconds
+  };
+
 
   useEffect(() => {
     localStreamRef.current = localStream;
@@ -412,17 +422,17 @@ const Room: React.FC = () => {
   }, [socket, joinRoom]);
 
   return (
-    <div className="relative min-h-screen bg-black text-white font-sans overflow-hidden">
-      <div className="flex items-center gap-4 text-gray-300 mb-6">
-        <div className="flex ml-4 mt-4 text-white">
-          <span className="text-3xl font-semibold">{cardData.title}</span>
+    <div className="relative min-h-screen bg-black text-white font-sans overflow-hidden" onClick={showControlsTemporarily}>
+      <div className="flex items-center gap-4m-2 text-gray-300 mb-6">
+        <div className="flex ml-4 mt-4 text-white ">
+          <span className="text-lg md:text-xl lg:text-2xl font-semibold">{cardData.title}</span>
         </div>
-        <h3
-          className="text-2xl font-bold ml-4 mt-4 cursor-pointer hover:text-violet-400 transition"
+        <div
+          className="text-lg md:text-xl lg:text-2xl  font-bold ml-4 mt-4 cursor-pointer hover:text-violet-400 transition"
           onClick={copyRoomId}
         >
           Room ID: {roomId}
-        </h3>
+        </div>
       </div>
 
       {showAlert && (
@@ -436,17 +446,17 @@ const Room: React.FC = () => {
         </div>
       )}
 
+      {/* Remote videos */}
       {Object.entries(remoteStreams).map(([id, stream]) => (
         <div
           key={id}
-          className={`absolute transition-all duration-300 border-2 border-gray-200 ${
-            isFullScreen
-              ? "bottom-4 right-4 w-1/4 h-1/4"
-              : "top-18 left-4 w-5/7 h-5/7"
-          } shadow-2xl rounded-2xl overflow-hidden`}
+          className={`absolute transition-all duration-300 border-2 border-gray-200 shadow-2xl rounded-2xl overflow-hidden ${isFullScreen
+            ? "bottom-4 right-4 w-1/4 h-1/4" 
+            : "top-18 left-4 w-5/7 h-5/7"
+            }`}
         >
           <video
-            autoPlay
+            autoPlay 
             playsInline
             ref={(video) => {
               if (!video) return;
@@ -457,12 +467,12 @@ const Room: React.FC = () => {
         </div>
       ))}
 
+      {/* Local video (overlay) */}
       <div
-        className={`absolute transition-all duration-300 border-2 border-gray-200 ${
-          isFullScreen
-            ? "top-18 left-4 w-5/7 h-5/7"
-            : "bottom-4 right-4 w-1/4 h-1/4"
-        } shadow-2xl rounded-2xl overflow-hidden group`}
+        className={`absolute transition-all duration-300 border-2 border-gray-200 shadow-2xl rounded-2xl overflow-hidden group ${isFullScreen
+          ? "top-18 left-4 w-5/7 h-5/7"   // local becomes large
+          : "bottom-4 right-4 w-1/4 h-1/4" // local small
+          }`}
       >
         <video
           ref={localVideoRef}
@@ -479,48 +489,66 @@ const Room: React.FC = () => {
         </button>
       </div>
 
-      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex gap-6">
-        <button onClick={toggleVideo} className={buttonStyles}>
-          {videoOn ? (
-            <VideocamIcon fontSize="medium" />
-          ) : (
-            <VideocamOffIcon fontSize="medium" />
-          )}
-        </button>
-        <button onClick={toggleAudio} className={buttonStyles}>
-          {mute ? (
-            <MicOffIcon fontSize="medium" />
-          ) : (
-            <MicIcon fontSize="medium" />
-          )}
-        </button>
-        {!screenSharing ? (
-          <button onClick={startScreenShare} className={buttonStyles}>
-            <ScreenShareIcon fontSize="medium" />
-          </button>
-        ) : (
-          <button
-            onClick={stopScreenShare}
-            className="w-14 h-14 flex items-center justify-center rounded-full bg-red-600 hover:bg-red-500 text-white shadow-md transition"
-          >
-            <StopScreenShareIcon fontSize="medium" />
-          </button>
-        )}
-        <button onClick={endCall} className={buttonStyles}>
-          <CallEndIcon fontSize="medium" />
-        </button>
 
-        <button
-          onClick={() => {
-            setShowChatAlert(true);
-            setTimeout(() => setShowChatAlert(false), 2000);
-          }}
-          className={buttonStyles}
-        >
-          <ChatIcon fontSize="medium" />
-        </button>
-      </div>
+
+      {showControls && (
+        <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-3 sm:gap-6 z-30 px-4">
+          {/* Video toggle */}
+          <button
+            onClick={toggleVideo}
+            className="w-10 h-10 sm:w-14 sm:h-14 flex items-center justify-center rounded-full bg-gray-800 hover:bg-gray-700 text-white shadow-md transition"
+          >
+            {videoOn ? <VideocamIcon fontSize="small" className="sm:text-base" /> : <VideocamOffIcon fontSize="small" className="sm:text-base" />}
+          </button>
+
+          {/* Audio toggle */}
+          <button
+            onClick={toggleAudio}
+            className="w-10 h-10 sm:w-14 sm:h-14 flex items-center justify-center rounded-full bg-gray-800 hover:bg-gray-700 text-white shadow-md transition"
+          >
+            {mute ? <MicOffIcon fontSize="small" className="sm:text-base" /> : <MicIcon fontSize="small" className="sm:text-base" />}
+          </button>
+
+          {/* Screen share */}
+          {!screenSharing ? (
+            <button
+              onClick={startScreenShare}
+              className="w-10 h-10 sm:w-14 sm:h-14 flex items-center justify-center rounded-full bg-gray-800 hover:bg-gray-700 text-white shadow-md transition"
+            >
+              <ScreenShareIcon fontSize="small" className="sm:text-base" />
+            </button>
+          ) : (
+            <button
+              onClick={stopScreenShare}
+              className="w-10 h-10 sm:w-14 sm:h-14 flex items-center justify-center rounded-full bg-red-600 hover:bg-red-500 text-white shadow-md transition"
+            >
+              <StopScreenShareIcon fontSize="small" className="sm:text-base" />
+            </button>
+          )}
+
+          {/* End call */}
+          <button
+            onClick={endCall}
+            className="w-10 h-10 sm:w-14 sm:h-14 flex items-center justify-center rounded-full bg-red-600 hover:bg-red-500 text-white shadow-md transition"
+          >
+            <CallEndIcon fontSize="small" className="sm:text-base" />
+          </button>
+
+          {/* Chat */}
+          <button
+            onClick={() => {
+              setShowChatAlert(true);
+              setTimeout(() => setShowChatAlert(false), 2000);
+            }}
+            className="w-10 h-10 sm:w-14 sm:h-14 flex items-center justify-center rounded-full bg-gray-800 hover:bg-gray-700 text-white shadow-md transition"
+          >
+            <ChatIcon fontSize="small" className="sm:text-base" />
+          </button>
+        </div>
+      )}
+
     </div>
+
   );
 };
 

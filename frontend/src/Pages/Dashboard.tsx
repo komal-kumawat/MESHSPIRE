@@ -82,7 +82,7 @@ const Dashboard: React.FC = () => {
         </h1>
 
         {/* Carousel */}
-        <div className="w-full overflow-x-hidden">
+        <div className="max-w-[100vw] overflow-x-hidden scrollbar-hide overflow-x-hidden">
           <Carousel items={cards} />
         </div>
       </main>

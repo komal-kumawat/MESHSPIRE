@@ -96,97 +96,91 @@ const Meeting: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white flex flex-col md:flex-row w-full overflow-x-hidden">
-      <Sidebar onExpandChange={setIsSidebarExpanded} />
-      <div
-        className={`flex-1 transition-all duration-300 ${
-          isSidebarExpanded ? "md:ml-60" : "md:ml-20"
-        } w-full`}
-      >
-        <Navbar isSidebarExpanded={isSidebarExpanded} />
+    <div className="min-h-screen bg-black text-white w-full overflow-x-hidden">
+      <main className="py-4 sm:py-6 lg:py-8 px-4 sm:px-6 lg:px-8 transition-all duration-300">
+        <div className="flex flex-col xl:flex-row items-center justify-center gap-6 sm:gap-8 lg:gap-12 xl:gap-16 max-w-7xl mx-auto">
+          {/* LEFT CONTENT */}
+          <div className="flex flex-col space-y-4 sm:space-y-5 lg:space-y-6 w-full xl:max-w-lg text-center xl:text-left">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-white">
+              {cardData.title}
+            </h1>
 
-        <main className="z-2 overflow-y-auto py-8 px-4 sm:px-6 md:px-10 mb-20 transition-all duration-300 lg:mt-40">
-          <div className="flex flex-col lg:flex-row items-center justify-center gap-10 md:gap-16">
-            {/* LEFT CONTENT */}
-            <div className="flex flex-col space-y-5 sm:space-y-6 w-full lg:max-w-lg text-center sm:text-left">
-              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white">
-                {cardData.title}
-              </h1>
+            <div className="flex flex-col sm:flex-row items-center justify-center xl:justify-start gap-2 sm:gap-3 text-gray-300">
+              <span className="text-sm sm:text-base lg:text-lg font-medium">
+                {cardData.category}
+              </span>
+              {renderStars(cardData.rating)}
+            </div>
 
-              <div className="flex flex-col sm:flex-row items-center justify-center sm:justify-start gap-2 sm:gap-3 text-gray-300">
-                <span className="text-base sm:text-lg font-medium">
-                  {cardData.category}
-                </span>
-                {renderStars(cardData.rating)}
-              </div>
+            <p className="text-gray-400 text-sm sm:text-base lg:text-lg max-w-md mx-auto xl:mx-0">
+              Start a new meeting instantly or join an existing one using a Room
+              ID.
+            </p>
 
-              <p className="text-gray-400 text-base sm:text-lg max-w-md mx-auto sm:mx-0">
-                Start a new meeting instantly or join an existing one using a
-                Room ID.
-              </p>
+            {/* BUTTONS & INPUT */}
+            <div className="flex flex-col lg:flex-row items-center gap-3 sm:gap-4 w-full">
+              <button
+                onClick={startMeeting}
+                className="w-full lg:w-auto px-6 sm:px-8 lg:px-10 py-2 sm:py-3 lg:py-4 bg-gradient-to-r from-violet-900 via-violet-800 to-violet-900 hover:from-violet-800 hover:to-violet-700 rounded-xl lg:rounded-2xl font-semibold shadow-lg text-sm sm:text-base lg:text-lg transition-all duration-200"
+              >
+                Start Meeting
+              </button>
 
-              {/* BUTTONS & INPUT */}
-              <div className="flex flex-col sm:flex-row items-center gap-4 w-full">
-                <button
-                  onClick={startMeeting}
-                  className="w-full sm:w-auto px-10 sm:px-6 py-2 sm:py-4 bg-gradient-to-r from-violet-900 via-violet-800 to-violet-900 hover:from-violet-800 hover:to-violet-700 rounded-2xl font-semibold shadow-lg text-base sm:text-lg transition"
-                >
-                  Start Meeting
-                </button>
-
+              <div className="flex flex-col sm:flex-row items-center gap-3 w-full lg:flex-1">
                 <input
                   type="text"
                   placeholder="Enter Room ID"
                   value={roomId}
                   onChange={(e) => setRoomId(e.target.value)}
-                  className="flex-1 px-4 py-3 rounded-2xl text-white bg-slate-900/70 border border-white/10 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-700 w-full sm:w-64"
+                  className="flex-1 px-3 sm:px-4 py-2 sm:py-3 rounded-xl lg:rounded-2xl text-white bg-slate-900/70 border border-white/10 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-700 w-full text-sm sm:text-base"
                 />
 
                 <button
                   onClick={joinMeeting}
-                  className="w-full sm:w-auto px-6 sm:px-8 py-3 bg-gradient-to-r from-green-700 via-green-600 to-green-700 hover:from-green-600 hover:to-green-500 rounded-2xl font-semibold shadow-lg text-base sm:text-lg transition"
+                  className="w-full sm:w-auto px-6 sm:px-8 py-2 sm:py-3 bg-gradient-to-r from-green-700 via-green-600 to-green-700 hover:from-green-600 hover:to-green-500 rounded-xl lg:rounded-2xl font-semibold shadow-lg text-sm sm:text-base lg:text-lg transition-all duration-200"
                 >
                   Join
                 </button>
               </div>
+            </div>
 
-              {/* ROOM LINK */}
-              {roomURL && (
-                <div className="mt-6 p-4 sm:p-6 w-full bg-slate-900/60 border border-white/10 rounded-2xl shadow-lg flex flex-col gap-3">
-                  <p className="text-green-400 text-base sm:text-lg font-medium">
-                    Share this link to invite others:
-                  </p>
-                  <div className="flex flex-col sm:flex-row items-center gap-3 w-full">
-                    <input
-                      type="text"
-                      value={roomURL}
-                      readOnly
-                      className="flex-1 px-4 py-2 rounded-xl text-white bg-gray-800 border border-gray-700 focus:outline-none w-full sm:w-80 text-sm sm:text-base"
-                    />
-                    <button
-                      onClick={copyURL}
-                      className="px-4 py-2 bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-400 rounded-xl font-semibold transition w-full sm:w-auto text-sm sm:text-base"
-                    >
-                      Copy Link
-                    </button>
-                  </div>
+            {/* ROOM LINK */}
+            {roomURL && (
+              <div className="mt-4 sm:mt-6 p-3 sm:p-4 lg:p-6 w-full bg-slate-900/60 border border-white/10 rounded-xl lg:rounded-2xl shadow-lg flex flex-col gap-3">
+                <p className="text-green-400 text-sm sm:text-base lg:text-lg font-medium">
+                  Share this link to invite others:
+                </p>
+                <div className="flex flex-col sm:flex-row items-center gap-3 w-full">
+                  <input
+                    type="text"
+                    value={roomURL}
+                    readOnly
+                    className="flex-1 px-3 sm:px-4 py-2 rounded-lg lg:rounded-xl text-white bg-gray-800 border border-gray-700 focus:outline-none w-full text-xs sm:text-sm lg:text-base"
+                  />
+                  <button
+                    onClick={copyURL}
+                    className="px-3 sm:px-4 py-2 bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-400 rounded-lg lg:rounded-xl font-semibold transition-all duration-200 w-full sm:w-auto text-xs sm:text-sm lg:text-base"
+                  >
+                    Copy Link
+                  </button>
                 </div>
-              )}
-            </div>
-
-            {/* RIGHT CONTENT - VIDEO */}
-            <div className="w-full sm:w-4/5 md:w-2/3 lg:w-[400px] aspect-video rounded-2xl border border-white/10 bg-slate-900/80 shadow-xl overflow-hidden">
-              <video
-                ref={videoRef}
-                autoPlay
-                playsInline
-                muted
-                className="w-full h-full object-cover rounded-xl"
-              />
-            </div>
+              </div>
+            )}
           </div>
-        </main>
 
+          {/* RIGHT CONTENT - VIDEO */}
+          <div className="w-full sm:w-4/5 md:w-3/4 lg:w-2/3 xl:w-[400px] 2xl:w-[500px] aspect-video rounded-xl lg:rounded-2xl border border-white/10 bg-slate-900/80 shadow-xl overflow-hidden">
+            <video
+              ref={videoRef}
+              autoPlay
+              playsInline
+              muted
+              className="w-full h-full object-cover rounded-lg lg:rounded-xl"
+            />
+          </div>
+        </div>
+      </main>
+    </div>
   );
 };
 

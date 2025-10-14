@@ -69,8 +69,9 @@ const Navbar: React.FC<NavbarProps> = ({ isSidebarExpanded }) => {
 
       <div className="flex items-center gap-5 relative">
         <div
-          className={`relative flex items-center transition-all duration-1000 ${isSidebarExpanded ? "hidden lg:flex" : "hidden md:flex"
-            }`}
+          className={`relative flex items-center transition-all duration-1000 ${
+            isSidebarExpanded ? "hidden lg:flex" : "hidden md:flex"
+          }`}
         >
           <input
             type="text"
@@ -79,7 +80,6 @@ const Navbar: React.FC<NavbarProps> = ({ isSidebarExpanded }) => {
           />
           <SearchIcon className="absolute right-3 text-gray-400 cursor-pointer" />
         </div>
-
 
         <NotificationsIcon className="text-gray-300 cursor-pointer hover:text-white transition" />
 
@@ -102,12 +102,13 @@ const Navbar: React.FC<NavbarProps> = ({ isSidebarExpanded }) => {
 
           {userDropDown && (
             <div
-              className={`absolute -right-4 top-10 mt-3 w-40 bg-slate-900/70 backdrop-blur-md text-white rounded-xl shadow-xl border border-[rgba(255,255,255,0.15)] 
+              className={`absolute -right-4 top-10 mt-3 w-40 bg-slate-900/90 backdrop-blur-md text-white rounded-xl shadow-xl border border-[rgba(255,255,255,0.15)] 
               transform transition-all duration-300 ease-out
-              ${userDropDown
+              ${
+                userDropDown
                   ? "opacity-100 translate-y-0"
                   : "opacity-0 -translate-y-3 pointer-events-none"
-                }`}
+              }`}
             >
               <div className="px-4 py-2 border-b border-gray-700">
                 {name

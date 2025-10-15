@@ -422,7 +422,7 @@ const Room: React.FC = () => {
   }, [socket, joinRoom]);
 
   return (
-    <div className="relative min-h-screen bg-black text-white font-sans overflow-hidden max-h-[100vh]" onClick={showControlsTemporarily}>
+    <div className="relative min-h-screen bg-black text-white font-sans overflow-hidden max-h-screen" onClick={showControlsTemporarily}>
       <div className="flex items-center gap-4m-2 text-gray-300 mb-6">
         <div className="flex ml-4 mt-4 text-white ">
           <span className="text-lg md:text-xl lg:text-2xl font-semibold">{cardData.title}</span>

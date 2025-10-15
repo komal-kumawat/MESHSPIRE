@@ -75,14 +75,14 @@ const Dashboard: React.FC = () => {
   ));
 
   return (
-    <div className="min-h-screen bg-black text-white flex flex-col w-full overflow-x-hidden">
+    <div className="bg-black text-white flex flex-col w-full overflow-x-hidden">
       <main className="px-4 sm:px-6 py-6 sm:py-8 transition-all duration-300">
         <h1 className="text-2xl sm:text-3xl text-white mb-6 font-semibold text-center sm:text-left">
           Your Next Lessons
         </h1>
 
         {/* Carousel */}
-        <div className="max-w-[100vw] overflow-x-hidden scrollbar-hide overflow-x-hidden">
+        <div className="max-w-[100vw] overflow-x-hidden scrollbar-hide ">
           <Carousel items={cards} />
         </div>
       </main>

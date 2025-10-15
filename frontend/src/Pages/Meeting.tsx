@@ -96,9 +96,9 @@ const Meeting: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white w-full overflow-x-hidden">
-      <main className="py-4 sm:py-6 lg:py-8 px-4 sm:px-6 lg:px-8 transition-all duration-300">
-        <div className="flex flex-col xl:flex-row items-center justify-center gap-6 sm:gap-8 lg:gap-12 xl:gap-16 max-w-7xl mx-auto">
+    <div className="h-full bg-black text-white w-full overflow-x-hidden flex flex-col">
+      <main className="flex-1 py-4 sm:py-6 lg:py-8 px-4 sm:px-6 lg:px-8 transition-all duration-300 flex items-center justify-center">
+        <div className="flex flex-col xl:flex-row items-center justify-center gap-6 sm:gap-8 lg:gap-12 xl:gap-16 max-w-7xl w-full">
           {/* LEFT CONTENT */}
           <div className="flex flex-col space-y-4 sm:space-y-5 lg:space-y-6 w-full xl:max-w-lg text-center xl:text-left">
             <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-white">

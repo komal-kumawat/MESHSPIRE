@@ -492,11 +492,11 @@ const Room: React.FC = () => {
 
 
       {showControls && (
-        <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-3 sm:gap-6 z-30 px-4">
+        <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-3 sm:gap-6 z-30 px-4 py-5 ">
           {/* Video toggle */}
           <button
             onClick={toggleVideo}
-            className="w-10 h-10 sm:w-14 sm:h-14 flex items-center justify-center rounded-full bg-gray-800 hover:bg-gray-700 text-white shadow-md transition"
+            className="w-10  h-10 sm:w-14 sm:h-14 flex items-center justify-center rounded-full bg-gray-800 hover:bg-gray-700 text-white shadow-md transition"
           >
             {videoOn ? <VideocamIcon fontSize="small" className="sm:text-base" /> : <VideocamOffIcon fontSize="small" className="sm:text-base" />}
           </button>

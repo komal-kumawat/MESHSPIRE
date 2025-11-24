@@ -234,7 +234,11 @@ const UpdateProfile: React.FC = () => {
 
               <button
                 className="mt-3 sm:mt-4 px-5 sm:px-6 py-2 bg-gradient-to-r from-gray-800 to-gray-800 hover:from-gray-700 hover:to-gray-700 transition-all duration-300 rounded-2xl font-semibold shadow-lg text-white text-sm sm:text-base"
-                onClick={() => navigate("/dashboard")}
+                onClick={() =>
+                  navigate(
+                    user.role === "tutor" ? "/tutor-dashboard" : "/dashboard"
+                  )
+                }
                 type="button"
               >
                 Go back to Dashboard

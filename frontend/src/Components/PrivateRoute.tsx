@@ -1,19 +1,24 @@
 import React, { useEffect, useState } from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../Context/AuthContext";
-import {jwtDecode} from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 
 interface PrivateRouteProps {
   children: React.ReactNode;
+  allowedRoles?: ("student" | "tutor")[];
 }
 
 interface DecodedToken {
   exp: number; // JWT expiration timestamp
 }
 
-const ProtectedRoute: React.FC<PrivateRouteProps> = ({ children }) => {
-  const { token, loading, logout } = useAuth();
+const ProtectedRoute: React.FC<PrivateRouteProps> = ({
+  children,
+  allowedRoles,
+}) => {
+  const { token, loading, logout, role } = useAuth();
   const [isExpired, setIsExpired] = useState(false);
+  const location = useLocation();
 
   useEffect(() => {
     if (token) {
@@ -39,6 +44,21 @@ const ProtectedRoute: React.FC<PrivateRouteProps> = ({ children }) => {
 
   if (!token || isExpired) {
     return <Navigate to="/" replace />;
+  }
+
+  // Role-based gating
+  if (allowedRoles && allowedRoles.length > 0) {
+    // If role not yet determined, show loading safeguard
+    if (role === "") {
+      return <div className="text-center mt-10 text-gray-500">Loading...</div>;
+    }
+    if (!allowedRoles.includes(role)) {
+      // Redirect to the user's own dashboard if trying to access the other one
+      const target = role === "tutor" ? "/tutor-dashboard" : "/dashboard";
+      if (location.pathname !== target) {
+        return <Navigate to={target} replace />;
+      }
+    }
   }
 
   return <>{children}</>;

@@ -18,6 +18,7 @@ export default function AuthPage() {
     email: "",
     password: "",
     avatarUrl: "",
+    isTutor: false,
   });
 
   useEffect(() => {
@@ -26,15 +27,17 @@ export default function AuthPage() {
       const token = params.get("token");
       const name = params.get("name");
       const id = params.get("id");
+      const roleParam = params.get("role") as "student" | "tutor" | null;
 
-      if (token && name && id) {
-        setUser(name, token, id);
+      if (token && name && id && roleParam) {
+        setUser(name, token, id, roleParam);
         localStorage.setItem("token", token);
         localStorage.setItem("name", name);
         localStorage.setItem("userId", id);
+        localStorage.setItem("role", roleParam);
         const cleanUrl = window.location.pathname;
         window.history.replaceState({}, document.title, cleanUrl);
-        navigate("/dashboard");
+        navigate(roleParam === "tutor" ? "/tutor-dashboard" : "/dashboard");
       }
     } catch (err) {
       console.error("Error processing OAuth callback:", err);
@@ -54,13 +57,30 @@ export default function AuthPage() {
           email: form.email,
           password: form.password,
         });
-        setUser(res.data.user.name, res.data.access, res.data.user.id);
+        setUser(
+          res.data.user.name,
+          res.data.access,
+          res.data.user.id,
+          res.data.user.role
+        );
         localStorage.setItem("token", res.data.access);
-        navigate("/dashboard");
+        localStorage.setItem("role", res.data.user.role);
+        navigate(
+          res.data.user.role === "tutor" ? "/tutor-dashboard" : "/dashboard"
+        );
       } else {
         const res = await API.post("/user/signup", form);
+        setUser(
+          res.data.user.name,
+          res.data.access,
+          res.data.user.id,
+          res.data.user.role
+        );
         localStorage.setItem("token", res.data.access);
-        setIsSignin(true);
+        localStorage.setItem("role", res.data.user.role);
+        navigate(
+          res.data.user.role === "tutor" ? "/tutor-dashboard" : "/dashboard"
+        );
       }
     } catch (err: any) {
       const serverMsg =
@@ -249,6 +269,18 @@ export default function AuthPage() {
                       )}
                     </button>
                   </div>
+
+                  <label className="flex items-center gap-2 text-xs sm:text-sm text-gray-200">
+                    <input
+                      type="checkbox"
+                      checked={form.isTutor}
+                      onChange={(e) =>
+                        setForm({ ...form, isTutor: e.target.checked })
+                      }
+                      className="h-4 w-4 rounded border-gray-400 text-green-600 focus:ring-green-500"
+                    />
+                    Sign up as Tutor
+                  </label>
 
                   <button
                     onClick={handleSubmit}

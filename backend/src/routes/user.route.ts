@@ -14,6 +14,7 @@ const signupSchema = z.object({
   name: z.string().min(3, "Name is required"),
   email: z.string().trim().email("Invalid email"),
   password: z.string().min(6, "Password must be at least 6 characters"),
+  isTutor: z.boolean().optional(),
 });
 
 const signinSchema = z.object({
@@ -58,7 +59,7 @@ router.post("/signup", async (req: Request, res: Response) => {
         .json({ message: "Enter valid information" });
     }
 
-    const { name, email, password } = parsed.data;
+    const { name, email, password, isTutor } = parsed.data;
 
     const existing = await User.findOne({ email });
     if (existing) {
@@ -68,13 +69,19 @@ router.post("/signup", async (req: Request, res: Response) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const user = await User.create({ name, email, password: hashedPassword });
+    const role = isTutor ? "tutor" : "student";
+    const user = await User.create({
+      name,
+      email,
+      password: hashedPassword,
+      role,
+    });
 
     await Profile.create({
       userId: user._id,
       name: user.name,
       gender: "other",
-      role: "student",
+      role: role,
       skills: [],
       bio: "",
       languages: [],
@@ -96,6 +103,7 @@ router.post("/signup", async (req: Request, res: Response) => {
         name: user.name,
         email: user.email,
         avatarUrl: user.avatarUrl,
+        role: user.role,
       },
     });
   } catch (err) {
@@ -145,7 +153,12 @@ router.post("/signin", async (req: Request, res: Response) => {
 
     res.status(StatusCodes.OK).json({
       access,
-      user: { id: user._id, name: user.name, email: user.email },
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
     });
   } catch (err) {
     console.error(err);
@@ -176,7 +189,14 @@ router.get(
         maxAge: 7 * 24 * 60 * 60 * 1000,
       });
 
-      const redirectUrl = `${process.env.FRONTEND_URL}/dashboard?token=${access}`;
+      const basePath =
+        user.role === "tutor" ? "/tutor-dashboard" : "/dashboard";
+      const userDoc: any = user; // ensure _id accessible
+      const redirectUrl = `${
+        process.env.FRONTEND_URL
+      }${basePath}?token=${access}&name=${encodeURIComponent(
+        user.name || ""
+      )}&id=${userDoc._id.toString()}&role=${user.role}`;
       res.redirect(redirectUrl);
     } catch (err) {
       console.error(err);

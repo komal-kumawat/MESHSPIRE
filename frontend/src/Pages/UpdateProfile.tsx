@@ -43,7 +43,7 @@ const UpdateProfile: React.FC = () => {
     const fetchProfile = async () => {
       try {
         const userRes = await API.get(`/user/me`);
-        const { name, email } = userRes.data;
+        const { name, email, role: accountRole } = userRes.data;
 
         let profileData: any = {};
         try {
@@ -61,7 +61,8 @@ const UpdateProfile: React.FC = () => {
           avatar: profileData.avatar || "",
           bio: profileData.bio || "",
           skills: profileData.skills ? profileData.skills.join(", ") : "",
-          role: profileData.role || "",
+          // prefer profile role if present else fallback to account role
+          role: profileData.role || accountRole || "",
           languages: profileData.languages
             ? profileData.languages.join(", ")
             : "",
@@ -118,7 +119,7 @@ const UpdateProfile: React.FC = () => {
       formData.append("gender", user.gender);
       formData.append("age", user.age?.toString() || "");
       formData.append("bio", user.bio || "");
-      formData.append("role", user.role);
+      // Do NOT allow role mutation from profile update; role is fixed at signup.
       formData.append(
         "skills",
         user.skills
@@ -295,19 +296,12 @@ const UpdateProfile: React.FC = () => {
                 />
               </label>
 
-              <label className="flex flex-col text-gray-200">
+              <div className="flex flex-col text-gray-200">
                 Role
-                <select
-                  name="role"
-                  value={user.role}
-                  onChange={handleChange}
-                  className="w-full mt-2 px-4 py-2 rounded-xl bg-slate-900/80 border border-white/10 focus:ring-2 focus:ring-violet-700 outline-none transition text-sm sm:text-base"
-                >
-                  <option value="">Select Role</option>
-                  <option value="student">Student</option>
-                  <option value="teacher">Teacher</option>
-                </select>
-              </label>
+                <div className="mt-2 px-4 py-2 rounded-xl bg-slate-900/60 border border-white/10 text-sm sm:text-base select-none">
+                  {user.role || "Unknown"}
+                </div>
+              </div>
 
               <button
                 type="submit"

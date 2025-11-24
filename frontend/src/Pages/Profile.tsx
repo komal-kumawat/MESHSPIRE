@@ -29,7 +29,7 @@ const Profile: React.FC = () => {
     const fetchData = async () => {
       try {
         const userRes = await API.get(`/user/me`);
-        const { name, email } = userRes.data;
+        const { name, email, role: accountRole } = userRes.data;
 
         let profileData: Partial<User> = {};
         try {
@@ -47,7 +47,8 @@ const Profile: React.FC = () => {
           avatar: profileData.avatar || "",
           bio: profileData.bio || "",
           skills: profileData.skills || [],
-          role: profileData.role || "",
+          // fallback to account role if profile record lacks role
+          role: profileData.role || accountRole || "",
           languages: profileData.languages || [],
         });
       } catch (err) {
@@ -123,7 +124,11 @@ const Profile: React.FC = () => {
                 className="mt-6 px-5 py-2.5 sm:px-6 sm:py-3 bg-gradient-to-r from-gray-800 via-gray-800 to-gray-800 
                   hover:from-gray-700 hover:to-gray-700 transition-all duration-300 rounded-2xl 
                   font-semibold shadow-lg text-sm sm:text-base"
-                onClick={() => navigate("/dashboard")}
+                onClick={() =>
+                  navigate(
+                    user.role === "tutor" ? "/tutor-dashboard" : "/dashboard"
+                  )
+                }
               >
                 Go back to Dashboard
               </button>

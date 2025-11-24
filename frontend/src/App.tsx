@@ -17,25 +17,33 @@ const App = () => {
         {/* Public Route */}
         <Route path="/" element={<AuthPage />} />
         {/* Protected Routes */}
-        <Route
-          element={
-            <ProtectedRoute>
-              <DashboardLayout />
-            </ProtectedRoute>
-          }
-        >
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/meeting" element={<Meeting />} />
+        {/* Layout wrapper without protection; child routes enforce role */}
+        <Route element={<DashboardLayout />}>
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute allowedRoles={["student"]}>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/meeting"
+            element={
+              <ProtectedRoute allowedRoles={["student"]}>
+                <Meeting />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/tutor-dashboard"
+            element={
+              <ProtectedRoute allowedRoles={["tutor"]}>
+                <TutorDashboard />
+              </ProtectedRoute>
+            }
+          />
         </Route>
-
-        <Route
-          path="/tutor-dashboard"
-          element={
-            <ProtectedRoute>
-              <TutorDashboard />
-            </ProtectedRoute>
-          }
-        />
 
         <Route
           path="/room/:roomid"

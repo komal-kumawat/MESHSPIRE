@@ -15,6 +15,7 @@ interface User {
   skills?: string[];
   role: string;
   languages?: string[];
+  class : number;
 }
 
 const Profile: React.FC = () => {
@@ -44,6 +45,7 @@ const Profile: React.FC = () => {
           email,
           gender: profileData.gender || "",
           age: profileData.age || 0,
+          class: profileData.class || 0,
           avatar: profileData.avatar || "",
           bio: profileData.bio || "",
           skills: profileData.skills || [],
@@ -179,6 +181,10 @@ const Profile: React.FC = () => {
                 <p className="text-sm sm:text-base">
                   <span className="font-semibold text-white">Age:</span>{" "}
                   <span className="text-gray-300">{user.age || "N/A"}</span>
+                </p>
+                <p className="text-sm sm:text-base">
+                  <span className="font-semibold text-white">Class:</span>{" "}
+                  <span className="text-gray-300">{user.class || "N/A"}</span>
                 </p>
               </div>
 

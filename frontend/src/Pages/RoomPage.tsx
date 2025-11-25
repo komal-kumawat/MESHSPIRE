@@ -41,6 +41,8 @@ const Room: React.FC = () => {
     title: "Untitled Meeting",
     category: "General",
   };
+
+  //@ts-expect-error
   const autoSendVideo =
     (location.state && (location.state as any).autoSendVideo) || false;
   const [showAlert, setShowAlert] = useState(false);
@@ -414,7 +416,7 @@ const Room: React.FC = () => {
   };
 
   // reconnect handling
-  // @ts-ignore
+  // @ts-expect-error sfa
   useEffect(() => {
     const handleReconnect = () => joinRoom();
     socket.on("connect", handleReconnect);

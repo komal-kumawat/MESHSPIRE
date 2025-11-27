@@ -16,6 +16,7 @@ interface User {
   role: string;
   languages?: string[];
   class : number;
+  subject: string;
 }
 
 const Profile: React.FC = () => {
@@ -52,6 +53,7 @@ const Profile: React.FC = () => {
           // fallback to account role if profile record lacks role
           role: profileData.role || accountRole || "",
           languages: profileData.languages || [],
+          subject:profileData.subject|| ""
         });
       } catch (err) {
         console.error("Error fetching user info:", err);

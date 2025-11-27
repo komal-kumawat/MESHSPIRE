@@ -7,6 +7,8 @@ export interface IUser extends Document {
   avatarUrl?: string;
   googleId?: string;
   role: "student" | "tutor";
+  subject?: string;
+  class?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -29,6 +31,8 @@ const UserSchema = new Schema<IUser>(
       default: "student",
       required: true,
     },
+    subject: { type: String },
+    class: { type: String }, 
   },
   { timestamps: true }
 );

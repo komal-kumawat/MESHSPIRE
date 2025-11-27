@@ -92,6 +92,7 @@ const Dashboard: React.FC = () => {
         <FeaturedCard
           open={openCard}
           onClose={() => setOpenCard(false)}
+          //@ts-expect-error
           onSchedule={(data: any) => {
             setLessons(prev => [...prev, data]);
             setOpenCard(false);

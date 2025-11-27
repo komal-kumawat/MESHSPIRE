@@ -492,7 +492,7 @@ const Room: React.FC = () => {
 
 
       {showControls && (
-        <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-3 sm:gap-6 z-30 px-4 py-5 ">
+        <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-3 sm:gap-6 z-30 px-4  ">
           {/* Video toggle */}
           <button
             onClick={toggleVideo}

@@ -9,6 +9,8 @@ import ProtectedRoute from "./Components/PrivateRoute";
 import NotFound from "./Pages/NotFound";
 import DashboardLayout from "./Pages/DashboardLayout";
 import TutorDashboard from "./Pages/TutorDashboard";
+import TutorUpdateProfile from "./Pages/TutorUpdateProfile";
+import TutorProfile from "./Pages/TutorProfile";
 
 const App = () => {
   return (
@@ -62,12 +64,28 @@ const App = () => {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/tutor-profile/:id"
+          element={
+            <ProtectedRoute>
+              <TutorProfile />
+            </ProtectedRoute>
+          }
+        />
 
         <Route
           path="/update-profile"
           element={
             <ProtectedRoute>
               <UpdateProfile />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/update-tutor-profile"
+          element={
+            <ProtectedRoute>
+              <TutorUpdateProfile/>
             </ProtectedRoute>
           }
         />

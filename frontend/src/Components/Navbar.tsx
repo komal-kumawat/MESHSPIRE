@@ -11,12 +11,13 @@ interface NavbarProps {
 }
 
 const Navbar: React.FC<NavbarProps> = ({ isSidebarExpanded }) => {
-  const { username, logout, userId } = useAuth();
+  const { username, logout, userId, role } = useAuth();
   const [userDropDown, setUserDropDown] = useState(false);
   const navigate = useNavigate();
   const dropdownRef = useRef<HTMLDivElement | null>(null);
   const [avatar, setAvatar] = useState("");
   const [name, setName] = useState("");
+
 
   const handleLogout = () => {
     logout();
@@ -69,9 +70,8 @@ const Navbar: React.FC<NavbarProps> = ({ isSidebarExpanded }) => {
 
       <div className="flex items-center gap-3 sm:gap-4 lg:gap-5 relative">
         <div
-          className={`relative flex items-center transition-all duration-300 ${
-            isSidebarExpanded ? "hidden xl:flex" : "hidden lg:flex"
-          }`}
+          className={`relative flex items-center transition-all duration-300 ${isSidebarExpanded ? "hidden xl:flex" : "hidden lg:flex"
+            }`}
         >
           <input
             type="text"
@@ -84,13 +84,6 @@ const Navbar: React.FC<NavbarProps> = ({ isSidebarExpanded }) => {
 
         <NotificationsIcon className="text-gray-300 cursor-pointer hover:text-white transition text-lg sm:text-xl lg:text-2xl" />
 
-        {/* Update Profile quick access button */}
-        <button
-          onClick={() => navigate("/update-profile")}
-          className="hidden md:inline-block px-4 py-2 rounded-full bg-gradient-to-r from-violet-900 via-violet-800 to-violet-900 hover:from-violet-800 hover:to-violet-700 text-xs sm:text-sm font-semibold shadow-lg transition"
-        >
-          Update Profile
-        </button>
 
         <div className="relative" ref={dropdownRef}>
           {avatar ? (
@@ -111,29 +104,50 @@ const Navbar: React.FC<NavbarProps> = ({ isSidebarExpanded }) => {
             <div
               className={`absolute -right-2 sm:-right-4 top-8 sm:top-10 mt-2 sm:mt-3 w-36 sm:w-40 bg-slate-900/90 backdrop-blur-md text-white rounded-xl shadow-xl border border-[rgba(255,255,255,0.15)] 
               transform transition-all duration-300 ease-out z-50
-              ${
-                userDropDown
+              ${userDropDown
                   ? "opacity-100 translate-y-0"
                   : "opacity-0 -translate-y-3 pointer-events-none"
-              }`}
+                }`}
             >
               <div className="px-3 sm:px-4 py-2 border-b border-gray-700 text-xs sm:text-sm truncate">
                 {name
                   ? `Hello, ${name.charAt(0).toUpperCase() + name.slice(1)}`
                   : `Hello, ${username}`}
               </div>
-              <div
-                className="px-3 sm:px-4 py-2 cursor-pointer hover:bg-[rgba(255,255,255,0.1)] transition text-xs sm:text-sm"
-                onClick={() => navigate(`/profile/${userId}`)}
-              >
-                Profile
-              </div>
-              <div
-                className="px-3 sm:px-4 py-2 cursor-pointer hover:bg-[rgba(255,255,255,0.1)] transition text-xs sm:text-sm"
-                onClick={() => navigate(`/update-profile`)}
-              >
-                Update Profile
-              </div>
+              {role == "student" ? (
+                <>
+                  <div
+                    className="px-3 sm:px-4 py-2 cursor-pointer hover:bg-[rgba(255,255,255,0.1)] transition text-xs sm:text-sm"
+                    onClick={() => navigate(`/profile/${userId}`)}
+                  >
+                    Profile
+                  </div>
+
+                  <div
+                    className="px-3 sm:px-4 py-2 cursor-pointer hover:bg-[rgba(255,255,255,0.1)] transition text-xs sm:text-sm"
+                    onClick={() => navigate(`/update-profile`)}
+                  >
+                    Update Profile
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div
+                    className="px-3 sm:px-4 py-2 cursor-pointer hover:bg-[rgba(255,255,255,0.1)] transition text-xs sm:text-sm"
+                    onClick={() => navigate(`/tutor-profile/${userId}`)}
+                  >
+                    Profile
+                  </div>
+
+                  <div
+                    className="px-3 sm:px-4 py-2 cursor-pointer hover:bg-[rgba(255,255,255,0.1)] transition text-xs sm:text-sm"
+                    onClick={() => navigate(`/update-tutor-profile`)}
+                  >
+                    Update Profile
+                  </div>
+                </>
+              )}
+
               <button
                 onClick={handleLogout}
                 className="w-full text-left px-3 sm:px-4 py-2 hover:bg-red-600 transition rounded-b-xl text-xs sm:text-sm"

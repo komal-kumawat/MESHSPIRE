@@ -228,17 +228,9 @@ const TutorUpdateProfile: React.FC = () => {
             formData.append("experience", user.experience?.toString() || "");
             formData.append("hourlyRate", user.hourlyRate?.toString() || "");
 
-            if (selectedDocument) {
-                formData.append("document", selectedDocument);
-            } else if(documentPreview===undefined) {
-                formData.append("document", "");
-            }
+            if (selectedDocument) formData.append("document", selectedDocument);
+            if (selectedResume) formData.append("resume", selectedResume);
 
-            if (selectedResume) {
-                formData.append("resume", selectedResume);
-            } else {
-                formData.append("resume", "");
-            }
 
             if (selectedFile) {
                 formData.append("avatar", selectedFile);

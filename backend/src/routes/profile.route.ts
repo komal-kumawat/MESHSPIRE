@@ -100,7 +100,7 @@ profileRoute.put(
   authMiddleware,
   upload.fields([
     { name: "avatar", maxCount: 1 },
-    { name: "document" },
+    { name: "document", maxCount: 1 },
     { name: "resume", maxCount: 1 }
   ]),
 
@@ -181,6 +181,8 @@ profileRoute.put(
             ...(hourlyRate && { hourlyRate: Number(hourlyRate) }),
             ...(qualification && { qualification }),
             ...(subjects && { subjects: subjects.split(",") }),
+            ...(document && { document }),
+            ...(resume && { resume }),
 
 
           },

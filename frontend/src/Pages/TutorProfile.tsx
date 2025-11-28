@@ -172,7 +172,7 @@ const TutorProfile: React.FC = () => {
               <TwoColCard
                 leftLabel="Experience (Years)"
                 leftValue={user.experience}
-                rightLabel="Hourly Rate"
+                rightLabel="Hourly Rate(₹)"
                 rightValue={user.hourlyRate}
               />
 

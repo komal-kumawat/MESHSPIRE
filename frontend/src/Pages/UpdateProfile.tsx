@@ -10,6 +10,7 @@ interface User {
   email: string;
   gender: string;
   age?: number;
+  class : number;
   avatar?: string;
   bio?: string;
   skills?: string;
@@ -25,6 +26,7 @@ const UpdateProfile: React.FC = () => {
     email: "",
     gender: "",
     age: 0,
+    class : 0,
     avatar: "",
     bio: "",
     skills: "",
@@ -58,6 +60,7 @@ const UpdateProfile: React.FC = () => {
           email,
           gender: profileData.gender || "",
           age: profileData.age || 0,
+          class: profileData.class || 0,
           avatar: profileData.avatar || "",
           bio: profileData.bio || "",
           skills: profileData.skills ? profileData.skills.join(", ") : "",
@@ -118,6 +121,7 @@ const UpdateProfile: React.FC = () => {
       formData.append("name", user.name);
       formData.append("gender", user.gender);
       formData.append("age", user.age?.toString() || "");
+      formData.append("class", user.class?.toString() || "");
       formData.append("bio", user.bio || "");
       // Do NOT allow role mutation from profile update; role is fixed at signup.
       formData.append(
@@ -250,6 +254,7 @@ const UpdateProfile: React.FC = () => {
               {[
                 { label: "Name", name: "name", type: "text" },
                 { label: "Age", name: "age", type: "number" },
+                  { label: "Class", name: "class", type: "number" },
                 {
                   label: "Skills (comma separated)",
                   name: "skills",

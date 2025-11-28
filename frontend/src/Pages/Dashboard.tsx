@@ -1,5 +1,8 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Carousel, Card } from "../Components/ui/Card-Coursel";
+import FeaturedCard from "../Components/featuredCards";
+import LessonModel from "./LessonModel";
+import { createLesson, getMyLessons } from "../api";
 import image1 from "../assets/calculus.png";
 import image2 from "../assets/algebra.png";
 import image3 from "../assets/digital_logic.png";
@@ -8,6 +11,38 @@ import image5 from "../assets/quantum-computing.png";
 import image6 from "../assets/python.png";
 
 const Dashboard: React.FC = () => {
+  const [openCard, setOpenCard] = useState(false);
+  const [lessons, setLessons] = useState<any[]>([]);
+  const [openDetails, setOpenDetails] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchLessons();
+  }, []);
+
+  const fetchLessons = async () => {
+    try {
+      setLoading(true);
+      const data = await getMyLessons();
+      setLessons(data);
+    } catch (error) {
+      console.error("Error fetching lessons:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleScheduleLesson = async (lessonData: any) => {
+    try {
+      await createLesson(lessonData);
+      await fetchLessons(); // Refresh the list
+      setOpenCard(false);
+    } catch (error) {
+      console.error("Error creating lesson:", error);
+      alert("Failed to schedule lesson. Please try again.");
+    }
+  };
+
   const meetings = [
     {
       id: 1,
@@ -63,29 +98,130 @@ const Dashboard: React.FC = () => {
         category: `Instructor: ${m.teacherName}`,
         rating: m.rating,
         content: (
-          <div>
-            <p className="text-gray-700 text-sm sm:text-base">
-              Learn about {m.theoremName} with {m.teacherName}. Dive into its
-              proofs, applications, and visual understanding.
-            </p>
-          </div>
+          <p className="text-gray-300 text-sm sm:text-base mt-1">
+            Learn about {m.theoremName} with {m.teacherName}.
+          </p>
         ),
       }}
     />
   ));
 
   return (
-    <div className="bg-black text-white flex flex-col w-full overflow-x-hidden">
-      <main className="px-4 sm:px-6 py-6 sm:py-8 transition-all duration-300">
-        <h1 className="text-2xl sm:text-3xl text-white mb-6 font-semibold text-center sm:text-left">
-          Your Next Lessons
+    <div className="bg-black text-white flex flex-col w-full overflow-x-hidden min-h-screen">
+      <main className="px-4 sm:px-8 py-10 flex flex-col gap-10 transition-all duration-300">
+        {/* Schedule Button */}
+        <div className="flex justify-between items-center">
+          <h2 className="text-2xl font-bold tracking-wide">
+            My Scheduled Lessons
+          </h2>
+          <button
+            onClick={() => setOpenCard(true)}
+            className="px-6 py-3 bg-gradient-to-r from-violet-600 via-violet-700 to-purple-600 
+                     hover:from-violet-500 hover:via-violet-600 hover:to-purple-500 
+                     rounded-xl font-semibold shadow-lg transition-all duration-300 
+                     hover:shadow-violet-500/50 hover:scale-105 active:scale-95
+                     border border-violet-500/20"
+          >
+            + Schedule New Lesson
+          </button>
+        </div>
+
+        {/* Lesson Cards */}
+        {loading ? (
+          <div className="flex justify-center items-center py-10">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-violet-500"></div>
+          </div>
+        ) : lessons.length > 0 ? (
+          <div className="flex gap-4 flex-wrap pb-3">
+            {lessons.map((lesson, index) => (
+              <LessonModel
+                key={lesson._id || index}
+                topic={lesson.topic}
+                subject={lesson.subject}
+                time={`${lesson.date} • ${lesson.time}`}
+                onViewDetails={() => setOpenDetails(lesson)}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="bg-slate-900/40 backdrop-blur-xl border border-white/10 rounded-2xl p-8 text-center">
+            <p className="text-gray-400 text-lg">
+              No lessons scheduled yet. Create your first lesson!
+            </p>
+          </div>
+        )}
+
+        <h1 className="text-3xl font-bold tracking-wide text-center sm:text-left mt-8">
+          Explore Courses
         </h1>
 
-        {/* Carousel */}
-        <div className="max-w-[100vw] overflow-x-hidden scrollbar-hide ">
+        <div className="max-w-[100vw] overflow-x-hidden">
           <Carousel items={cards} />
         </div>
       </main>
+
+      {openCard && (
+        <FeaturedCard
+          open={openCard}
+          onClose={() => setOpenCard(false)}
+          onSchedule={handleScheduleLesson}
+        />
+      )}
+
+      {openDetails && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center z-50 px-4">
+          <div className="bg-gradient-to-br from-slate-900 to-slate-800 text-white p-8 rounded-2xl w-full sm:w-[480px] space-y-5 shadow-2xl border border-violet-500/20">
+            <div className="flex justify-between items-start">
+              <h2 className="text-3xl font-bold bg-gradient-to-r from-violet-400 to-purple-400 bg-clip-text text-transparent">
+                {openDetails.topic}
+              </h2>
+              {openDetails.subject && (
+                <span className="text-xs font-medium text-white border border-violet-400/40 px-3 py-1 rounded-full bg-violet-500/10">
+                  {openDetails.subject}
+                </span>
+              )}
+            </div>
+
+            {openDetails.subTopic && (
+              <p className="text-gray-300 text-base">
+                <span className="font-semibold text-violet-300">
+                  Sub Topic:
+                </span>{" "}
+                {openDetails.subTopic}
+              </p>
+            )}
+
+            <div className="space-y-2 bg-slate-800/50 p-4 rounded-xl border border-white/5">
+              <p className="text-gray-300 text-sm flex items-center gap-2">
+                <span className="text-violet-400"></span>
+                <span className="font-semibold">Date:</span> {openDetails.date}
+              </p>
+
+              <p className="text-gray-300 text-sm flex items-center gap-2">
+                <span className="text-violet-400"></span>
+                <span className="font-semibold">Time:</span> {openDetails.time}
+              </p>
+
+              {openDetails.class && (
+                <p className="text-gray-300 text-sm flex items-center gap-2">
+                  <span className="text-violet-400"></span>
+                  <span className="font-semibold">Class:</span>{" "}
+                  {openDetails.class}
+                </p>
+              )}
+            </div>
+
+            <button
+              onClick={() => setOpenDetails(null)}
+              className="w-full mt-4 bg-gradient-to-r from-violet-600 to-purple-600 
+                       hover:from-violet-500 hover:to-purple-500 transition-all duration-300 
+                       px-4 py-3 rounded-xl font-semibold shadow-lg hover:shadow-violet-500/50"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

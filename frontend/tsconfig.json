@@ -1,4 +1,11 @@
 {
+  "compilerOptions": {
+    "noEmit": true,
+    "skipLibCheck": true,
+    "strict": false,
+    "noImplicitAny": false,
+    "suppressImplicitAnyIndexErrors": true
+  },
   "files": [],
   "references": [
     { "path": "./tsconfig.app.json" },

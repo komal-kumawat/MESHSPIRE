@@ -16,6 +16,7 @@ import profileRoute from "./routes/profile.route";
 import passport from "passport";
 import "./config/passport.config"; // <-- ensures passport.use(...) runs
 import jwt from "jsonwebtoken";
+import lessonRoute from "./routes/lesson.route";
 
 const app = express();
 
@@ -26,7 +27,6 @@ app.use(express.urlencoded({ extended: true }));
 
 // Initialize passport
 app.use(passport.initialize());
-
 app.use(
   cors({
     origin: "*",
@@ -94,6 +94,7 @@ app.get(
 app.use("/api/v0/user", userRoutes);
 app.use("/api/v0/room", roomRoutes);
 app.use("/api/v0/profile", profileRoute);
+app.use("/api/v0/lesson", lessonRoute)
 const server = createServer(app);
 const io = new IOServer(server, {
   cors: {

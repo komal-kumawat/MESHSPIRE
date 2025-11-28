@@ -114,23 +114,7 @@ const Navbar: React.FC<NavbarProps> = ({ isSidebarExpanded }) => {
                   ? `Hello, ${name.charAt(0).toUpperCase() + name.slice(1)}`
                   : `Hello, ${username}`}
               </div>
-              {role == "student" ? (
-                <>
-                  <div
-                    className="px-3 sm:px-4 py-2 cursor-pointer hover:bg-[rgba(255,255,255,0.1)] transition text-xs sm:text-sm"
-                    onClick={() => navigate(`/profile/${userId}`)}
-                  >
-                    Profile
-                  </div>
-
-                  <div
-                    className="px-3 sm:px-4 py-2 cursor-pointer hover:bg-[rgba(255,255,255,0.1)] transition text-xs sm:text-sm"
-                    onClick={() => navigate(`/update-profile`)}
-                  >
-                    Update Profile
-                  </div>
-                </>
-              ) : (
+              {role === "tutor" ? (
                 <>
                   <div
                     className="px-3 sm:px-4 py-2 cursor-pointer hover:bg-[rgba(255,255,255,0.1)] transition text-xs sm:text-sm"
@@ -146,7 +130,23 @@ const Navbar: React.FC<NavbarProps> = ({ isSidebarExpanded }) => {
                     Update Profile
                   </div>
                 </>
-              )}
+              ):(
+                <>
+                  <div
+                    className="px-3 sm:px-4 py-2 cursor-pointer hover:bg-[rgba(255,255,255,0.1)] transition text-xs sm:text-sm"
+                    onClick={() => navigate(`/profile/${userId}`)}
+                  >
+                    Profile
+                  </div>
+
+                  <div
+                    className="px-3 sm:px-4 py-2 cursor-pointer hover:bg-[rgba(255,255,255,0.1)] transition text-xs sm:text-sm"
+                    onClick={() => navigate(`/update-profile`)}
+                  >
+                    Update Profile
+                  </div>
+                </>
+              ) }
 
               <button
                 onClick={handleLogout}

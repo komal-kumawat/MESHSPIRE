@@ -17,7 +17,7 @@ interface User {
     languages?: string;
     subjects: string;
     experience?: number;
-    hourlyrate?: number;
+    hourlyRate?: number;
     qualification?: string;
     document?: string;
     resume?: string;
@@ -39,7 +39,7 @@ const TutorUpdateProfile: React.FC = () => {
         languages: "",
         subjects: "",
         experience: 0,
-        hourlyrate: 0,
+        hourlyRate: 0,
         qualification: "",
         document: "",
         resume: ""
@@ -52,6 +52,8 @@ const TutorUpdateProfile: React.FC = () => {
     const [message, setMessage] = useState<string | null>(null);
     const [selectedDocument, setSelectedDocument] = useState<File | null>(null);
     const [selectedResume, setSelectedResume] = useState<File | null>(null);
+    const [documentPreview, setDocumentPreview] = useState<string | null>(null);
+    const [resumePreview, setResumePreview] = useState<string | null>(null);
 
     useEffect(() => {
         if (!userId) return;
@@ -76,22 +78,44 @@ const TutorUpdateProfile: React.FC = () => {
                     age: profileData.age || 0,
                     avatar: profileData.avatar || "",
                     bio: profileData.bio || "",
-                    skills: profileData.skills ? profileData.skills.join(", ") : "",
+                    skills: Array.isArray(profileData.skills)
+                        ? profileData.skills.join(", ")
+                        : profileData.skills || "",
+
                     // prefer profile role if present else fallback to account role
                     role: profileData.role || accountRole || "",
-                    languages: profileData.languages
+                    languages: Array.isArray(profileData.languages)
                         ? profileData.languages.join(", ")
-                        : "",
-                    subjects: profileData.subjects ? profileData.subjects.join(",") : "",
-                    experience: profileData.experience ? profileData.experience.join(",") : "",
-                    hourlyrate: profileData.hourlyrate || 0,
-                    qualification: profileData.qualification ? profileData.qualification.join(",") : "",
+                        : profileData.languages || "",
+
+
+                    subjects: Array.isArray(profileData.subjects)
+                        ? profileData.subjects.join(", ")
+                        : profileData.subjects || "",
+
+                    experience: Number(profileData.experience) || 0,
+
+                    hourlyRate: Number(profileData.hourlyRate) || 0,
+
+                    qualification: Array.isArray(profileData.qualification)
+                        ? profileData.qualification.join(", ")
+                        : profileData.qualification || "",
+
                     document: profileData.document || "",
                     resume: profileData.resume || ""
 
 
                 });
                 setPreview(profileData.avatar || undefined);
+
+                if (profileData.document) {
+                    setDocumentPreview(profileData.document);
+                }
+
+                if (profileData.resume) {
+                    setResumePreview(profileData.resume);
+                }
+
             } catch (err) {
                 console.error("Error fetching profile:", err);
             } finally {
@@ -123,18 +147,27 @@ const TutorUpdateProfile: React.FC = () => {
             reader.readAsDataURL(file);
         }
     };
-
     const handleDocumentUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
-            setSelectedDocument(e.target.files[0]);
+            const file = e.target.files[0];
+            setSelectedDocument(file);
+
+            // Preview
+            const url = URL.createObjectURL(file);
+            setDocumentPreview(url);
         }
     };
 
     const handleResumeUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
-            setSelectedResume(e.target.files[0]);
+            const file = e.target.files[0];
+            setSelectedResume(file);
+
+            const url = URL.createObjectURL(file);
+            setResumePreview(url);
         }
     };
+
 
     const handleRemovePhoto = () => {
         setSelectedFile(null);
@@ -193,11 +226,11 @@ const TutorUpdateProfile: React.FC = () => {
                     : ""
             );
             formData.append("experience", user.experience?.toString() || "");
-            formData.append("hourlyrate", user.hourlyrate?.toString() || "");
+            formData.append("hourlyRate", user.hourlyRate?.toString() || "");
 
             if (selectedDocument) {
                 formData.append("document", selectedDocument);
-            } else {
+            } else if(documentPreview===undefined) {
                 formData.append("document", "");
             }
 
@@ -341,7 +374,7 @@ const TutorUpdateProfile: React.FC = () => {
                                 },
                                 {
                                     label: "Hourly Rate",
-                                    name: "hourlyrate",
+                                    name: "hourlyRate",
                                     type: "number"
                                 },
                                 {
@@ -395,23 +428,59 @@ const TutorUpdateProfile: React.FC = () => {
                                     {user.role || "Unknown"}
                                 </div>
                             </div>
-                            <div className="mt-4">
+                            <div className="mt-4 p-4">
                                 <label>Document</label>
                                 <input
                                     type="file"
                                     accept=".pdf,.jpg,.png"
                                     onChange={handleDocumentUpload}
                                 />
+
+                                {documentPreview && (
+                                    <div className="mt-2">
+                                        <p className="text-sm text-gray-300">Document Preview:</p>
+
+                                        {selectedDocument?.type.includes("image") ? (
+                                            <img
+                                                src={documentPreview}
+                                                className="w-24 h-24 object-cover border rounded-md mt-2"
+                                            />
+                                        ) : (
+                                            <iframe
+                                                src={documentPreview}
+                                                className="w-24 h-24 border rounded-md mt-2"
+                                            />
+                                        )}
+                                    </div>
+                                )}
                             </div>
 
-                            <div className="mt-4">
+                            <div className="mt-4 p-4">
                                 <label>Resume</label>
                                 <input
                                     type="file"
                                     accept=".pdf,.doc,.docx"
                                     onChange={handleResumeUpload}
                                 />
+
+                                {resumePreview && (
+                                    <div className="mt-2">
+                                        <p className="text-sm text-gray-300">Resume Preview:</p>
+
+                                        {selectedResume?.type.includes("pdf") ? (
+                                            <iframe
+                                                src={resumePreview}
+                                                className="w-24 h-24 border rounded-md mt-2"
+                                            />
+                                        ) : (
+                                            <div className="w-24 h-24 border rounded-md mt-2 p-2 flex justify-center items-center bg-slate-800 text-xs">
+                                                📄 {selectedResume?.name}
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
                             </div>
+
 
 
                             <button

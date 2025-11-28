@@ -37,45 +37,33 @@ const ProfileSchema = new mongoose.Schema<IProfile>({
   languages: { type: [String] },
   experience: {
       type: Number,
-      required: function () {
-        return this.role === "tutor";
-      },
+      
       default:0
     },
 
     subjects: {
       type: [String],
-      required: function () {
-        return this.role === "tutor";
-      },
+      
     },
 
     hourlyRate: {
       type: Number,
-      required: function () {
-        return this.role === "tutor";
-      },
+      
     },
 
     qualification: {
       type: String,
-      required: function () {
-        return this.role === "tutor";
-      },
+      
     },
 
     document: {
       type: String, // URL to uploaded document
-      required: function () {
-        return this.role === "tutor";
-      },
+
     },
 
     resume: {
       type: String, // URL to uploaded resume file
-      required: function () {
-        return this.role === "tutor";
-      },
+      
     },
   },
 {timestamps:true});

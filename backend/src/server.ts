@@ -27,10 +27,28 @@ app.use(express.urlencoded({ extended: true }));
 
 // Initialize passport
 app.use(passport.initialize());
+// Configure CORS to allow only configured client origins
+const allowedOrigins = (
+  process.env.CLIENT_ORIGINS ||
+  process.env.CLIENT_ORIGIN ||
+  "*"
+)
+  .split(",")
+  .map((o) => o.trim())
+  .filter(Boolean);
+
 app.use(
   cors({
-    origin: "*",
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true); // allow non-browser clients
+      if (allowedOrigins.includes("*")) return callback(null, true);
+      if (allowedOrigins.includes(origin)) return callback(null, true);
+      return callback(new Error(`CORS blocked: ${origin}`));
+    },
     credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+    exposedHeaders: ["set-cookie"],
   })
 );
 
@@ -94,11 +112,16 @@ app.get(
 app.use("/api/v0/user", userRoutes);
 app.use("/api/v0/room", roomRoutes);
 app.use("/api/v0/profile", profileRoute);
-app.use("/api/v0/lesson", lessonRoute)
+app.use("/api/v0/lesson", lessonRoute);
 const server = createServer(app);
 const io = new IOServer(server, {
   cors: {
-    origin: process.env.CLIENT_ORIGIN || "*",
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes("*")) return callback(null, true);
+      if (allowedOrigins.includes(origin)) return callback(null, true);
+      return callback(new Error(`Socket.IO CORS blocked: ${origin}`));
+    },
     methods: ["GET", "POST"],
     credentials: true,
   },

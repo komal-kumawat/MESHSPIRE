@@ -24,7 +24,7 @@ const profileSchema = z.object({
   subjects: z.array(z.string()).optional(),
   hourlyRate: z.number().min(0).optional(),
   qualification: z.array(z.string()).optional(),
-  document: z.string().optional(),
+  document: z.array(z.string()).optional(),
   resume: z.string().optional()
 
 });
@@ -100,7 +100,7 @@ profileRoute.put(
   authMiddleware,
   upload.fields([
     { name: "avatar", maxCount: 1 },
-    { name: "document", maxCount: 1 },
+    { name: "document", maxCount: 10 },
     { name: "resume", maxCount: 1 }
   ]),
 
@@ -132,24 +132,38 @@ profileRoute.put(
       };
 
       const avatarFile = files?.avatar?.[0];
-      const documentFile = files?.document?.[0];
+      const documentFiles = files?.document;
       const resumeFile = files?.resume?.[0];
 
-      let avatar = undefined;
-      let document = undefined;
-      let resume = undefined;
+      // Convert files → base64 strings
+      let avatar = avatarFile ? handleUpload(avatarFile) : undefined;
+      let resume = resumeFile ? handleUpload(resumeFile) : undefined;
 
-      if (avatarFile) avatar = handleUpload(avatarFile);
-      else if (req.body.avatar === "") avatar = ""; // remove avatar
+      let document: string[] = [];
+      if (documentFiles && documentFiles.length > 0) {
+        document = documentFiles
+          .map((file) => handleUpload(file))
+          .filter((d): d is string => typeof d === "string");
+      }
 
-      if (documentFile) document = handleUpload(documentFile);
-      if (resumeFile) resume = handleUpload(resumeFile);
 
 
       // ✅ Update name in User collection also
       if (name) {
         await User.findByIdAndUpdate(userId, { name });
       }
+      const existingProfile = await Profile.findOne({ userId });
+
+      let updatedDocuments: string[] = [];
+
+      if (existingProfile?.document && Array.isArray(existingProfile.document)) {
+        updatedDocuments = [...existingProfile.document]; // keep existing documents
+      }
+
+      if (document.length > 0) {
+        updatedDocuments = [...updatedDocuments, ...document]; // append new documents
+      }
+
 
       const updatedProfile = await Profile.findOneAndUpdate(
         { userId },
@@ -181,7 +195,7 @@ profileRoute.put(
             ...(hourlyRate && { hourlyRate: Number(hourlyRate) }),
             ...(qualification && { qualification }),
             ...(subjects && { subjects: subjects.split(",") }),
-            ...(document && { document }),
+            ...(document.length > 0 && { document: updatedDocuments }),
             ...(resume && { resume }),
 
 

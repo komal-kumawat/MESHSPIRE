@@ -19,7 +19,7 @@ interface User {
     experience?: number;
     hourlyRate?: number;
     qualification?: string;
-    document?: string;
+    document?: string[];
     resume?: string;
 
 }
@@ -41,7 +41,7 @@ const TutorUpdateProfile: React.FC = () => {
         experience: 0,
         hourlyRate: 0,
         qualification: "",
-        document: "",
+        document: [],
         resume: ""
 
     });
@@ -50,9 +50,9 @@ const TutorUpdateProfile: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [message, setMessage] = useState<string | null>(null);
-    const [selectedDocument, setSelectedDocument] = useState<File | null>(null);
+    const [selectedDocument, setSelectedDocument] = useState<File[]>([]);
     const [selectedResume, setSelectedResume] = useState<File | null>(null);
-    const [documentPreview, setDocumentPreview] = useState<string | null>(null);
+    const [documentPreview, setDocumentPreview] = useState<string[]>([]);
     const [resumePreview, setResumePreview] = useState<string | null>(null);
 
     useEffect(() => {
@@ -101,16 +101,17 @@ const TutorUpdateProfile: React.FC = () => {
                         ? profileData.qualification.join(", ")
                         : profileData.qualification || "",
 
-                    document: profileData.document || "",
+                    document: profileData.document || [],
                     resume: profileData.resume || ""
 
 
                 });
                 setPreview(profileData.avatar || undefined);
 
-                if (profileData.document) {
+                if (Array.isArray(profileData.document)) {
                     setDocumentPreview(profileData.document);
                 }
+
 
                 if (profileData.resume) {
                     setResumePreview(profileData.resume);
@@ -148,15 +149,20 @@ const TutorUpdateProfile: React.FC = () => {
         }
     };
     const handleDocumentUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files[0]) {
-            const file = e.target.files[0];
-            setSelectedDocument(file);
+        const files = e.target.files;
+        if (!files) return;
 
-            // Preview
-            const url = URL.createObjectURL(file);
-            setDocumentPreview(url);
-        }
+        const newFiles = Array.from(files);
+
+        // Append new files to existing selectedDocument
+        setSelectedDocument((prev) => [...prev, ...newFiles]);
+
+        // Update preview list
+        const newPreviews = newFiles.map((file) => URL.createObjectURL(file));
+        setDocumentPreview((prev) => [...prev, ...newPreviews]);
     };
+
+
 
     const handleResumeUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
@@ -228,7 +234,12 @@ const TutorUpdateProfile: React.FC = () => {
             formData.append("experience", user.experience?.toString() || "");
             formData.append("hourlyRate", user.hourlyRate?.toString() || "");
 
-            if (selectedDocument) formData.append("document", selectedDocument);
+            if (selectedDocument.length > 0) {
+                selectedDocument.forEach((file) => {
+                    formData.append("document", file);
+                })
+            };
+
             if (selectedResume) formData.append("resume", selectedResume);
 
 
@@ -414,64 +425,68 @@ const TutorUpdateProfile: React.FC = () => {
                                 />
                             </label>
 
-                            <div className="flex flex-col text-gray-200">
-                                Role
-                                <div className="mt-2 px-4 py-2 rounded-xl bg-slate-900/60 border border-white/10 text-sm sm:text-base select-none">
-                                    {user.role || "Unknown"}
-                                </div>
-                            </div>
-                            <div className="mt-4 p-4">
-                                <label>Document</label>
+
+                            <div className="mt-4 p-4 bg-slate-900/80 border border-white/20 rounded-2xl shadow-sm">
+                                <label className="block text-gray-200 font-medium mb-2">Documents</label>
                                 <input
                                     type="file"
                                     accept=".pdf,.jpg,.png"
+                                    multiple
                                     onChange={handleDocumentUpload}
+                                    className="w-full text-sm text-gray-400 file:bg-violet-800 file:text-white file:px-3 file:py-1 file:rounded-lg file:border-none hover:file:bg-violet-700 transition-colors"
                                 />
 
-                                {documentPreview && (
-                                    <div className="mt-2">
-                                        <p className="text-sm text-gray-300">Document Preview:</p>
-
-                                        {selectedDocument?.type.includes("image") ? (
-                                            <img
-                                                src={documentPreview}
-                                                className="w-24 h-24 object-cover border rounded-md mt-2"
-                                            />
-                                        ) : (
-                                            <iframe
-                                                src={documentPreview}
-                                                className="w-24 h-24 border rounded-md mt-2"
-                                            />
-                                        )}
+                                {documentPreview.length > 0 && (
+                                    <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                                        {documentPreview.map((preview, index) => (
+                                            <div
+                                                key={index}
+                                                className="flex flex-col items-center bg-slate-800 p-2 rounded-xl border border-white/10 shadow-sm"
+                                            >
+                                                {preview.startsWith("data:image") ? (
+                                                    <img
+                                                        src={preview}
+                                                        className="w-28 h-28 object-cover rounded-md"
+                                                    />
+                                                ) : (
+                                                    <iframe
+                                                        src={preview}
+                                                        className="w-28 h-28 border rounded-md"
+                                                    />
+                                                )}
+                                                <p className="text-xs text-gray-300 mt-1 truncate">Doc {index + 1}</p>
+                                            </div>
+                                        ))}
                                     </div>
                                 )}
                             </div>
 
-                            <div className="mt-4 p-4">
-                                <label>Resume</label>
+                            <div className="mt-4 p-4 bg-slate-900/80 border border-white/20 rounded-2xl shadow-sm">
+                                <label className="block text-gray-200 font-medium mb-2">Resume</label>
                                 <input
                                     type="file"
                                     accept=".pdf,.doc,.docx"
                                     onChange={handleResumeUpload}
+                                    className="w-full text-sm text-gray-400 file:bg-violet-800 file:text-white file:px-3 file:py-1 file:rounded-lg file:border-none hover:file:bg-violet-700 transition-colors"
                                 />
 
                                 {resumePreview && (
-                                    <div className="mt-2">
-                                        <p className="text-sm text-gray-300">Resume Preview:</p>
-
+                                    <div className="mt-3 flex flex-col items-center bg-slate-800 p-3 rounded-xl border border-white/10 shadow-sm">
+                                        <p className="text-sm text-gray-300 mb-2">Resume Preview:</p>
                                         {selectedResume?.type.includes("pdf") ? (
                                             <iframe
                                                 src={resumePreview}
-                                                className="w-24 h-24 border rounded-md mt-2"
+                                                className="w-36 h-36 border rounded-md"
                                             />
                                         ) : (
-                                            <div className="w-24 h-24 border rounded-md mt-2 p-2 flex justify-center items-center bg-slate-800 text-xs">
+                                            <div className="w-36 h-36 border rounded-md p-2 flex justify-center items-center bg-slate-800 text-xs text-gray-200">
                                                 📄 {selectedResume?.name}
                                             </div>
                                         )}
                                     </div>
                                 )}
                             </div>
+
 
 
 

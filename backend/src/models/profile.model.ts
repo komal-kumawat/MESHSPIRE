@@ -57,7 +57,7 @@ const ProfileSchema = new mongoose.Schema<IProfile>({
     },
 
     document: {
-      type: String, // URL to uploaded document
+      type: [String], // URL to uploaded document
 
     },
 

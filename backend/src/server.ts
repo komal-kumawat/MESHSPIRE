@@ -28,21 +28,58 @@ app.use(express.urlencoded({ extended: true }));
 // Initialize passport
 app.use(passport.initialize());
 // Configure CORS to allow only configured client origins
+// Provide sensible defaults for common dev/prod environments
+const defaultClientOrigins = [
+  "*",
+  "http://localhost:5173",
+  "http://localhost:3000",
+  "http://localhost:8080",
+  // Amplify preview/prod domains (replace with your actual domains if needed)
+  "https://*.amplifyapp.com",
+  // Vercel
+  "https://*.vercel.app",
+];
+
 const allowedOrigins = (
   process.env.CLIENT_ORIGINS ||
   process.env.CLIENT_ORIGIN ||
-  "*"
+  defaultClientOrigins.join(",")
 )
   .split(",")
   .map((o) => o.trim())
   .filter(Boolean);
+
+// Helper to match wildcard domains like https://*.amplifyapp.com
+const originMatches = (origin: string, patterns: string[]) => {
+  try {
+    const url = new URL(origin);
+    const host = url.host;
+    return patterns.some((pattern) => {
+      if (pattern === "*") return true;
+      if (!pattern.startsWith("http")) return false;
+      const pUrl = new URL(pattern.replace("*.", "dummy."));
+      const pHost = pUrl.host.replace("dummy.", "");
+      if (pattern.includes("*.")) {
+        return host.endsWith(pHost);
+      }
+      return `${pUrl.protocol}//${host}` === `${pUrl.protocol}//${pHost}`;
+    });
+  } catch {
+    return false;
+  }
+};
 
 app.use(
   cors({
     origin: (origin, callback) => {
       if (!origin) return callback(null, true); // allow non-browser clients
       if (allowedOrigins.includes("*")) return callback(null, true);
-      if (allowedOrigins.includes(origin)) return callback(null, true);
+      if (
+        allowedOrigins.includes(origin) ||
+        originMatches(origin, allowedOrigins)
+      ) {
+        return callback(null, true);
+      }
       return callback(new Error(`CORS blocked: ${origin}`));
     },
     credentials: true,
@@ -64,7 +101,12 @@ const io = new IOServer(server, {
     origin: (origin, callback) => {
       if (!origin) return callback(null, true);
       if (allowedOrigins.includes("*")) return callback(null, true);
-      if (allowedOrigins.includes(origin)) return callback(null, true);
+      if (
+        allowedOrigins.includes(origin) ||
+        originMatches(origin, allowedOrigins)
+      ) {
+        return callback(null, true);
+      }
       return callback(new Error(`Socket.IO CORS blocked: ${origin}`));
     },
     methods: ["GET", "POST"],

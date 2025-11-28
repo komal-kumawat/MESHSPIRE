@@ -19,4 +19,22 @@ API.interceptors.request.use((config) => {
   return config;
 });
 
+// Lesson API functions
+export const createLesson = async (lessonData: {
+  topic: string;
+  subTopic?: string;
+  subject: string;
+  class: string;
+  date: string;
+  time: string;
+}) => {
+  const response = await API.post("/lesson/create", lessonData);
+  return response.data;
+};
+
+export const getMyLessons = async () => {
+  const response = await API.get("/lesson/my-lessons");
+  return response.data;
+};
+
 export default API;

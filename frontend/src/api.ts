@@ -1,7 +1,20 @@
 import axios from "axios";
 
+// Determine environment (Vite sets MODE to 'development' or 'production')
+const isProd = import.meta.env.MODE === "production";
+
+// Prefer explicit env variables for each environment, then generic, then fallback
+const baseURL =
+  (isProd
+    ? import.meta.env.VITE_API_BASE_URL_PROD
+    : import.meta.env.VITE_API_BASE_URL_DEV) ||
+  import.meta.env.VITE_API_BASE_URL ||
+  (isProd
+    ? "https://meshspire-core-prod.onrender.com/api/v0"
+    : "http://localhost:8000/api/v0");
+
 const API = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:8000/api/v0",
+  baseURL,
   headers: {
     "Content-Type": "application/json",
   },

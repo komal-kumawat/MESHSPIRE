@@ -71,9 +71,11 @@ lessonRoute.get(
   authMiddleware,
   async (req: AuthRequest, res: Response) => {
     try {
-      const lessons = await Lesson.find({ studentId: req.user?.id }).sort({
-        createdAt: -1,
-      });
+      const lessons = await Lesson.find({ studentId: req.user?.id })
+        .populate("confirmedTutors.tutorId", "name email")
+        .sort({
+          createdAt: -1,
+        });
       res.status(StatusCodes.OK).json(lessons);
     } catch (err) {
       console.error(err);
@@ -122,22 +124,30 @@ lessonRoute.get(
       // Find all lessons and filter by case-insensitive subject match
       const allLessons = await Lesson.find({ status: "scheduled" })
         .populate("studentId", "name email")
+        .populate("confirmedTutors.tutorId", "name email")
         .sort({ createdAt: -1 });
 
-      console.log("📚 All scheduled lessons found:", allLessons.length);
+      console.log(" All scheduled lessons found:", allLessons.length);
       allLessons.forEach((l, i) => {
         console.log(`   ${i + 1}. "${l.topic}" - Subject: "${l.subject}"`);
       });
 
       const lessons = allLessons.filter((lesson) => {
         const lessonSubject = String(lesson.subject).toLowerCase().trim();
+
+        // Check if tutor has already confirmed this lesson
+        const alreadyConfirmed = lesson.confirmedTutors?.some(
+          (ct: any) => ct.tutorId._id.toString() === userId
+        );
+
+        // Only show lessons that match tutor's subjects AND tutor hasn't cancelled
         const matches = normalizedSubjects.includes(lessonSubject);
         console.log(
           `   🔍 Checking "${lesson.topic}" (${
             lesson.subject
           }) -> normalized: "${lessonSubject}" -> Match: ${
             matches ? "✅" : "❌"
-          }`
+          } -> Already confirmed: ${alreadyConfirmed ? "✅" : "❌"}`
         );
         return matches;
       });
@@ -205,6 +215,114 @@ lessonRoute.put(
     } catch (err) {
       console.error(err);
       res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err);
+    }
+  }
+);
+
+// Tutor confirms a lesson
+lessonRoute.post(
+  "/confirm/:id",
+  authMiddleware,
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const lessonId = req.params.id;
+      const tutorId = req.user?.id;
+
+      if (!tutorId) {
+        return res
+          .status(StatusCodes.UNAUTHORIZED)
+          .json({ message: "Unauthorized" });
+      }
+
+      const lesson = await Lesson.findById(lessonId);
+      if (!lesson) {
+        return res
+          .status(StatusCodes.NOT_FOUND)
+          .json({ message: "Lesson not found" });
+      }
+
+      // Check if tutor already confirmed
+      const alreadyConfirmed = lesson.confirmedTutors?.some(
+        (ct: any) => ct.tutorId.toString() === tutorId
+      );
+
+      if (alreadyConfirmed) {
+        return res
+          .status(StatusCodes.BAD_REQUEST)
+          .json({ message: "You have already confirmed this lesson" });
+      }
+
+      // Add tutor to confirmed list
+      const updated = await Lesson.findByIdAndUpdate(
+        lessonId,
+        {
+          $push: {
+            confirmedTutors: {
+              tutorId,
+              confirmedAt: new Date(),
+            },
+          },
+        },
+        { new: true }
+      ).populate("confirmedTutors.tutorId", "name email");
+
+      res.status(StatusCodes.OK).json({
+        message: "Lesson confirmed successfully",
+        lesson: updated,
+      });
+    } catch (err) {
+      console.error(err);
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+        message: "Error confirming lesson",
+        err,
+      });
+    }
+  }
+);
+
+// Tutor cancels/removes themselves from a lesson
+lessonRoute.post(
+  "/cancel/:id",
+  authMiddleware,
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const lessonId = req.params.id;
+      const tutorId = req.user?.id;
+
+      if (!tutorId) {
+        return res
+          .status(StatusCodes.UNAUTHORIZED)
+          .json({ message: "Unauthorized" });
+      }
+
+      const lesson = await Lesson.findById(lessonId);
+      if (!lesson) {
+        return res
+          .status(StatusCodes.NOT_FOUND)
+          .json({ message: "Lesson not found" });
+      }
+
+      // Remove tutor from confirmed list
+      const updated = await Lesson.findByIdAndUpdate(
+        lessonId,
+        {
+          $pull: {
+            confirmedTutors: { tutorId },
+          },
+        },
+        { new: true }
+      ).populate("confirmedTutors.tutorId", "name email");
+
+      res.status(StatusCodes.OK).json({
+        message: "Lesson cancelled successfully",
+        lesson: updated,
+      });
+    } catch (err) {
+      console.error(err);
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+        message: "Error cancelling lesson",
+        err,
+      });
     }
   }
 );

@@ -68,4 +68,14 @@ export const getRelevantLessons = async () => {
   return response.data;
 };
 
+export const confirmLesson = async (lessonId: string) => {
+  const response = await API.post(`/lesson/confirm/${lessonId}`);
+  return response.data;
+};
+
+export const cancelLesson = async (lessonId: string) => {
+  const response = await API.post(`/lesson/cancel/${lessonId}`);
+  return response.data;
+};
+
 export default API;

@@ -2,7 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, Carousel } from "../Components/ui/Card-Coursel";
 import LessonModel from "./LessonModel";
-import { getRelevantLessons } from "../api";
+import { getRelevantLessons, confirmLesson, cancelLesson } from "../api";
+import { useAuth } from "../Context/AuthContext";
 import image1 from "../assets/calculus.png";
 import image2 from "../assets/algebra.png";
 import image3 from "../assets/digital_logic.png";
@@ -12,9 +13,13 @@ import image6 from "../assets/python.png";
 
 const TutorDashboard: React.FC = () => {
   const navigate = useNavigate();
+  const { userId } = useAuth();
   const [relevantLessons, setRelevantLessons] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [openDetails, setOpenDetails] = useState<any>(null);
+  const [processingLessonId, setProcessingLessonId] = useState<string | null>(
+    null
+  );
 
   useEffect(() => {
     fetchRelevantLessons();
@@ -40,6 +45,49 @@ const TutorDashboard: React.FC = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleConfirmLesson = async (lessonId: string) => {
+    try {
+      setProcessingLessonId(lessonId);
+      await confirmLesson(lessonId);
+      // Refresh the lessons list
+      await fetchRelevantLessons();
+    } catch (error: any) {
+      console.error("❌ Error confirming lesson:", error);
+      alert(
+        error.response?.data?.message ||
+          "Failed to confirm lesson. Please try again."
+      );
+    } finally {
+      setProcessingLessonId(null);
+    }
+  };
+
+  const handleCancelLesson = async (lessonId: string) => {
+    try {
+      setProcessingLessonId(lessonId);
+      await cancelLesson(lessonId);
+      // Remove the lesson from the list immediately
+      setRelevantLessons((prev) =>
+        prev.filter((lesson) => lesson._id !== lessonId)
+      );
+    } catch (error: any) {
+      console.error("❌ Error cancelling lesson:", error);
+      alert(
+        error.response?.data?.message ||
+          "Failed to cancel lesson. Please try again."
+      );
+    } finally {
+      setProcessingLessonId(null);
+    }
+  };
+
+  const isLessonConfirmedByCurrentUser = (lesson: any): boolean => {
+    if (!userId) return false;
+    return lesson.confirmedTutors?.some(
+      (ct: any) => ct.tutorId?._id === userId || ct.tutorId === userId
+    );
   };
 
   // Featured class topics (sample static data)
@@ -128,6 +176,11 @@ const TutorDashboard: React.FC = () => {
                   time={`${lesson.date} • ${lesson.time}`}
                   studentName={lesson.studentId?.name || "Unknown Student"}
                   onViewDetails={() => setOpenDetails(lesson)}
+                  showActions={true}
+                  onConfirm={() => handleConfirmLesson(lesson._id)}
+                  onCancel={() => handleCancelLesson(lesson._id)}
+                  isConfirmed={isLessonConfirmedByCurrentUser(lesson)}
+                  isProcessing={processingLessonId === lesson._id}
                 />
               ))}
             </div>
@@ -211,6 +264,46 @@ const TutorDashboard: React.FC = () => {
                 </span>
               </p>
             </div>
+
+            {/* Confirmed Tutors Section for Tutor View */}
+            {openDetails.confirmedTutors &&
+              openDetails.confirmedTutors.length > 0 && (
+                <div className="space-y-3">
+                  <h3 className="text-xl font-semibold text-violet-300">
+                    Other Confirmed Tutors
+                  </h3>
+                  <div className="space-y-2">
+                    {openDetails.confirmedTutors.map(
+                      (confirmedTutor: any, index: number) => (
+                        <div
+                          key={index}
+                          className="bg-gradient-to-r from-green-900/30 to-emerald-900/30 p-4 rounded-xl border border-green-500/30 space-y-1"
+                        >
+                          <p className="text-gray-200 font-semibold">
+                            {" "}
+                            {confirmedTutor.tutorId?.name ||
+                              confirmedTutor.tutorId ||
+                              "Unknown Tutor"}
+                          </p>
+                          {confirmedTutor.tutorId?.email && (
+                            <p className="text-gray-400 text-sm">
+                              {confirmedTutor.tutorId.email}
+                            </p>
+                          )}
+                          {confirmedTutor.confirmedAt && (
+                            <p className="text-gray-400 text-xs">
+                              Confirmed:{" "}
+                              {new Date(
+                                confirmedTutor.confirmedAt
+                              ).toLocaleString()}
+                            </p>
+                          )}
+                        </div>
+                      )
+                    )}
+                  </div>
+                </div>
+              )}
 
             <button
               onClick={() => setOpenDetails(null)}

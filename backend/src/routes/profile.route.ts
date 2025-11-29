@@ -194,7 +194,10 @@ profileRoute.put(
             ...(experience && { experience: Number(experience) }),
             ...(hourlyRate && { hourlyRate: Number(hourlyRate) }),
             ...(qualification && { qualification }),
-            ...(subjects && { subjects: subjects.split(",") }),
+            subjects: subjects === ""
+              ? []
+              : subjects.split(",").map((s: string) => s.trim()),
+
             ...(document.length > 0 && { document: updatedDocuments }),
             ...(resume && { resume }),
 

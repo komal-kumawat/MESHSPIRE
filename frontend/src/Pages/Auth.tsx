@@ -66,7 +66,10 @@ export default function AuthPage() {
         localStorage.setItem("token", res.data.access);
         localStorage.setItem("role", res.data.user.role);
         navigate(
-          res.data.user.role === "tutor" ? "/tutor-dashboard" : "/dashboard"
+          res.data.user.role === "tutor" ?
+            ((!res.data.user.subjects && !res.data.user.experience && !res.data.user.languages && !res.data.user.qualification
+              && !res.data.user.document
+            ) ? "/update-tutor-profile" : "/tutor-dashboard") : "/dashboard"
         );
       } else {
         const res = await API.post("/user/signup", form);
@@ -79,7 +82,10 @@ export default function AuthPage() {
         localStorage.setItem("token", res.data.access);
         localStorage.setItem("role", res.data.user.role);
         navigate(
-          res.data.user.role === "tutor" ? "/tutor-dashboard" : "/dashboard"
+          res.data.user.role === "tutor" ?
+            ((!res.data.user.subjects && !res.data.user.experience && !res.data.user.languages && !res.data.user.qualification
+              && !res.data.user.document
+            ) ? "/update-tutor-profile" : "/tutor-dashboard") : "/dashboard"
         );
       }
     } catch (err: any) {
@@ -119,23 +125,20 @@ export default function AuthPage() {
           <div className="bg-white/10 backdrop-blur-sm rounded-full flex w-56 sm:w-64 p-1 relative overflow-hidden">
             <motion.div
               layout
-              className={`absolute top-1 bottom-1 w-1/2 rounded-full bg-gradient-to-r from-green-600 to-green-700 shadow-lg transition-all duration-500 ${
-                isSignin ? "left-1" : "left-[48%]"
-              }`}
+              className={`absolute top-1 bottom-1 w-1/2 rounded-full bg-gradient-to-r from-green-600 to-green-700 shadow-lg transition-all duration-500 ${isSignin ? "left-1" : "left-[48%]"
+                }`}
             />
             <button
               onClick={() => setIsSignin(true)}
-              className={`relative z-10 w-1/2 py-2 text-xs sm:text-sm rounded-full font-semibold transition-all ${
-                isSignin ? "text-white" : "text-gray-300 hover:text-white"
-              }`}
+              className={`relative z-10 w-1/2 py-2 text-xs sm:text-sm rounded-full font-semibold transition-all ${isSignin ? "text-white" : "text-gray-300 hover:text-white"
+                }`}
             >
               Sign In
             </button>
             <button
               onClick={() => setIsSignin(false)}
-              className={`relative z-10 w-1/2 py-2 text-xs sm:text-sm rounded-full font-semibold transition-all ${
-                !isSignin ? "text-white" : "text-gray-300 hover:text-white"
-              }`}
+              className={`relative z-10 w-1/2 py-2 text-xs sm:text-sm rounded-full font-semibold transition-all ${!isSignin ? "text-white" : "text-gray-300 hover:text-white"
+                }`}
             >
               Sign Up
             </button>

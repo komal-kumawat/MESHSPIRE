@@ -15,7 +15,7 @@ interface User {
     skills?: string;
     role: string;
     languages?: string;
-    subjects: string;
+    subjects: string[];
     experience?: number;
     hourlyRate?: number;
     qualification?: string;
@@ -23,6 +23,17 @@ interface User {
     resume?: string;
 
 }
+const subjectsList = [
+    "Mathematics",
+    "Science",
+    "English",
+    "Computer",
+    "Hindi",
+    "Biology",
+    "Physics",
+    "Chemistry"
+];
+
 
 const TutorUpdateProfile: React.FC = () => {
     const { userId } = useAuth();
@@ -37,7 +48,7 @@ const TutorUpdateProfile: React.FC = () => {
         skills: "",
         role: "",
         languages: "",
-        subjects: "",
+        subjects: [],
         experience: 0,
         hourlyRate: 0,
         qualification: "",
@@ -54,6 +65,8 @@ const TutorUpdateProfile: React.FC = () => {
     const [selectedResume, setSelectedResume] = useState<File | null>(null);
     const [documentPreview, setDocumentPreview] = useState<string[]>([]);
     const [resumePreview, setResumePreview] = useState<string | null>(null);
+    const [open, setOpen] = useState(false);
+    const [selectedSubjects, setSelectedSubjects] = useState<string[]>([]);
 
     useEffect(() => {
         if (!userId) return;
@@ -90,8 +103,11 @@ const TutorUpdateProfile: React.FC = () => {
 
 
                     subjects: Array.isArray(profileData.subjects)
-                        ? profileData.subjects.join(", ")
-                        : profileData.subjects || "",
+                        ? profileData.subjects
+                        : typeof profileData.subjects === "string"
+                            ? profileData.subjects.split(",").map((s: string) => s.trim())
+                            : [],
+
 
                     experience: Number(profileData.experience) || 0,
 
@@ -116,6 +132,14 @@ const TutorUpdateProfile: React.FC = () => {
                 if (profileData.resume) {
                     setResumePreview(profileData.resume);
                 }
+                setSelectedSubjects(
+                    Array.isArray(profileData.subjects)
+                        ? profileData.subjects
+                        : typeof profileData.subjects === "string"
+                            ? profileData.subjects.split(",").map((s: string) => s.trim())
+                            : []
+                );
+
 
             } catch (err) {
                 console.error("Error fetching profile:", err);
@@ -160,6 +184,14 @@ const TutorUpdateProfile: React.FC = () => {
         // Update preview list
         const newPreviews = newFiles.map((file) => URL.createObjectURL(file));
         setDocumentPreview((prev) => [...prev, ...newPreviews]);
+        setUser((prev) => ({
+        ...prev,
+        document: [
+            ...(prev.document || []),
+            ...newFiles.map((file) => file.name)
+        ]
+    }));
+
     };
 
 
@@ -180,6 +212,25 @@ const TutorUpdateProfile: React.FC = () => {
         setPreview(undefined);
         setUser((prev) => ({ ...prev, avatar: "" }));
     };
+    const handleCheckboxChange = (subject: string) => {
+        let updatedSubjects;
+
+        if (selectedSubjects.includes(subject)) {
+            updatedSubjects = selectedSubjects.filter((item) => item !== subject);
+        } else {
+            updatedSubjects = [...selectedSubjects, subject];
+        }
+
+        setSelectedSubjects(updatedSubjects);
+
+        setUser((prev) => ({
+            ...prev,
+            subjects: updatedSubjects
+        }));
+    };
+
+
+
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -215,12 +266,14 @@ const TutorUpdateProfile: React.FC = () => {
             );
             formData.append(
                 "subjects",
-                user.subjects
-                    ? user.subjects
-                        .split(",")
-                        .map((l) => l.trim())
-                        .join(",")
-                    : ""
+                Array.isArray(user.subjects)
+                    ? user.subjects.map((s) => s.trim()).join(",")
+                    : user.subjects
+                        ? (user.subjects as unknown as string)
+                            .split(",")
+                            .map((l) => l.trim())
+                            .join(",")
+                        : ""
             );
             formData.append(
                 "qualification",
@@ -248,14 +301,28 @@ const TutorUpdateProfile: React.FC = () => {
             } else if (preview === undefined) {
                 formData.append("avatar", "");
             }
-
-
             await API.put(`/profile/update`, formData, {
                 headers: { "Content-Type": "multipart/form-data" },
             });
 
-            setMessage("Profile updated successfully!");
-            setTimeout(() => navigate(`/tutor-profile/${userId}`), 1000);
+            const missing =
+                (!user.subjects || user.subjects.length === 0) ||
+                (!user.experience || user.experience === 0) ||
+                (!user.languages || user.languages.trim() === "") ||
+                (!user.qualification || user.qualification.trim() === "") ||
+                (!user.document || user.document.length === 0);
+
+
+            if (missing) {
+                alert(`subjects , experience , languages , qualification , documents are mandatory `);
+            } else {
+
+
+                setMessage("Profile updated successfully!");
+
+                setTimeout(() => navigate(`/tutor-profile/${userId}`), 1000);
+
+            }
         } catch (err) {
             console.error(err);
             setMessage("Failed to update profile");
@@ -339,11 +406,21 @@ const TutorUpdateProfile: React.FC = () => {
 
                             <button
                                 className="mt-3 sm:mt-4 px-5 sm:px-6 py-2 bg-gradient-to-r from-gray-800 to-gray-800 hover:from-gray-700 hover:to-gray-700 transition-all duration-300 rounded-2xl font-semibold shadow-lg text-white text-sm sm:text-base"
-                                onClick={() =>
-                                    navigate(
-                                        user.role === "tutor" ? "/tutor-dashboard" : "/dashboard"
-                                    )
-                                }
+                                onClick={() => {
+                                    const missing =
+                                        (!user.subjects || user.subjects.length === 0) ||
+                                        (!user.experience || user.experience === 0) ||
+                                        (!user.languages || user.languages.trim() === "") ||
+                                        (!user.qualification || user.qualification.trim() === "") ||
+                                        (!user.document || user.document.length === 0);
+
+                                    if (missing) {
+                                        alert("Subjects, Experience, Languages, Qualification, and Documents are mandatory.");
+                                    } else {
+                                        navigate("/tutor-dashboard");
+                                    }
+                                }}
+
                                 type="button"
                             >
                                 Go back to Dashboard
@@ -365,11 +442,7 @@ const TutorUpdateProfile: React.FC = () => {
                                     name: "languages",
                                     type: "text",
                                 },
-                                {
-                                    label: "Subjects (comma separated)",
-                                    name: "subjects",
-                                    type: "text"
-                                },
+
                                 {
                                     label: "Experience(in years)",
                                     name: "experience",
@@ -412,6 +485,39 @@ const TutorUpdateProfile: React.FC = () => {
                                     <option value="other">Other</option>
                                 </select>
                             </label>
+                            <label className="flex flex-col text-gray-200">
+                                Subjects
+
+                                <div >
+                                    {/* Dropdown Box */}
+                                    <div
+                                        className="w-full mt-2 px-4 py-2 rounded-xl bg-slate-900/80 border border-white/10 focus:ring-2 focus:ring-violet-700 outline-none transition text-sm sm:text-base "
+                                        onClick={() => setOpen(!open)}
+                                    >
+                                        {selectedSubjects.length === 0
+                                            ? "Select Subjects"
+                                            : selectedSubjects.join(", ")}
+                                    </div>
+
+                                    {/* Dropdown Content */}
+                                    {open && (
+                                        <div className="w-full mt-2 px-4 py-2 rounded-xl bg-slate-900/80 border border-white/10 focus:ring-2 focus:ring-violet-700 outline-none transition text-sm sm:text-base">
+                                            {subjectsList.map((subject) => (
+                                                <label key={subject} className="flex items-center gap-2 py-1">
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={selectedSubjects.includes(subject)}
+                                                        onChange={() => handleCheckboxChange(subject)}
+                                                    />
+                                                    {subject}
+                                                </label>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+
+                            </label>
+
 
                             <label className="flex flex-col text-gray-200">
                                 Bio
@@ -515,7 +621,7 @@ const TutorUpdateProfile: React.FC = () => {
                     </form>
                 )}
             </main>
-        </div>
+        </div >
     );
 };
 

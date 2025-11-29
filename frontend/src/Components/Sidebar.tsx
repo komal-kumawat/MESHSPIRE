@@ -89,13 +89,13 @@ const Sidebar: React.FC<SidebarProps> = ({ onExpandChange }) => {
             <img
               src={ExpandedLogo}
               alt="Logo"
-              className="transition-all duration-300 w-40"
+              className="transition-all duration-500 w-40"
             />
           ) : (
             <img
               src={logo}
               alt="Logo"
-              className="transition-all duration-300 w-10"
+              className="transition-all duration-500 w-10"
             />
           )}
         </div>

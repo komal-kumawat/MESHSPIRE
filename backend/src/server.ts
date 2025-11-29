@@ -58,12 +58,16 @@ const originMatches = (origin: string, patterns: string[]) => {
     return patterns.some((pattern) => {
       if (pattern === "*") return true;
       if (!pattern.startsWith("http")) return false;
-      const pUrl = new URL(pattern.replace("*.", "dummy."));
-      const pHost = pUrl.host.replace("dummy.", "");
+
+      // Handle wildcard patterns
       if (pattern.includes("*.")) {
+        const pUrl = new URL(pattern.replace("*.", "dummy."));
+        const pHost = pUrl.host.replace("dummy.", "");
         return host.endsWith(pHost);
       }
-      return `${pUrl.protocol}//${host}` === `${pUrl.protocol}//${pHost}`;
+
+      // Handle exact match
+      return origin === pattern;
     });
   } catch {
     return false;

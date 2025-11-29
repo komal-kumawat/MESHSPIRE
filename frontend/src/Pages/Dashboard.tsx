@@ -212,43 +212,52 @@ const Dashboard: React.FC = () => {
             </div>
 
             {/* Confirmed Tutors Section */}
-            {openDetails.confirmedTutors &&
-              openDetails.confirmedTutors.length > 0 && (
-                <div className="space-y-3">
-                  <h3 className="text-xl font-semibold text-violet-300">
-                    Confirmed Tutors
-                  </h3>
-                  <div className="space-y-2">
-                    {openDetails.confirmedTutors.map(
-                      (confirmedTutor: any, index: number) => (
-                        <div
-                          key={index}
-                          className="bg-gradient-to-r from-green-900/30 to-emerald-900/30 p-4 rounded-xl border border-green-500/30 space-y-1"
+            {openDetails.confirmedTutors && openDetails.confirmedTutors.length > 0 && (
+              <div className="space-y-3">
+                <h3 className="text-xl font-semibold text-violet-300">Confirmed Tutors</h3>
+                <div className="space-y-2">
+                  {openDetails.confirmedTutors.map((confirmedTutor: any, index: number) => (
+                    <div
+                      key={index}
+                      className="bg-gradient-to-r from-green-900/30 to-emerald-900/30 p-4 rounded-xl border border-green-500/30 space-y-3"
+                    >
+                      <p className="text-gray-200 font-semibold">
+                        {confirmedTutor.tutorId?.name || confirmedTutor.tutorId || "Unknown Tutor"}
+                      </p>
+
+                      {confirmedTutor.tutorId?.email && (
+                        <p className="text-gray-400 text-sm">{confirmedTutor.tutorId.email}</p>
+                      )}
+
+                      {confirmedTutor.confirmedAt && (
+                        <p className="text-gray-400 text-xs">
+                          Confirmed: {new Date(confirmedTutor.confirmedAt).toLocaleString()}
+                        </p>
+                      )}
+
+                      <div className="flex flex-col sm:flex-row gap-3 pt-1">
+                        <button
+                          className="flex-1 bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500
+                                     transition-all px-4 py-2 rounded-lg font-semibold shadow-lg hover:shadow-green-500/50
+                                     active:scale-95 text-white"
                         >
-                          <p className="text-gray-200 font-semibold">
-                            {confirmedTutor.tutorId?.name ||
-                              confirmedTutor.tutorId ||
-                              "Unknown Tutor"}
-                          </p>
-                          {confirmedTutor.tutorId?.email && (
-                            <p className="text-gray-400 text-sm">
-                              {confirmedTutor.tutorId.email}
-                            </p>
-                          )}
-                          {confirmedTutor.confirmedAt && (
-                            <p className="text-gray-400 text-xs">
-                              Confirmed:{" "}
-                              {new Date(
-                                confirmedTutor.confirmedAt
-                              ).toLocaleString()}
-                            </p>
-                          )}
-                        </div>
-                      )
-                    )}
-                  </div>
+                          Pay & Confirm
+                        </button>
+
+                        <button
+                          
+                          className="flex-1 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-500 hover:to-purple-500
+                                     transition-all px-4 py-2 rounded-lg font-semibold shadow-lg hover:shadow-violet-500/50
+                                     active:scale-95 text-white"
+                        >
+                          Teacher Details
+                        </button>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              )}
+              </div>
+            )}
 
             {/* No Tutors Confirmed Yet */}
             {(!openDetails.confirmedTutors ||

@@ -2,7 +2,9 @@ import mongoose from "mongoose";
 
 export interface ILesson extends Document {
   tutorId: mongoose.Types.ObjectId;
-  studentId?: mongoose.Types.ObjectId;
+  studentId?:
+    | mongoose.Types.ObjectId
+    | { _id: mongoose.Types.ObjectId; name: string; email: string };
   topic: string;
   subTopic?: string;
   subject: string;

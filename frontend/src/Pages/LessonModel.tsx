@@ -5,6 +5,7 @@ interface LessonModelProps {
   subject: string;
   time: string;
   onViewDetails: () => void;
+  studentName?: string;
 }
 
 const LessonModel: React.FC<LessonModelProps> = ({
@@ -12,6 +13,7 @@ const LessonModel: React.FC<LessonModelProps> = ({
   subject,
   time,
   onViewDetails,
+  studentName,
 }) => {
   return (
     <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 backdrop-blur-xl text-white rounded-2xl shadow-2xl border border-violet-500/20 px-6 py-5 w-80 space-y-4 hover:shadow-violet-500/30 hover:border-violet-400/30 transition-all duration-300 hover:scale-[1.02]">
@@ -25,6 +27,13 @@ const LessonModel: React.FC<LessonModelProps> = ({
           </span>
         )}
       </div>
+
+      {studentName && (
+        <div className="flex items-center gap-2 text-sm text-gray-300 bg-slate-800/50 px-3 py-2 rounded-lg border border-white/5">
+          <span className="text-violet-400"></span>
+          <p className="font-medium">{studentName}</p>
+        </div>
+      )}
 
       <div className="flex items-center gap-2 text-sm text-gray-300 bg-slate-800/50 px-3 py-2 rounded-lg border border-white/5">
         <span className="text-violet-400"></span>

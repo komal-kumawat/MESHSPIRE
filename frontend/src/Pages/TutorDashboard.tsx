@@ -1,6 +1,8 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, Carousel } from "../Components/ui/Card-Coursel";
+import LessonModel from "./LessonModel";
+import { getRelevantLessons } from "../api";
 import image1 from "../assets/calculus.png";
 import image2 from "../assets/algebra.png";
 import image3 from "../assets/digital_logic.png";
@@ -10,6 +12,35 @@ import image6 from "../assets/python.png";
 
 const TutorDashboard: React.FC = () => {
   const navigate = useNavigate();
+  const [relevantLessons, setRelevantLessons] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [openDetails, setOpenDetails] = useState<any>(null);
+
+  useEffect(() => {
+    fetchRelevantLessons();
+  }, []);
+
+  const fetchRelevantLessons = async () => {
+    try {
+      setLoading(true);
+      console.log("🔍 Fetching relevant lessons...");
+      const data = await getRelevantLessons();
+      console.log("✅ Relevant lessons received:", data);
+      console.log("   Lessons count:", data.length);
+      if (data.length > 0) {
+        console.log("   First lesson:", data[0]);
+      }
+      setRelevantLessons(data);
+    } catch (error: any) {
+      console.error("❌ Error fetching relevant lessons:", error);
+      if (error.response) {
+        console.error("   Response status:", error.response.status);
+        console.error("   Response data:", error.response.data);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Featured class topics (sample static data)
   const featured = [
@@ -78,6 +109,38 @@ const TutorDashboard: React.FC = () => {
   return (
     <div className="bg-black text-white flex flex-col w-full overflow-x-hidden min-h-screen">
       <main className="px-4 sm:px-6 py-6 sm:py-8">
+        {/* Relevant Classes Section */}
+        <div className="mb-10">
+          <h1 className="text-2xl sm:text-3xl font-semibold mb-6 text-center sm:text-left">
+            Relevant Classes
+          </h1>
+          {loading ? (
+            <div className="flex justify-center items-center py-10">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-violet-500"></div>
+            </div>
+          ) : relevantLessons.length > 0 ? (
+            <div className="flex gap-4 flex-wrap pb-3">
+              {relevantLessons.map((lesson, index) => (
+                <LessonModel
+                  key={lesson._id || index}
+                  topic={lesson.topic}
+                  subject={lesson.subject}
+                  time={`${lesson.date} • ${lesson.time}`}
+                  studentName={lesson.studentId?.name || "Unknown Student"}
+                  onViewDetails={() => setOpenDetails(lesson)}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="bg-slate-900/40 backdrop-blur-xl border border-white/10 rounded-2xl p-8 text-center">
+              <p className="text-gray-400 text-lg">
+                No relevant lessons found. Students haven't created any lessons
+                matching your subjects yet.
+              </p>
+            </div>
+          )}
+        </div>
+
         <h1 className="text-2xl sm:text-3xl font-semibold mb-6 text-center sm:text-left">
           Featured Classes
         </h1>
@@ -94,6 +157,72 @@ const TutorDashboard: React.FC = () => {
           </button>
         </div>
       </main>
+
+      {openDetails && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center z-50 px-4">
+          <div className="bg-gradient-to-br from-slate-900 to-slate-800 text-white p-8 rounded-2xl w-full sm:w-[480px] space-y-5 shadow-2xl border border-violet-500/20">
+            <div className="flex justify-between items-start">
+              <h2 className="text-3xl font-bold bg-gradient-to-r from-violet-400 to-purple-400 bg-clip-text text-transparent">
+                {openDetails.topic}
+              </h2>
+              {openDetails.subject && (
+                <span className="text-xs font-semibold text-violet-200 border border-violet-400/40 px-3 py-1 rounded-full bg-violet-500/10">
+                  {openDetails.subject}
+                </span>
+              )}
+            </div>
+
+            {openDetails.subTopic && (
+              <p className="text-gray-300 text-base">
+                <span className="font-semibold text-violet-300">
+                  Sub Topic:
+                </span>{" "}
+                {openDetails.subTopic}
+              </p>
+            )}
+
+            <div className="space-y-2 bg-slate-800/50 p-4 rounded-xl border border-white/5">
+              <p className="text-gray-300">
+                <span className="font-semibold text-violet-300">Student:</span>{" "}
+                {openDetails.studentId?.name || "Unknown"}
+              </p>
+              <p className="text-gray-300">
+                <span className="font-semibold text-violet-300">Class:</span>{" "}
+                {openDetails.class}
+              </p>
+              <p className="text-gray-300">
+                <span className="font-semibold text-violet-300">Date:</span>{" "}
+                {openDetails.date}
+              </p>
+              <p className="text-gray-300">
+                <span className="font-semibold text-violet-300">Time:</span>{" "}
+                {openDetails.time}
+              </p>
+              <p className="text-gray-300">
+                <span className="font-semibold text-violet-300">Status:</span>{" "}
+                <span
+                  className={`${
+                    openDetails.status === "scheduled"
+                      ? "text-green-400"
+                      : "text-red-400"
+                  } font-semibold`}
+                >
+                  {openDetails.status}
+                </span>
+              </p>
+            </div>
+
+            <button
+              onClick={() => setOpenDetails(null)}
+              className="w-full mt-4 bg-gradient-to-r from-violet-600 to-purple-600 
+                       hover:from-violet-500 hover:to-purple-500 transition-all duration-300 
+                       px-4 py-3 rounded-xl font-semibold shadow-lg hover:shadow-violet-500/50"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

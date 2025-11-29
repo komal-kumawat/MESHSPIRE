@@ -1,10 +1,8 @@
 import axios from "axios";
 
-// Hardcoded backend URLs for dev and prod
-const isProd = import.meta.env.MODE === "production";
-const baseURL = isProd
-  ? "https://meshspire-core-prod.onrender.com/api/v0" // prod backend
-  : "https://meshspire-core-vjqd.onrender.com/api/v0"; // dev backend
+// Use environment variable or fallback to localhost for development
+const baseURL =
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:8000/api/v0";
 
 const API = axios.create({
   baseURL,
@@ -13,13 +11,39 @@ const API = axios.create({
   },
 });
 
+console.log("🌐 API Configuration:");
+console.log("   Mode:", import.meta.env.MODE);
+console.log("   VITE_API_BASE_URL:", import.meta.env.VITE_API_BASE_URL);
+console.log("   Base URL:", baseURL);
+
 API.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
   if (token) {
     config.headers["Authorization"] = `Bearer ${token}`;
   }
+  console.log(`📤 API Request: ${config.method?.toUpperCase()} ${config.url}`);
   return config;
 });
+
+API.interceptors.response.use(
+  (response) => {
+    console.log(
+      `✅ API Response: ${response.config.method?.toUpperCase()} ${
+        response.config.url
+      } - Status: ${response.status}`
+    );
+    return response;
+  },
+  (error) => {
+    console.error(
+      `❌ API Error: ${error.config?.method?.toUpperCase()} ${
+        error.config?.url
+      }`,
+      error.response?.data || error.message
+    );
+    return Promise.reject(error);
+  }
+);
 
 // Lesson API functions
 export const createLesson = async (lessonData: {
@@ -36,6 +60,11 @@ export const createLesson = async (lessonData: {
 
 export const getMyLessons = async () => {
   const response = await API.get("/lesson/my-lessons");
+  return response.data;
+};
+
+export const getRelevantLessons = async () => {
+  const response = await API.get("/lesson/relevant-lessons");
   return response.data;
 };
 

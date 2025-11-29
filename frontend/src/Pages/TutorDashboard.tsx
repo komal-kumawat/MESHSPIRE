@@ -87,7 +87,7 @@ const TutorDashboard: React.FC = () => {
 
         <div className="mt-10 flex justify-center sm:justify-start">
           <button
-            onClick={() => navigate("/update-profile")}
+            onClick={() => navigate("/update-tutor-profile")}
             className="px-6 py-3 rounded-xl bg-gradient-to-r from-violet-900 via-violet-800 to-violet-900 hover:from-violet-800 hover:to-violet-700 transition-all font-semibold text-sm shadow-lg"
           >
             Update Profile

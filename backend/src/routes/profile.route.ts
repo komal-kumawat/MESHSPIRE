@@ -4,7 +4,7 @@ import { authMiddleware, AuthRequest } from "../middleware/auth.middleware";
 import { StatusCodes } from "http-status-codes";
 import Profile from "../models/profile.model";
 import multer from "multer";
-import { handleAvatarUpload } from "../controller/avatarUpload";
+import { handleUpload } from "../controller/avatarUpload";
 import User from "../models/user.model"; // ✅ Import User model to update name
 
 const profileRoute = Router();
@@ -20,6 +20,13 @@ const profileSchema = z.object({
   skills: z.array(z.string()).optional(),
   role: z.enum(["student", "teacher"]).optional(),
   languages: z.array(z.string()).optional(),
+  experience: z.number().min(0).optional(),
+  subjects: z.array(z.string()).optional(),
+  hourlyRate: z.number().min(0).optional(),
+  qualification: z.array(z.string()).optional(),
+  document: z.array(z.string()).optional(),
+  resume: z.string().optional()
+
 });
 
 // ✅ CREATE PROFILE
@@ -49,7 +56,7 @@ profileRoute.post(
           .json({ message: "Profile already exists" });
       }
 
-      const avatar = handleAvatarUpload(req.file);
+      const avatar = handleUpload(req.file);
       const newProfile = await Profile.create({
         ...parsed.data,
         userId: req.user.id,
@@ -65,6 +72,7 @@ profileRoute.post(
     }
   }
 );
+
 
 // ✅ GET PROFILE
 profileRoute.get(
@@ -90,7 +98,12 @@ profileRoute.get(
 profileRoute.put(
   "/update",
   authMiddleware,
-  upload.single("avatar"),
+  upload.fields([
+    { name: "avatar", maxCount: 1 },
+    { name: "document", maxCount: 10 },
+    { name: "resume", maxCount: 1 }
+  ]),
+
   async (req: AuthRequest, res: Response) => {
     try {
       const userId = req.user?.id;
@@ -100,19 +113,57 @@ profileRoute.put(
           .json({ message: "Unauthorized" });
       }
 
-      const { name, gender, age, bio, skills, role, languages } = req.body;
+      const {
+        name,
+        gender,
+        age,
+        bio,
+        skills,
+        role,
+        languages,
+        experience,
+        subjects,
+        hourlyRate,
+        qualification
+      } = req.body;
 
-      let avatar;
-      if (req.file) {
-        avatar = handleAvatarUpload(req.file);
-      } else if (req.body.avatar === "") {
-        avatar = ""; // ✅ Remove avatar from DB
+      const files = req.files as {
+        [fieldname: string]: Express.Multer.File[];
+      };
+
+      const avatarFile = files?.avatar?.[0];
+      const documentFiles = files?.document;
+      const resumeFile = files?.resume?.[0];
+
+      // Convert files → base64 strings
+      let avatar = avatarFile ? handleUpload(avatarFile) : undefined;
+      let resume = resumeFile ? handleUpload(resumeFile) : undefined;
+
+      let document: string[] = [];
+      if (documentFiles && documentFiles.length > 0) {
+        document = documentFiles
+          .map((file) => handleUpload(file))
+          .filter((d): d is string => typeof d === "string");
       }
+
+
 
       // ✅ Update name in User collection also
       if (name) {
         await User.findByIdAndUpdate(userId, { name });
       }
+      const existingProfile = await Profile.findOne({ userId });
+
+      let updatedDocuments: string[] = [];
+
+      if (existingProfile?.document && Array.isArray(existingProfile.document)) {
+        updatedDocuments = [...existingProfile.document]; // keep existing documents
+      }
+
+      if (document.length > 0) {
+        updatedDocuments = [...updatedDocuments, ...document]; // append new documents
+      }
+
 
       const updatedProfile = await Profile.findOneAndUpdate(
         { userId },
@@ -125,19 +176,29 @@ profileRoute.put(
             ...(bio && { bio }),
             ...(skills
               ? {
-                  skills: Array.isArray(skills)
-                    ? skills
-                    : skills.split(",").map((s: string) => s.trim()),
-                }
+                skills: Array.isArray(skills)
+                  ? skills
+                  : skills.split(",").map((s: string) => s.trim()),
+              }
               : {}),
             ...(role && { role }),
             ...(languages
               ? {
-                  languages: Array.isArray(languages)
-                    ? languages
-                    : languages.split(",").map((l: string) => l.trim()),
-                }
+                languages: Array.isArray(languages)
+                  ? languages
+                  : languages.split(",").map((l: string) => l.trim()),
+              }
               : {}),
+
+            // tutor-only fields:
+            ...(experience && { experience: Number(experience) }),
+            ...(hourlyRate && { hourlyRate: Number(hourlyRate) }),
+            ...(qualification && { qualification }),
+            ...(subjects && { subjects: subjects.split(",") }),
+            ...(document.length > 0 && { document: updatedDocuments }),
+            ...(resume && { resume }),
+
+
           },
         },
         { new: true, runValidators: true }

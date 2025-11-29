@@ -38,6 +38,7 @@ const defaultClientOrigins = [
   "https://*.amplifyapp.com",
   // Vercel
   "https://*.vercel.app",
+  "https://mesh-spire-core.vercel.app",
 ];
 
 const allowedOrigins = (

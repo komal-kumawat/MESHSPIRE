@@ -16,6 +16,7 @@ import profileRoute from "./routes/profile.route";
 import passport from "passport";
 import "./config/passport.config"; // <-- ensures passport.use(...) runs
 import jwt from "jsonwebtoken";
+import lessonRoute from "./routes/lesson.route";
 
 const app = express();
 
@@ -27,77 +28,27 @@ app.use(express.urlencoded({ extended: true }));
 // Initialize passport
 app.use(passport.initialize());
 
+// CORS configuration - allowing all origins
 app.use(
   cors({
-    origin: "*",
+    origin: true,
     credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+    exposedHeaders: ["set-cookie"],
   })
 );
 
-// --- Google OAuth routes (start + callback) ---
-/**
- * Initiates Google OAuth. Frontend opens: `${API_BASE_URL}/user/auth/google`
- */
-app.get(
-  "/api/v0/user/auth/google",
-  passport.authenticate("google", { scope: ["profile", "email"] })
-);
-
-/**
- * Google OAuth callback. On success we create an access token (JWT)
- * and redirect to FRONTEND_URL with token & basic user info as query params.
- * Note: in production prefer httpOnly cookies or another secure transfer mechanism.
- */
-app.get(
-  "/api/v0/user/auth/google/callback",
-  passport.authenticate("google", {
-    session: false,
-    failureRedirect: `${process.env.FRONTEND_URL}/?error=google_auth_failed`,
-  }),
-  (req, res) => {
-    try {
-      const user = req.user as any;
-      if (!user) {
-        return res.redirect(`${process.env.FRONTEND_URL}/?error=no_user`);
-      }
-
-      if (!process.env.JWT_ACCESS_SECRET) {
-        console.error("JWT_ACCESS_SECRET is not set");
-        return res.redirect(`${process.env.FRONTEND_URL}/?error=server_config`);
-      }
-
-      const payload = {
-        sub: user._id || user.id,
-        email: user.email,
-      };
-      // @ts-ignore
-      const accessToken = jwt.sign(payload, process.env.JWT_ACCESS_SECRET, {
-        expiresIn: process.env.ACCESS_TOKEN_EXPIRES || "15m",
-      });
-
-      const redirectUrl = new URL(
-        process.env.FRONTEND_URL || "http://localhost:5173"
-      );
-      redirectUrl.searchParams.set("token", accessToken);
-      redirectUrl.searchParams.set("name", user.name || "");
-      redirectUrl.searchParams.set("id", String(user._id || user.id || ""));
-
-      return res.redirect(redirectUrl.toString());
-    } catch (err) {
-      console.error("Error in Google callback handler:", err);
-      return res.redirect(`${process.env.FRONTEND_URL}/?error=server_error`);
-    }
-  }
-);
-// --- end Google OAuth routes ---
+// Google OAuth routes are handled in user.routes; avoid duplication here.
 
 app.use("/api/v0/user", userRoutes);
 app.use("/api/v0/room", roomRoutes);
 app.use("/api/v0/profile", profileRoute);
+app.use("/api/v0/lesson", lessonRoute);
 const server = createServer(app);
 const io = new IOServer(server, {
   cors: {
-    origin: process.env.CLIENT_ORIGIN || "*",
+    origin: true,
     methods: ["GET", "POST"],
     credentials: true,
   },

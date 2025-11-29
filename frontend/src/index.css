@@ -5,6 +5,14 @@
 @layer base {
   html {
     font-family: "IBM Plex Sans", sans-serif;
+    background-color: #000; /* Ensure background stays black on overscroll */
+    color: #fff;
+  }
+  body,
+  #root {
+    background-color: #000;
+    min-height: 100%;
+    overscroll-behavior: contain;
   }
 }
 

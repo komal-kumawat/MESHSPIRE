@@ -16,7 +16,7 @@ export function RoomController(io: Server, socket: Socket) {
 
     socketToRoom.set(socket.id, roomId);
     socket.join(roomId);
-    console.log(`👥 Socket ${socket.id} joined room ${roomId}`);
+    console.log(`Socket ${socket.id} joined room ${roomId}`);
 
     socket.to(roomId).emit("new-participant", { socketId: socket.id });
   });

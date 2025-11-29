@@ -10,6 +10,7 @@ interface User {
   email: string;
   gender: string;
   age?: number;
+  class : number;
   avatar?: string;
   bio?: string;
   skills?: string;
@@ -25,6 +26,7 @@ const UpdateProfile: React.FC = () => {
     email: "",
     gender: "",
     age: 0,
+    class : 0,
     avatar: "",
     bio: "",
     skills: "",
@@ -43,7 +45,7 @@ const UpdateProfile: React.FC = () => {
     const fetchProfile = async () => {
       try {
         const userRes = await API.get(`/user/me`);
-        const { name, email } = userRes.data;
+        const { name, email, role: accountRole } = userRes.data;
 
         let profileData: any = {};
         try {
@@ -58,10 +60,12 @@ const UpdateProfile: React.FC = () => {
           email,
           gender: profileData.gender || "",
           age: profileData.age || 0,
+          class: profileData.class || 0,
           avatar: profileData.avatar || "",
           bio: profileData.bio || "",
           skills: profileData.skills ? profileData.skills.join(", ") : "",
-          role: profileData.role || "",
+          // prefer profile role if present else fallback to account role
+          role: profileData.role || accountRole || "",
           languages: profileData.languages
             ? profileData.languages.join(", ")
             : "",
@@ -117,8 +121,9 @@ const UpdateProfile: React.FC = () => {
       formData.append("name", user.name);
       formData.append("gender", user.gender);
       formData.append("age", user.age?.toString() || "");
+      formData.append("class", user.class?.toString() || "");
       formData.append("bio", user.bio || "");
-      formData.append("role", user.role);
+      // Do NOT allow role mutation from profile update; role is fixed at signup.
       formData.append(
         "skills",
         user.skills
@@ -233,7 +238,11 @@ const UpdateProfile: React.FC = () => {
 
               <button
                 className="mt-3 sm:mt-4 px-5 sm:px-6 py-2 bg-gradient-to-r from-gray-800 to-gray-800 hover:from-gray-700 hover:to-gray-700 transition-all duration-300 rounded-2xl font-semibold shadow-lg text-white text-sm sm:text-base"
-                onClick={() => navigate("/dashboard")}
+                onClick={() =>
+                  navigate(
+                    user.role === "tutor" ? "/tutor-dashboard" : "/dashboard"
+                  )
+                }
                 type="button"
               >
                 Go back to Dashboard
@@ -245,6 +254,7 @@ const UpdateProfile: React.FC = () => {
               {[
                 { label: "Name", name: "name", type: "text" },
                 { label: "Age", name: "age", type: "number" },
+                  { label: "Class", name: "class", type: "number" },
                 {
                   label: "Skills (comma separated)",
                   name: "skills",
@@ -295,19 +305,12 @@ const UpdateProfile: React.FC = () => {
                 />
               </label>
 
-              <label className="flex flex-col text-gray-200">
+              <div className="flex flex-col text-gray-200">
                 Role
-                <select
-                  name="role"
-                  value={user.role}
-                  onChange={handleChange}
-                  className="w-full mt-2 px-4 py-2 rounded-xl bg-slate-900/80 border border-white/10 focus:ring-2 focus:ring-violet-700 outline-none transition text-sm sm:text-base"
-                >
-                  <option value="">Select Role</option>
-                  <option value="student">Student</option>
-                  <option value="teacher">Teacher</option>
-                </select>
-              </label>
+                <div className="mt-2 px-4 py-2 rounded-xl bg-slate-900/60 border border-white/10 text-sm sm:text-base select-none">
+                  {user.role || "Unknown"}
+                </div>
+              </div>
 
               <button
                 type="submit"

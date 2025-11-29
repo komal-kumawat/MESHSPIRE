@@ -41,6 +41,7 @@ const Room: React.FC = () => {
     title: "Untitled Meeting",
     category: "General",
   };
+
   const autoSendVideo =
     (location.state && (location.state as any).autoSendVideo) || false;
   const [showAlert, setShowAlert] = useState(false);
@@ -56,16 +57,6 @@ const Room: React.FC = () => {
   };
 
   const [isFullScreen, setIsFullScreen] = useState(false);
-  const [showControls, setShowControls] = useState(false);
-
-  const showControlsTemporarily = () => {
-    setShowControls(true);
-
-    setTimeout(() => {
-      setShowControls(false);
-    }, 3000); // hide after 3 seconds
-  };
-
 
   useEffect(() => {
     localStreamRef.current = localStream;
@@ -414,7 +405,7 @@ const Room: React.FC = () => {
   };
 
   // reconnect handling
-  // @ts-ignore
+  // @ts-expect-error sfa
   useEffect(() => {
     const handleReconnect = () => joinRoom();
     socket.on("connect", handleReconnect);
@@ -422,10 +413,12 @@ const Room: React.FC = () => {
   }, [socket, joinRoom]);
 
   return (
-    <div className="relative min-h-screen bg-black text-white font-sans overflow-hidden" onClick={showControlsTemporarily}>
+    <div className="relative min-h-screen bg-black text-white font-sans overflow-hidden max-h-screen">
       <div className="flex items-center gap-4m-2 text-gray-300 mb-6">
         <div className="flex ml-4 mt-4 text-white ">
-          <span className="text-lg md:text-xl lg:text-2xl font-semibold">{cardData.title}</span>
+          <span className="text-lg md:text-xl lg:text-2xl font-semibold">
+            {cardData.title}
+          </span>
         </div>
         <div
           className="text-lg md:text-xl lg:text-2xl  font-bold ml-4 mt-4 cursor-pointer hover:text-violet-400 transition"
@@ -450,13 +443,14 @@ const Room: React.FC = () => {
       {Object.entries(remoteStreams).map(([id, stream]) => (
         <div
           key={id}
-          className={`absolute transition-all duration-300 border-2 border-gray-200 shadow-2xl rounded-2xl overflow-hidden ${isFullScreen
-            ? "bottom-4 right-4 w-1/4 h-1/4" 
-            : "top-18 left-4 w-5/7 h-5/7"
-            }`}
+          className={`absolute transition-all duration-300 border-2 border-gray-200 shadow-2xl rounded-2xl overflow-hidden ${
+            isFullScreen
+              ? "bottom-4 right-4 w-1/4 h-1/4"
+              : "top-18 left-4 w-5/7 h-5/7"
+          }`}
         >
           <video
-            autoPlay 
+            autoPlay
             playsInline
             ref={(video) => {
               if (!video) return;
@@ -469,10 +463,11 @@ const Room: React.FC = () => {
 
       {/* Local video (overlay) */}
       <div
-        className={`absolute transition-all duration-300 border-2 border-gray-200 shadow-2xl rounded-2xl overflow-hidden group ${isFullScreen
-          ? "top-18 left-4 w-5/7 h-5/7"   // local becomes large
-          : "bottom-4 right-4 w-1/4 h-1/4" // local small
-          }`}
+        className={`absolute transition-all duration-300 border-2 border-gray-200 shadow-2xl rounded-2xl overflow-hidden group ${
+          isFullScreen
+            ? "top-18 left-4 w-5/7 h-5/7" // local becomes large
+            : "bottom-4 right-4 w-1/4 h-1/4" // local small
+        }`}
       >
         <video
           ref={localVideoRef}
@@ -489,66 +484,68 @@ const Room: React.FC = () => {
         </button>
       </div>
 
-
-
-      {showControls && (
-        <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-3 sm:gap-6 z-30 px-4">
-          {/* Video toggle */}
-          <button
-            onClick={toggleVideo}
-            className="w-10 h-10 sm:w-14 sm:h-14 flex items-center justify-center rounded-full bg-gray-800 hover:bg-gray-700 text-white shadow-md transition"
-          >
-            {videoOn ? <VideocamIcon fontSize="small" className="sm:text-base" /> : <VideocamOffIcon fontSize="small" className="sm:text-base" />}
-          </button>
-
-          {/* Audio toggle */}
-          <button
-            onClick={toggleAudio}
-            className="w-10 h-10 sm:w-14 sm:h-14 flex items-center justify-center rounded-full bg-gray-800 hover:bg-gray-700 text-white shadow-md transition"
-          >
-            {mute ? <MicOffIcon fontSize="small" className="sm:text-base" /> : <MicIcon fontSize="small" className="sm:text-base" />}
-          </button>
-
-          {/* Screen share */}
-          {!screenSharing ? (
-            <button
-              onClick={startScreenShare}
-              className="w-10 h-10 sm:w-14 sm:h-14 flex items-center justify-center rounded-full bg-gray-800 hover:bg-gray-700 text-white shadow-md transition"
-            >
-              <ScreenShareIcon fontSize="small" className="sm:text-base" />
-            </button>
+      <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-3 sm:gap-6 z-30 px-4  ">
+        {/* Video toggle */}
+        <button
+          onClick={toggleVideo}
+          className="w-10  h-10 sm:w-14 sm:h-14 flex items-center justify-center rounded-full bg-gray-800 hover:bg-gray-700 text-white shadow-md transition"
+        >
+          {videoOn ? (
+            <VideocamIcon fontSize="small" className="sm:text-base" />
           ) : (
-            <button
-              onClick={stopScreenShare}
-              className="w-10 h-10 sm:w-14 sm:h-14 flex items-center justify-center rounded-full bg-red-600 hover:bg-red-500 text-white shadow-md transition"
-            >
-              <StopScreenShareIcon fontSize="small" className="sm:text-base" />
-            </button>
+            <VideocamOffIcon fontSize="small" className="sm:text-base" />
           )}
+        </button>
 
-          {/* End call */}
+        {/* Audio toggle */}
+        <button
+          onClick={toggleAudio}
+          className="w-10 h-10 sm:w-14 sm:h-14 flex items-center justify-center rounded-full bg-gray-800 hover:bg-gray-700 text-white shadow-md transition"
+        >
+          {mute ? (
+            <MicOffIcon fontSize="small" className="sm:text-base" />
+          ) : (
+            <MicIcon fontSize="small" className="sm:text-base" />
+          )}
+        </button>
+
+        {/* Screen share */}
+        {!screenSharing ? (
           <button
-            onClick={endCall}
+            onClick={startScreenShare}
+            className="w-10 h-10 sm:w-14 sm:h-14 flex items-center justify-center rounded-full bg-gray-800 hover:bg-gray-700 text-white shadow-md transition"
+          >
+            <ScreenShareIcon fontSize="small" className="sm:text-base" />
+          </button>
+        ) : (
+          <button
+            onClick={stopScreenShare}
             className="w-10 h-10 sm:w-14 sm:h-14 flex items-center justify-center rounded-full bg-red-600 hover:bg-red-500 text-white shadow-md transition"
           >
-            <CallEndIcon fontSize="small" className="sm:text-base" />
+            <StopScreenShareIcon fontSize="small" className="sm:text-base" />
           </button>
+        )}
 
-          {/* Chat */}
-          <button
-            onClick={() => {
-              setShowChatAlert(true);
-              setTimeout(() => setShowChatAlert(false), 2000);
-            }}
-            className="w-10 h-10 sm:w-14 sm:h-14 flex items-center justify-center rounded-full bg-gray-800 hover:bg-gray-700 text-white shadow-md transition"
-          >
-            <ChatIcon fontSize="small" className="sm:text-base" />
-          </button>
-        </div>
-      )}
+        {/* End call */}
+        <button
+          onClick={endCall}
+          className="w-10 h-10 sm:w-14 sm:h-14 flex items-center justify-center rounded-full bg-red-600 hover:bg-red-500 text-white shadow-md transition"
+        >
+          <CallEndIcon fontSize="small" className="sm:text-base" />
+        </button>
 
+        {/* Chat */}
+        <button
+          onClick={() => {
+            setShowChatAlert(true);
+            setTimeout(() => setShowChatAlert(false), 2000);
+          }}
+          className="w-10 h-10 sm:w-14 sm:h-14 flex items-center justify-center rounded-full bg-gray-800 hover:bg-gray-700 text-white shadow-md transition"
+        >
+          <ChatIcon fontSize="small" className="sm:text-base" />
+        </button>
+      </div>
     </div>
-
   );
 };
 

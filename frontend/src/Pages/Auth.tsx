@@ -18,6 +18,7 @@ export default function AuthPage() {
     email: "",
     password: "",
     avatarUrl: "",
+    isTutor: false,
   });
 
   useEffect(() => {
@@ -26,15 +27,17 @@ export default function AuthPage() {
       const token = params.get("token");
       const name = params.get("name");
       const id = params.get("id");
+      const roleParam = params.get("role") as "student" | "tutor" | null;
 
-      if (token && name && id) {
-        setUser(name, token, id);
+      if (token && name && id && roleParam) {
+        setUser(name, token, id, roleParam);
         localStorage.setItem("token", token);
         localStorage.setItem("name", name);
         localStorage.setItem("userId", id);
+        localStorage.setItem("role", roleParam);
         const cleanUrl = window.location.pathname;
         window.history.replaceState({}, document.title, cleanUrl);
-        navigate("/dashboard");
+        navigate(roleParam === "tutor" ? "/tutor-dashboard" : "/dashboard");
       }
     } catch (err) {
       console.error("Error processing OAuth callback:", err);
@@ -54,13 +57,36 @@ export default function AuthPage() {
           email: form.email,
           password: form.password,
         });
-        setUser(res.data.user.name, res.data.access, res.data.user.id);
+        setUser(
+          res.data.user.name,
+          res.data.access,
+          res.data.user.id,
+          res.data.user.role
+        );
         localStorage.setItem("token", res.data.access);
-        navigate("/dashboard");
+        localStorage.setItem("role", res.data.user.role);
+        navigate(
+          res.data.user.role === "tutor" ?
+            ((!res.data.user.subjects && !res.data.user.experience && !res.data.user.languages && !res.data.user.qualification
+              && !res.data.user.document
+            ) ? "/update-tutor-profile" : "/tutor-dashboard") : "/dashboard"
+        );
       } else {
         const res = await API.post("/user/signup", form);
+        setUser(
+          res.data.user.name,
+          res.data.access,
+          res.data.user.id,
+          res.data.user.role
+        );
         localStorage.setItem("token", res.data.access);
-        setIsSignin(true);
+        localStorage.setItem("role", res.data.user.role);
+        navigate(
+          res.data.user.role === "tutor" ?
+            ((!res.data.user.subjects && !res.data.user.experience && !res.data.user.languages && !res.data.user.qualification
+              && !res.data.user.document
+            ) ? "/update-tutor-profile" : "/tutor-dashboard") : "/dashboard"
+        );
       }
     } catch (err: any) {
       const serverMsg =
@@ -99,23 +125,20 @@ export default function AuthPage() {
           <div className="bg-white/10 backdrop-blur-sm rounded-full flex w-56 sm:w-64 p-1 relative overflow-hidden">
             <motion.div
               layout
-              className={`absolute top-1 bottom-1 w-1/2 rounded-full bg-gradient-to-r from-green-600 to-green-700 shadow-lg transition-all duration-500 ${
-                isSignin ? "left-1" : "left-[48%]"
-              }`}
+              className={`absolute top-1 bottom-1 w-1/2 rounded-full bg-gradient-to-r from-green-600 to-green-700 shadow-lg transition-all duration-500 ${isSignin ? "left-1" : "left-[48%]"
+                }`}
             />
             <button
               onClick={() => setIsSignin(true)}
-              className={`relative z-10 w-1/2 py-2 text-xs sm:text-sm rounded-full font-semibold transition-all ${
-                isSignin ? "text-white" : "text-gray-300 hover:text-white"
-              }`}
+              className={`relative z-10 w-1/2 py-2 text-xs sm:text-sm rounded-full font-semibold transition-all ${isSignin ? "text-white" : "text-gray-300 hover:text-white"
+                }`}
             >
               Sign In
             </button>
             <button
               onClick={() => setIsSignin(false)}
-              className={`relative z-10 w-1/2 py-2 text-xs sm:text-sm rounded-full font-semibold transition-all ${
-                !isSignin ? "text-white" : "text-gray-300 hover:text-white"
-              }`}
+              className={`relative z-10 w-1/2 py-2 text-xs sm:text-sm rounded-full font-semibold transition-all ${!isSignin ? "text-white" : "text-gray-300 hover:text-white"
+                }`}
             >
               Sign Up
             </button>
@@ -249,6 +272,18 @@ export default function AuthPage() {
                       )}
                     </button>
                   </div>
+
+                  <label className="flex items-center gap-2 text-xs sm:text-sm text-gray-200">
+                    <input
+                      type="checkbox"
+                      checked={form.isTutor}
+                      onChange={(e) =>
+                        setForm({ ...form, isTutor: e.target.checked })
+                      }
+                      className="h-4 w-4 rounded border-gray-400 text-green-600 focus:ring-green-500"
+                    />
+                    Sign up as Tutor
+                  </label>
 
                   <button
                     onClick={handleSubmit}

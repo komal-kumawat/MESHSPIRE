@@ -85,12 +85,6 @@ const Navbar: React.FC<NavbarProps> = ({ isSidebarExpanded }) => {
         <NotificationsIcon className="text-gray-300 cursor-pointer hover:text-white transition text-lg sm:text-xl lg:text-2xl" />
 
         {/* Update Profile quick access button */}
-        <button
-          onClick={() => navigate("/update-profile")}
-          className="hidden md:inline-block px-4 py-2 rounded-full bg-gradient-to-r from-violet-900 via-violet-800 to-violet-900 hover:from-violet-800 hover:to-violet-700 text-xs sm:text-sm font-semibold shadow-lg transition"
-        >
-          Update Profile
-        </button>
 
         <div className="relative" ref={dropdownRef}>
           {avatar ? (

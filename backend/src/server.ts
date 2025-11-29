@@ -16,6 +16,7 @@ import profileRoute from "./routes/profile.route";
 import passport from "passport";
 import "./config/passport.config"; // <-- ensures passport.use(...) runs
 import jwt from "jsonwebtoken";
+import lessonRoute from "./routes/lesson.route";
 
 const app = express();
 
@@ -26,78 +27,88 @@ app.use(express.urlencoded({ extended: true }));
 
 // Initialize passport
 app.use(passport.initialize());
+// Configure CORS to allow only configured client origins
+// Provide sensible defaults for common dev/prod environments
+const defaultClientOrigins = [
+  "*",
+  "http://localhost:5173",
+  "http://localhost:3000",
+  "http://localhost:8080",
+  // Amplify preview/prod domains (replace with your actual domains if needed)
+  "https://*.amplifyapp.com",
+  // Vercel
+  "https://*.vercel.app",
+];
+
+const allowedOrigins = (
+  process.env.CLIENT_ORIGINS ||
+  process.env.CLIENT_ORIGIN ||
+  defaultClientOrigins.join(",")
+)
+  .split(",")
+  .map((o) => o.trim())
+  .filter(Boolean);
+
+// Helper to match wildcard domains like https://*.amplifyapp.com
+const originMatches = (origin: string, patterns: string[]) => {
+  try {
+    const url = new URL(origin);
+    const host = url.host;
+    return patterns.some((pattern) => {
+      if (pattern === "*") return true;
+      if (!pattern.startsWith("http")) return false;
+      const pUrl = new URL(pattern.replace("*.", "dummy."));
+      const pHost = pUrl.host.replace("dummy.", "");
+      if (pattern.includes("*.")) {
+        return host.endsWith(pHost);
+      }
+      return `${pUrl.protocol}//${host}` === `${pUrl.protocol}//${pHost}`;
+    });
+  } catch {
+    return false;
+  }
+};
 
 app.use(
   cors({
-    origin: "*",
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true); // allow non-browser clients
+      if (allowedOrigins.includes("*")) return callback(null, true);
+      if (
+        allowedOrigins.includes(origin) ||
+        originMatches(origin, allowedOrigins)
+      ) {
+        return callback(null, true);
+      }
+      return callback(new Error(`CORS blocked: ${origin}`));
+    },
     credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+    exposedHeaders: ["set-cookie"],
   })
 );
 
-// --- Google OAuth routes (start + callback) ---
-/**
- * Initiates Google OAuth. Frontend opens: `${API_BASE_URL}/user/auth/google`
- */
-app.get(
-  "/api/v0/user/auth/google",
-  passport.authenticate("google", { scope: ["profile", "email"] })
-);
-
-/**
- * Google OAuth callback. On success we create an access token (JWT)
- * and redirect to FRONTEND_URL with token & basic user info as query params.
- * Note: in production prefer httpOnly cookies or another secure transfer mechanism.
- */
-app.get(
-  "/api/v0/user/auth/google/callback",
-  passport.authenticate("google", {
-    session: false,
-    failureRedirect: `${process.env.FRONTEND_URL}/?error=google_auth_failed`,
-  }),
-  (req, res) => {
-    try {
-      const user = req.user as any;
-      if (!user) {
-        return res.redirect(`${process.env.FRONTEND_URL}/?error=no_user`);
-      }
-
-      if (!process.env.JWT_ACCESS_SECRET) {
-        console.error("JWT_ACCESS_SECRET is not set");
-        return res.redirect(`${process.env.FRONTEND_URL}/?error=server_config`);
-      }
-
-      const payload = {
-        sub: user._id || user.id,
-        email: user.email,
-      };
-      // @ts-ignore
-      const accessToken = jwt.sign(payload, process.env.JWT_ACCESS_SECRET, {
-        expiresIn: process.env.ACCESS_TOKEN_EXPIRES || "15m",
-      });
-
-      const redirectUrl = new URL(
-        process.env.FRONTEND_URL || "http://localhost:5173"
-      );
-      redirectUrl.searchParams.set("token", accessToken);
-      redirectUrl.searchParams.set("name", user.name || "");
-      redirectUrl.searchParams.set("id", String(user._id || user.id || ""));
-
-      return res.redirect(redirectUrl.toString());
-    } catch (err) {
-      console.error("Error in Google callback handler:", err);
-      return res.redirect(`${process.env.FRONTEND_URL}/?error=server_error`);
-    }
-  }
-);
-// --- end Google OAuth routes ---
+// Google OAuth routes are handled in user.routes; avoid duplication here.
 
 app.use("/api/v0/user", userRoutes);
 app.use("/api/v0/room", roomRoutes);
 app.use("/api/v0/profile", profileRoute);
+app.use("/api/v0/lesson", lessonRoute);
 const server = createServer(app);
 const io = new IOServer(server, {
   cors: {
-    origin: process.env.CLIENT_ORIGIN || "*",
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes("*")) return callback(null, true);
+      if (
+        allowedOrigins.includes(origin) ||
+        originMatches(origin, allowedOrigins)
+      ) {
+        return callback(null, true);
+      }
+      return callback(new Error(`Socket.IO CORS blocked: ${origin}`));
+    },
     methods: ["GET", "POST"],
     credentials: true,
   },

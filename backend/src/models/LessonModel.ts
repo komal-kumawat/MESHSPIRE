@@ -1,8 +1,17 @@
 import mongoose from "mongoose";
 
+export interface IConfirmedTutor {
+  tutorId:
+    | mongoose.Types.ObjectId
+    | { _id: mongoose.Types.ObjectId; name: string; email: string };
+  confirmedAt: Date;
+}
+
 export interface ILesson extends Document {
   tutorId: mongoose.Types.ObjectId;
-  studentId?: mongoose.Types.ObjectId;
+  studentId?:
+    | mongoose.Types.ObjectId
+    | { _id: mongoose.Types.ObjectId; name: string; email: string };
   topic: string;
   subTopic?: string;
   subject: string;
@@ -10,6 +19,7 @@ export interface ILesson extends Document {
   date: string;
   time: string;
   status: "scheduled" | "cancelled";
+  confirmedTutors: IConfirmedTutor[];
 }
 
 const LessonSchema = new mongoose.Schema<ILesson>(
@@ -29,6 +39,12 @@ const LessonSchema = new mongoose.Schema<ILesson>(
       default: "scheduled",
       required: true,
     },
+    confirmedTutors: [
+      {
+        tutorId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+        confirmedAt: { type: Date, default: Date.now },
+      },
+    ],
   },
   { timestamps: true }
 );

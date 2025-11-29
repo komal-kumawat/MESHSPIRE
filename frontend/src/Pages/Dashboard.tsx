@@ -170,7 +170,7 @@ const Dashboard: React.FC = () => {
 
       {openDetails && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center z-50 px-4">
-          <div className="bg-gradient-to-br from-slate-900 to-slate-800 text-white p-8 rounded-2xl w-full sm:w-[480px] space-y-5 shadow-2xl border border-violet-500/20">
+          <div className="bg-gradient-to-br from-slate-900 to-slate-800 text-white p-8 rounded-2xl w-full sm:w-[480px] space-y-5 shadow-2xl border border-violet-500/20 max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-start">
               <h2 className="text-3xl font-bold bg-gradient-to-r from-violet-400 to-purple-400 bg-clip-text text-transparent">
                 {openDetails.topic}
@@ -210,6 +210,56 @@ const Dashboard: React.FC = () => {
                 </p>
               )}
             </div>
+
+            {/* Confirmed Tutors Section */}
+            {openDetails.confirmedTutors &&
+              openDetails.confirmedTutors.length > 0 && (
+                <div className="space-y-3">
+                  <h3 className="text-xl font-semibold text-violet-300">
+                    Confirmed Tutors
+                  </h3>
+                  <div className="space-y-2">
+                    {openDetails.confirmedTutors.map(
+                      (confirmedTutor: any, index: number) => (
+                        <div
+                          key={index}
+                          className="bg-gradient-to-r from-green-900/30 to-emerald-900/30 p-4 rounded-xl border border-green-500/30 space-y-1"
+                        >
+                          <p className="text-gray-200 font-semibold">
+                            {confirmedTutor.tutorId?.name ||
+                              confirmedTutor.tutorId ||
+                              "Unknown Tutor"}
+                          </p>
+                          {confirmedTutor.tutorId?.email && (
+                            <p className="text-gray-400 text-sm">
+                              {confirmedTutor.tutorId.email}
+                            </p>
+                          )}
+                          {confirmedTutor.confirmedAt && (
+                            <p className="text-gray-400 text-xs">
+                              Confirmed:{" "}
+                              {new Date(
+                                confirmedTutor.confirmedAt
+                              ).toLocaleString()}
+                            </p>
+                          )}
+                        </div>
+                      )
+                    )}
+                  </div>
+                </div>
+              )}
+
+            {/* No Tutors Confirmed Yet */}
+            {(!openDetails.confirmedTutors ||
+              openDetails.confirmedTutors.length === 0) && (
+              <div className="bg-slate-800/50 p-4 rounded-xl border border-white/5">
+                <p className="text-gray-400 text-center">
+                  No tutors have confirmed yet. Please wait for a tutor to
+                  accept your lesson request.
+                </p>
+              </div>
+            )}
 
             <button
               onClick={() => setOpenDetails(null)}

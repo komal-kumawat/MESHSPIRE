@@ -1,17 +1,10 @@
 import axios from "axios";
 
-// Determine environment (Vite sets MODE to 'development' or 'production')
+// Hardcoded backend URLs for dev and prod
 const isProd = import.meta.env.MODE === "production";
-
-// Prefer explicit env variables for each environment, then generic, then fallback
-const baseURL =
-  (isProd
-    ? import.meta.env.VITE_API_BASE_URL_PROD
-    : import.meta.env.VITE_API_BASE_URL_DEV) ||
-  import.meta.env.VITE_API_BASE_URL ||
-  (isProd
-    ? "https://meshspire-core-prod.onrender.com/api/v0"
-    : "http://localhost:8000/api/v0");
+const baseURL = isProd
+  ? "https://meshspire-core-prod.onrender.com/api/v0" // prod backend
+  : "https://meshspire-core-vjqd.onrender.com/api/v0"; // dev backend
 
 const API = axios.create({
   baseURL,
@@ -22,11 +15,9 @@ const API = axios.create({
 
 API.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
-
   if (token) {
     config.headers["Authorization"] = `Bearer ${token}`;
   }
-
   return config;
 });
 

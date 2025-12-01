@@ -48,6 +48,9 @@ const ProfileSchema = new mongoose.Schema<IProfile>({
 
     hourlyRate: {
       type: Number,
+      default:100,
+      min:100
+      
       
     },
 

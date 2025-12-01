@@ -11,6 +11,7 @@ interface LessonModelProps {
   onCancel?: () => void;
   isConfirmed?: boolean;
   isProcessing?: boolean;
+  isPaid?: boolean;
 }
 
 const LessonModel: React.FC<LessonModelProps> = ({
@@ -24,15 +25,34 @@ const LessonModel: React.FC<LessonModelProps> = ({
   onCancel,
   isConfirmed = false,
   isProcessing = false,
+  isPaid = false,
 }) => {
   return (
-    <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 backdrop-blur-xl text-white rounded-2xl shadow-2xl border border-violet-500/20 px-6 py-5 w-80 space-y-4 hover:shadow-violet-500/30 hover:border-violet-400/30 transition-all duration-300 hover:scale-[1.02]">
+    <div
+      className={`backdrop-blur-xl text-white rounded-2xl shadow-2xl px-6 py-5 w-80 space-y-4 transition-all duration-300 hover:scale-[1.02] ${
+        isPaid
+          ? "bg-gradient-to-br from-emerald-900 via-green-800 to-emerald-900 border border-green-500/40 hover:shadow-green-500/30 hover:border-green-400/50"
+          : "bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 border border-violet-500/20 hover:shadow-violet-500/30 hover:border-violet-400/30"
+      }`}
+    >
       <div className="flex justify-between items-start gap-3">
-        <h3 className="text-xl font-bold tracking-wide bg-gradient-to-r from-violet-300 to-purple-300 bg-clip-text text-transparent leading-tight">
+        <h3
+          className={`text-xl font-bold tracking-wide bg-clip-text text-transparent leading-tight ${
+            isPaid
+              ? "bg-gradient-to-r from-green-300 to-emerald-300"
+              : "bg-gradient-to-r from-violet-300 to-purple-300"
+          }`}
+        >
           {topic}
         </h3>
         {subject && (
-          <span className="text-[11px] font-semibold text-violet-200 border border-violet-400/40 px-3 py-1 rounded-full bg-violet-500/10 shadow-sm whitespace-nowrap">
+          <span
+            className={`text-[11px] font-semibold px-3 py-1 rounded-full shadow-sm whitespace-nowrap ${
+              isPaid
+                ? "text-green-200 border border-green-400/40 bg-green-500/10"
+                : "text-violet-200 border border-violet-400/40 bg-violet-500/10"
+            }`}
+          >
             {subject}
           </span>
         )}
@@ -40,15 +60,26 @@ const LessonModel: React.FC<LessonModelProps> = ({
 
       {studentName && (
         <div className="flex items-center gap-2 text-sm text-gray-300 bg-slate-800/50 px-3 py-2 rounded-lg border border-white/5">
-          <span className="text-violet-400"></span>
+          <span className={isPaid ? "text-green-400" : "text-violet-400"}>
+            👤
+          </span>
           <p className="font-medium">{studentName}</p>
         </div>
       )}
 
       <div className="flex items-center gap-2 text-sm text-gray-300 bg-slate-800/50 px-3 py-2 rounded-lg border border-white/5">
-        <span className="text-violet-400"></span>
+        <span className={isPaid ? "text-green-400" : "text-violet-400"}>
+          🕒
+        </span>
         <p>{time}</p>
       </div>
+
+      {isPaid && (
+        <div className="flex items-center gap-2 text-sm text-green-300 bg-green-900/30 px-3 py-2 rounded-lg border border-green-500/30">
+          <span className="text-green-400">✓</span>
+          <p className="font-semibold">Payment Confirmed</p>
+        </div>
+      )}
 
       <div className="pt-2 flex justify-end gap-2">
         {showActions ? (

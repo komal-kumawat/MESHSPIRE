@@ -90,6 +90,10 @@ const TutorDashboard: React.FC = () => {
     );
   };
 
+  // Separate paid and unpaid lessons
+  const unpaidLessons = relevantLessons.filter((lesson) => !lesson.isPaid);
+  const paidLessons = relevantLessons.filter((lesson) => lesson.isPaid);
+
   // Featured class topics (sample static data)
   const featured = [
     {
@@ -166,9 +170,9 @@ const TutorDashboard: React.FC = () => {
             <div className="flex justify-center items-center py-10">
               <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-violet-500"></div>
             </div>
-          ) : relevantLessons.length > 0 ? (
+          ) : unpaidLessons.length > 0 ? (
             <div className="flex gap-4 flex-wrap pb-3">
-              {relevantLessons.map((lesson, index) => (
+              {unpaidLessons.map((lesson, index) => (
                 <LessonModel
                   key={lesson._id || index}
                   topic={lesson.topic}
@@ -181,6 +185,7 @@ const TutorDashboard: React.FC = () => {
                   onCancel={() => handleCancelLesson(lesson._id)}
                   isConfirmed={isLessonConfirmedByCurrentUser(lesson)}
                   isProcessing={processingLessonId === lesson._id}
+                  isPaid={false}
                 />
               ))}
             </div>
@@ -193,6 +198,29 @@ const TutorDashboard: React.FC = () => {
             </div>
           )}
         </div>
+
+        {/* Confirmed Classes Section for Tutors */}
+        {!loading && paidLessons.length > 0 && (
+          <div className="mb-10">
+            <h1 className="text-2xl sm:text-3xl font-semibold mb-6 text-center sm:text-left">
+              Confirmed Classes ✓
+            </h1>
+            <div className="flex gap-4 flex-wrap pb-3">
+              {paidLessons.map((lesson, index) => (
+                <LessonModel
+                  key={lesson._id || index}
+                  topic={lesson.topic}
+                  subject={lesson.subject}
+                  time={`${lesson.date} • ${lesson.time}`}
+                  studentName={lesson.studentId?.name || "Unknown Student"}
+                  onViewDetails={() => setOpenDetails(lesson)}
+                  showActions={false}
+                  isPaid={true}
+                />
+              ))}
+            </div>
+          </div>
+        )}
 
         <h1 className="text-2xl sm:text-3xl font-semibold mb-6 text-center sm:text-left">
           Featured Classes
@@ -264,46 +292,6 @@ const TutorDashboard: React.FC = () => {
                 </span>
               </p>
             </div>
-
-            {/* Confirmed Tutors Section for Tutor View */}
-            {openDetails.confirmedTutors &&
-              openDetails.confirmedTutors.length > 0 && (
-                <div className="space-y-3">
-                  <h3 className="text-xl font-semibold text-violet-300">
-                    Other Confirmed Tutors
-                  </h3>
-                  <div className="space-y-2">
-                    {openDetails.confirmedTutors.map(
-                      (confirmedTutor: any, index: number) => (
-                        <div
-                          key={index}
-                          className="bg-gradient-to-r from-green-900/30 to-emerald-900/30 p-4 rounded-xl border border-green-500/30 space-y-1"
-                        >
-                          <p className="text-gray-200 font-semibold">
-                            {" "}
-                            {confirmedTutor.tutorId?.name ||
-                              confirmedTutor.tutorId ||
-                              "Unknown Tutor"}
-                          </p>
-                          {confirmedTutor.tutorId?.email && (
-                            <p className="text-gray-400 text-sm">
-                              {confirmedTutor.tutorId.email}
-                            </p>
-                          )}
-                          {confirmedTutor.confirmedAt && (
-                            <p className="text-gray-400 text-xs">
-                              Confirmed:{" "}
-                              {new Date(
-                                confirmedTutor.confirmedAt
-                              ).toLocaleString()}
-                            </p>
-                          )}
-                        </div>
-                      )
-                    )}
-                  </div>
-                </div>
-              )}
 
             <button
               onClick={() => setOpenDetails(null)}

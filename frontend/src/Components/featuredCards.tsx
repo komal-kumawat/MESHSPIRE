@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 interface FeaturedCardProps {
   open: boolean;
@@ -14,6 +14,34 @@ const FeaturedCard: React.FC<FeaturedCardProps> = ({
 }) => {
   const classOptions = Array.from({ length: 12 }, (_, i) => i + 1);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [minDate, setMinDate] = useState("");
+  const [minTime, setMinTime] = useState("");
+  const [selecetedDate, setSelectedDate] = useState("");
+  const [selectedTime, setSelectedTime] = useState("");
+
+  useEffect(() => {
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, "0");
+    const dd = String(today.getDate()).padStart(2, "0");
+    setMinDate(`${yyyy}-${mm}-${dd}`);
+
+  }, []);
+
+  useEffect(() => {
+    if (!selecetedDate) return;
+    const now = new Date();
+    const todayString = now.toISOString().split("T")[0];
+    if (selecetedDate === todayString) {
+      const hh = String(now.getHours()).padStart(2, "0");
+      const min = String(now.getMinutes()).padStart(2, "0");
+      setMinTime(`${hh}:${min}`);
+    } else {
+      setMinTime("00:00");
+    }
+
+  }, [selecetedDate]);
+
 
   const handleSubmit = async () => {
     const topic = (document.getElementById("topic") as HTMLInputElement).value;
@@ -23,8 +51,8 @@ const FeaturedCard: React.FC<FeaturedCardProps> = ({
       .value;
     const classValue = (document.getElementById("class") as HTMLSelectElement)
       .value;
-    const date = (document.getElementById("date") as HTMLInputElement).value;
-    const time = (document.getElementById("time") as HTMLInputElement).value;
+    const date = selecetedDate;
+    const time = selectedTime;
 
     // Validation
     if (!topic || !subject || !classValue || !date || !time) {
@@ -40,6 +68,14 @@ const FeaturedCard: React.FC<FeaturedCardProps> = ({
       date,
       time,
     };
+
+    const now = new Date();
+    const selectedDateTime = new Date(`${date}T${time}`);
+    if (selectedDateTime < now) {
+      alert("You cannot select past date/time");
+      return;
+    }
+
 
     setIsSubmitting(true);
     try {
@@ -107,13 +143,17 @@ const FeaturedCard: React.FC<FeaturedCardProps> = ({
                   <label className="font-semibold text-violet-200 flex items-center gap-2">
                     Subject <span className="text-red-400">*</span>
                   </label>
-                  <input
-                    id="subject"
-                    type="text"
-                    required
-                    className="w-full p-3 rounded-xl mt-2 bg-slate-800/70 border border-violet-500/20 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all"
-                    placeholder="e.g., Mathematics"
-                  />
+
+
+                  <select id="subject" className="w-full p-3 rounded-xl mt-2 bg-slate-800/70 border border-violet-500/20 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all">
+                    <option value="">Select Subject</option>
+                    <option value="Mathematics" >Mathematices</option>
+                    <option value="English">English</option>
+                    <option value="Science">Science</option>
+                    <option value="Computer Science">Computer Science</option>
+
+
+                  </select>
                 </div>
 
                 <div>
@@ -133,7 +173,11 @@ const FeaturedCard: React.FC<FeaturedCardProps> = ({
                       <option key={cls} value={cls}>
                         Class {cls}
                       </option>
+
                     ))}
+                    <option value="Bachelors">Bachelors</option>
+                    <option value="Masters">Masters</option>
+                    <option value="phd">phd</option>
                   </select>
                 </div>
 
@@ -144,7 +188,11 @@ const FeaturedCard: React.FC<FeaturedCardProps> = ({
                   <input
                     id="date"
                     type="date"
+                    min={minDate}
                     required
+                    value={selecetedDate}
+                    onChange={(e) => setSelectedDate(e.target.value)}
+
                     className="w-full p-3 rounded-xl mt-2 bg-slate-800/70 border border-violet-500/20 text-white focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all"
                   />
                 </div>
@@ -157,6 +205,9 @@ const FeaturedCard: React.FC<FeaturedCardProps> = ({
                     id="time"
                     type="time"
                     required
+                    min={minTime}
+                    value={selectedTime}
+                    onChange={(e)=>setSelectedTime(e.target.value)}
                     className="w-full p-3 rounded-xl mt-2 bg-slate-800/70 border border-violet-500/20 text-white focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all"
                   />
                 </div>

@@ -129,8 +129,12 @@ const TutorUpdateProfile: React.FC = () => {
                 }
 
 
+
                 if (profileData.resume) {
+                    
+                    setSelectedResume(profileData.resume)
                     setResumePreview(profileData.resume);
+                    
                 }
                 setSelectedSubjects(
                     Array.isArray(profileData.subjects)
@@ -185,12 +189,12 @@ const TutorUpdateProfile: React.FC = () => {
         const newPreviews = newFiles.map((file) => URL.createObjectURL(file));
         setDocumentPreview((prev) => [...prev, ...newPreviews]);
         setUser((prev) => ({
-        ...prev,
-        document: [
-            ...(prev.document || []),
-            ...newFiles.map((file) => file.name)
-        ]
-    }));
+            ...prev,
+            document: [
+                ...(prev.document || []),
+                ...newFiles.map((file) => file.name)
+            ]
+        }));
 
     };
 
@@ -228,7 +232,7 @@ const TutorUpdateProfile: React.FC = () => {
             subjects: updatedSubjects
         }));
     };
-    
+
 
 
 
@@ -579,14 +583,16 @@ const TutorUpdateProfile: React.FC = () => {
                                 {resumePreview && (
                                     <div className="mt-3 flex flex-col items-center bg-slate-800 p-3 rounded-xl border border-white/10 shadow-sm">
                                         <p className="text-sm text-gray-300 mb-2">Resume Preview:</p>
-                                        {selectedResume?.type.includes("pdf") ? (
+                                        {selectedResume? (
+                                            
                                             <iframe
                                                 src={resumePreview}
                                                 className="w-36 h-36 border rounded-md"
                                             />
+                    
                                         ) : (
                                             <div className="w-36 h-36 border rounded-md p-2 flex justify-center items-center bg-slate-800 text-xs text-gray-200">
-                                                📄 {selectedResume?.name}
+                                                No Resume Found
                                             </div>
                                         )}
                                     </div>

@@ -65,11 +65,21 @@ export default function AuthPage() {
         );
         localStorage.setItem("token", res.data.access);
         localStorage.setItem("role", res.data.user.role);
+        let missing = false;
+
+        if (res.data.user.role === "tutor") {
+          const u = res.data.user;
+          missing =
+            !u.subjects?.length ||
+            !u.experience ||
+            !u.languages?.trim() ||
+            !u.qualification?.trim() ||
+            !u.document?.length;
+        }
+
         navigate(
           res.data.user.role === "tutor" ?
-            ((!res.data.user.subjects && !res.data.user.experience && !res.data.user.languages && !res.data.user.qualification
-              && !res.data.user.document
-            ) ? "/update-tutor-profile" : "/tutor-dashboard") : "/dashboard"
+            (missing ? "/update-tutor-profile" : "/tutor-dashboard") : "/dashboard"
         );
       } else {
         const res = await API.post("/user/signup", form);
@@ -81,11 +91,10 @@ export default function AuthPage() {
         );
         localStorage.setItem("token", res.data.access);
         localStorage.setItem("role", res.data.user.role);
+
         navigate(
           res.data.user.role === "tutor" ?
-            ((!res.data.user.subjects && !res.data.user.experience && !res.data.user.languages && !res.data.user.qualification
-              && !res.data.user.document
-            ) ? "/update-tutor-profile" : "/tutor-dashboard") : "/dashboard"
+            "/update-tutor-profile" : "/dashboard"
         );
       }
     } catch (err: any) {

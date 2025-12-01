@@ -60,7 +60,7 @@ const PublicTutorProfile: React.FC = () => {
     <div className="flex flex-col min-h-screen bg-gray-950 text-white overflow-x-hidden">
       <main className="flex flex-col items-center justify-start md:justify-center px-4 sm:px-6 py-8 md:py-10 overflow-y-auto">
         <h1 className="text-3xl sm:text-4xl text-center mb-6 font-bold">
-          {user?.name} PROFILE
+          {user?.name?.toUpperCase()} PROFILE
         </h1>
 
         {loading ? (

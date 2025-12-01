@@ -2,6 +2,8 @@ import { Router } from "express";
 import { authMiddleware } from "../middleware/auth.middleware";
 import multer from "multer";
 import { ProfileController } from "../controller/profile.controller";
+import Profile from "../models/profile.model";
+import { StatusCodes } from "http-status-codes";
 
 const profileRoute = Router();
 const upload = multer();
@@ -29,8 +31,6 @@ profileRoute.put(
 
 //Public tutor profile
 profileRoute.get("/tutor/:id", async (req, res) => {
-  const userId = req.params.id;
-  const profile = await Profile.findOne({ userId });
   try {
     const userId = req.params.id;
     const profile = await Profile.findOne({ userId }).select("-__v -email");
@@ -43,6 +43,6 @@ profileRoute.get("/tutor/:id", async (req, res) => {
   } catch (err) {
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err);
   }
-})
+});
 
 export default profileRoute;

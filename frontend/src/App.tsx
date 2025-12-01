@@ -14,6 +14,8 @@ import TutorProfile from "./Pages/TutorProfile";
 import PublicTutorProfile from "./Pages/PublicTutorProfile";
 import PaymentSuccess from "./Pages/PaymentSuccess";
 import PaymentFailed from "./Pages/PaymentFailed";
+import StudentCalendar from "./Pages/StudentCalendar";
+import TutorCalendar from "./Pages/TutorCalendar";
 
 const App = () => {
   return (
@@ -45,6 +47,22 @@ const App = () => {
             element={
               <ProtectedRoute allowedRoles={["tutor"]}>
                 <TutorDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard/calendar"
+            element={
+              <ProtectedRoute allowedRoles={["student"]}>
+                <StudentCalendar />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/tutor-dashboard/calendar"
+            element={
+              <ProtectedRoute allowedRoles={["tutor"]}>
+                <TutorCalendar />
               </ProtectedRoute>
             }
           />

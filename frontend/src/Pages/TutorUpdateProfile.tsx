@@ -128,13 +128,10 @@ const TutorUpdateProfile: React.FC = () => {
                     setDocumentPreview(profileData.document);
                 }
 
-                const BASE_URL = API.defaults.baseURL;
+
 
                 if (profileData.resume) {
-                    const resumeUrl = profileData.resume.startsWith("http")
-                        ? profileData.resume
-                        : `${BASE_URL}/${profileData.resume}`
-                    console.log("base url is :",BASE_URL);
+                    
                     setSelectedResume(profileData.resume)
                     setResumePreview(profileData.resume);
                     
@@ -595,8 +592,7 @@ const TutorUpdateProfile: React.FC = () => {
                     
                                         ) : (
                                             <div className="w-36 h-36 border rounded-md p-2 flex justify-center items-center bg-slate-800 text-xs text-gray-200">
-                                                hello
-                                                📄 {selectedResume?.name}
+                                                No Resume Found
                                             </div>
                                         )}
                                     </div>

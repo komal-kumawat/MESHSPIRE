@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { Card, Carousel } from "../Components/ui/Card-Coursel";
 import LessonModel from "./LessonModel";
 import { getRelevantLessons, confirmLesson, cancelLesson } from "../api";
@@ -12,7 +11,6 @@ import image5 from "../assets/quantum-computing.png";
 import image6 from "../assets/python.png";
 
 const TutorDashboard: React.FC = () => {
-  const navigate = useNavigate();
   const { userId } = useAuth();
   const [relevantLessons, setRelevantLessons] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);

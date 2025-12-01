@@ -9,6 +9,7 @@ import image3 from "../assets/digital_logic.png";
 import image4 from "../assets/probablity.png";
 import image5 from "../assets/quantum-computing.png";
 import image6 from "../assets/python.png";
+import { payForLesson } from "../api/payment";
 
 const Dashboard: React.FC = () => {
   const [openCard, setOpenCard] = useState(false);
@@ -237,15 +238,34 @@ const Dashboard: React.FC = () => {
 
                       <div className="flex flex-col sm:flex-row gap-3 pt-1">
                         <button
-                          className="flex-1 bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500
-                                     transition-all px-4 py-2 rounded-lg font-semibold shadow-lg hover:shadow-green-500/50
-                                     active:scale-95 text-white"
-                        >
-                          Pay & Confirm
-                        </button>
+                        onClick={async () => {
+                             console.log("calling payment")
+                          try {
+                            const url = await payForLesson({
+                  
+                              tutorId: confirmedTutor.tutorId._id,
+                              lessonId: openDetails._id,
+                              amount: openDetails.amount, 
+                            });
+                            window.location.href = url; // redirect to Stripe
+                          } catch (error) {
+                            console.error("Payment Error:", error);
+                            alert("Payment failed. Try again later.");
+                          }
+                        }}
+                        className="flex-1 bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500
+                                  transition-all px-4 py-2 rounded-lg font-semibold shadow-lg hover:shadow-green-500/50
+                                  active:scale-95 text-white"
+                      >
+                        Pay & Confirm
+                      </button>
 
                         <button
-                          
+                          onClick={() =>
+                            alert(
+                              `Teacher Details:\n${confirmedTutor.tutorId?.name}\n${confirmedTutor.tutorId?.email}`
+                            )
+                          }
                           className="flex-1 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-500 hover:to-purple-500
                                      transition-all px-4 py-2 rounded-lg font-semibold shadow-lg hover:shadow-violet-500/50
                                      active:scale-95 text-white"
@@ -274,7 +294,7 @@ const Dashboard: React.FC = () => {
               onClick={() => setOpenDetails(null)}
               className="w-full mt-4 bg-gradient-to-r from-violet-600 to-purple-600 
                        hover:from-violet-500 hover:to-purple-500 transition-all duration-300 
-                       px-4 py-3 rounded-xl font-semibold shadow-lg hover:shadow-violet-500/50"
+                       px-4 py-3 rounded-xl fo  userId: openDetails.studentId,nt-semibold shadow-lg hover:shadow-violet-500/50"
             >
               Close
             </button>

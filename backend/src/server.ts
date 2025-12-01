@@ -54,7 +54,7 @@ app.use("/api/v0/user", userRoutes);
 app.use("/api/v0/room", roomRoutes);
 app.use("/api/v0/profile", profileRoute);
 app.use("/api/v0/lesson", lessonRoute);
-app.use("/api/payment", paymentRoutes); // stripe payment route
+app.use("/api/v0/payment", paymentRoutes); // stripe payment route
 
 // Socket.io
 const server = createServer(app);

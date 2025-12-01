@@ -20,6 +20,7 @@ export interface ILesson extends Document {
   time: string;
   status: "scheduled" | "cancelled";
   confirmedTutors: IConfirmedTutor[];
+  isPaid?: boolean;
 }
 
 const LessonSchema = new mongoose.Schema<ILesson>(
@@ -45,6 +46,7 @@ const LessonSchema = new mongoose.Schema<ILesson>(
         confirmedAt: { type: Date, default: Date.now },
       },
     ],
+    isPaid: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

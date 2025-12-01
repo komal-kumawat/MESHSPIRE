@@ -107,13 +107,17 @@ const FeaturedCard: React.FC<FeaturedCardProps> = ({
                   <label className="font-semibold text-violet-200 flex items-center gap-2">
                     Subject <span className="text-red-400">*</span>
                   </label>
-                  <input
-                    id="subject"
-                    type="text"
-                    required
-                    className="w-full p-3 rounded-xl mt-2 bg-slate-800/70 border border-violet-500/20 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all"
-                    placeholder="e.g., Mathematics"
-                  />
+                  
+                    
+                  <select id="subject"  className="w-full p-3 rounded-xl mt-2 bg-slate-800/70 border border-violet-500/20 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all">
+                    <option value="">Select Subject</option>
+                    <option value="Mathematics" >Mathematices</option>
+                    <option value="English">English</option>
+                    <option value="Science">Science</option>
+                    <option value="Computer Science">Computer Science</option>
+
+
+                  </select>
                 </div>
 
                 <div>
@@ -133,7 +137,11 @@ const FeaturedCard: React.FC<FeaturedCardProps> = ({
                       <option key={cls} value={cls}>
                         Class {cls}
                       </option>
+                      
                     ))}
+                    <option value="Bachelors">Bachelors</option>
+                    <option value="Masters">Masters</option>
+                    <option value="phd">phd</option>
                   </select>
                 </div>
 

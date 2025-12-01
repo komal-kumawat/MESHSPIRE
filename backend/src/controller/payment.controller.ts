@@ -24,6 +24,13 @@ export class PaymentController {
       // 🔹 Hardcode amount to 0 for testing
       const amount = 0;
 
+      // Ensure CLIENT_URL has proper scheme
+      const clientUrl =
+        process.env.CLIENT_URL || "https://meshspire.vercel.app";
+      const baseUrl = clientUrl.startsWith("http")
+        ? clientUrl
+        : `https://${clientUrl}`;
+
       const session = await stripe.checkout.sessions.create({
         payment_method_types: ["card"],
         mode: "payment",
@@ -37,8 +44,8 @@ export class PaymentController {
             quantity: 1,
           },
         ],
-        success_url: `${process.env.CLIENT_URL}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: `${process.env.CLIENT_URL}/payment-failed`,
+        success_url: `${baseUrl}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${baseUrl}/payment-failed`,
       });
 
       // Save payment record as pending

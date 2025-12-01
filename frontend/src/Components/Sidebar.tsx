@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../Context/AuthContext";
 import logo from "../assets/favicon.svg";
 import ExpandedLogo from "../assets/logo_dark.svg";
 import HomeIcon from "@mui/icons-material/Home";
@@ -18,15 +19,22 @@ const Sidebar: React.FC<SidebarProps> = ({ onExpandChange }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const buttonsRef = useRef<(HTMLButtonElement | null)[]>([]);
   const navigate = useNavigate();
+  const { role } = useAuth();
 
   const buttons = [
-    { id: "home", icon: <HomeIcon />, label: "Home", path: "/dashboard" },
+    {
+      id: "home",
+      icon: <HomeIcon />,
+      label: "Home",
+      path: role === "tutor" ? "/tutor-dashboard" : "/dashboard",
+    },
     { id: "chat", icon: <ChatIcon />, label: "Chat", path: "/dashboard/#chat" },
     {
       id: "calendar",
       icon: <CalendarTodayIcon />,
       label: "Calendar",
-      path: "/dashboard/#calendar",
+      path:
+        role === "tutor" ? "/tutor-dashboard/calendar" : "/dashboard/calendar",
     },
     {
       id: "analytics",

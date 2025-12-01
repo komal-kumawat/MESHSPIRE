@@ -9,12 +9,17 @@ import image3 from "../assets/digital_logic.png";
 import image4 from "../assets/probablity.png";
 import image5 from "../assets/quantum-computing.png";
 import image6 from "../assets/python.png";
+import { payForLesson } from "../api/payment";
 
 const Dashboard: React.FC = () => {
   const [openCard, setOpenCard] = useState(false);
   const [lessons, setLessons] = useState<any[]>([]);
   const [openDetails, setOpenDetails] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+
+  // Separate paid and unpaid lessons
+  const unpaidLessons = lessons.filter((lesson) => !lesson.isPaid);
+  const paidLessons = lessons.filter((lesson) => lesson.isPaid);
 
   useEffect(() => {
     fetchLessons();
@@ -126,29 +131,53 @@ const Dashboard: React.FC = () => {
           </button>
         </div>
 
-        {/* Lesson Cards */}
+        {/* Unpaid Lesson Cards */}
         {loading ? (
           <div className="flex justify-center items-center py-10">
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-violet-500"></div>
           </div>
-        ) : lessons.length > 0 ? (
+        ) : unpaidLessons.length > 0 ? (
           <div className="flex gap-4 flex-wrap pb-3">
-            {lessons.map((lesson, index) => (
+            {unpaidLessons.map((lesson, index) => (
               <LessonModel
                 key={lesson._id || index}
                 topic={lesson.topic}
                 subject={lesson.subject}
                 time={`${lesson.date} • ${lesson.time}`}
                 onViewDetails={() => setOpenDetails(lesson)}
+                isPaid={false}
               />
             ))}
           </div>
         ) : (
           <div className="bg-slate-900/40 backdrop-blur-xl border border-white/10 rounded-2xl p-8 text-center">
             <p className="text-gray-400 text-lg">
-              No lessons scheduled yet. Create your first lesson!
+              No unpaid lessons. Create your first lesson!
             </p>
           </div>
+        )}
+
+        {/* Confirmed Classes Section */}
+        {!loading && paidLessons.length > 0 && (
+          <>
+            <div className="flex justify-between items-center mt-8">
+              <h2 className="text-2xl font-bold tracking-wide">
+                Confirmed Classes ✓
+              </h2>
+            </div>
+            <div className="flex gap-4 flex-wrap pb-3">
+              {paidLessons.map((lesson, index) => (
+                <LessonModel
+                  key={lesson._id || index}
+                  topic={lesson.topic}
+                  subject={lesson.subject}
+                  time={`${lesson.date} • ${lesson.time}`}
+                  onViewDetails={() => setOpenDetails(lesson)}
+                  isPaid={true}
+                />
+              ))}
+            </div>
+          </>
         )}
 
         <h1 className="text-3xl font-bold tracking-wide text-center sm:text-left mt-8">
@@ -223,18 +252,20 @@ const Dashboard: React.FC = () => {
                       (confirmedTutor: any, index: number) => (
                         <div
                           key={index}
-                          className="bg-gradient-to-r from-green-900/30 to-emerald-900/30 p-4 rounded-xl border border-green-500/30 space-y-1"
+                          className="bg-gradient-to-r from-green-900/30 to-emerald-900/30 p-4 rounded-xl border border-green-500/30 space-y-3"
                         >
                           <p className="text-gray-200 font-semibold">
                             {confirmedTutor.tutorId?.name ||
                               confirmedTutor.tutorId ||
                               "Unknown Tutor"}
                           </p>
+
                           {confirmedTutor.tutorId?.email && (
                             <p className="text-gray-400 text-sm">
                               {confirmedTutor.tutorId.email}
                             </p>
                           )}
+
                           {confirmedTutor.confirmedAt && (
                             <p className="text-gray-400 text-xs">
                               Confirmed:{" "}
@@ -242,6 +273,61 @@ const Dashboard: React.FC = () => {
                                 confirmedTutor.confirmedAt
                               ).toLocaleString()}
                             </p>
+                          )}
+
+                          {!openDetails.isPaid && (
+                            <div className="flex flex-col sm:flex-row gap-3 pt-1">
+                              <button
+                                onClick={async () => {
+                                  console.log("Initiating payment...");
+                                  try {
+                                    const url = await payForLesson({
+                                      tutorId: confirmedTutor.tutorId._id,
+                                      lessonId: openDetails._id,
+                                    });
+                                    window.location.href = url; // redirect to Stripe
+                                  } catch (error) {
+                                    console.error("Payment Error:", error);
+                                    alert("Payment failed. Try again later.");
+                                  }
+                                }}
+                                className="flex-1 bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500
+                                    transition-all px-4 py-2 rounded-lg font-semibold shadow-lg hover:shadow-green-500/50
+                                    active:scale-95 text-white"
+                              >
+                                Pay & Confirm
+                              </button>
+
+                              <button
+                                onClick={() =>
+                                  alert(
+                                    `Teacher Details:\n${confirmedTutor.tutorId?.name}\n${confirmedTutor.tutorId?.email}`
+                                  )
+                                }
+                                className="flex-1 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-500 hover:to-purple-500
+                                       transition-all px-4 py-2 rounded-lg font-semibold shadow-lg hover:shadow-violet-500/50
+                                       active:scale-95 text-white"
+                              >
+                                Teacher Details
+                              </button>
+                            </div>
+                          )}
+
+                          {openDetails.isPaid && (
+                            <div className="pt-1">
+                              <button
+                                onClick={() =>
+                                  alert(
+                                    `Teacher Details:\n${confirmedTutor.tutorId?.name}\n${confirmedTutor.tutorId?.email}`
+                                  )
+                                }
+                                className="w-full bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-500 hover:to-purple-500
+                                       transition-all px-4 py-2 rounded-lg font-semibold shadow-lg hover:shadow-violet-500/50
+                                       active:scale-95 text-white"
+                              >
+                                Teacher Details
+                              </button>
+                            </div>
                           )}
                         </div>
                       )
@@ -265,7 +351,7 @@ const Dashboard: React.FC = () => {
               onClick={() => setOpenDetails(null)}
               className="w-full mt-4 bg-gradient-to-r from-violet-600 to-purple-600 
                        hover:from-violet-500 hover:to-purple-500 transition-all duration-300 
-                       px-4 py-3 rounded-xl font-semibold shadow-lg hover:shadow-violet-500/50"
+                       px-4 py-3 rounded-xl fo  userId: openDetails.studentId,nt-semibold shadow-lg hover:shadow-violet-500/50"
             >
               Close
             </button>

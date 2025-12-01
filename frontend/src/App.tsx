@@ -11,6 +11,8 @@ import DashboardLayout from "./Pages/DashboardLayout";
 import TutorDashboard from "./Pages/TutorDashboard";
 import TutorUpdateProfile from "./Pages/TutorUpdateProfile";
 import TutorProfile from "./Pages/TutorProfile";
+import PaymentSuccess from "./Pages/PaymentSuccess";
+import PaymentFailed from "./Pages/PaymentFailed";
 
 const App = () => {
   return (
@@ -85,7 +87,25 @@ const App = () => {
           path="/update-tutor-profile"
           element={
             <ProtectedRoute>
-              <TutorUpdateProfile/>
+              <TutorUpdateProfile />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Payment Routes */}
+        <Route
+          path="/payment-success"
+          element={
+            <ProtectedRoute>
+              <PaymentSuccess />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/payment-failed"
+          element={
+            <ProtectedRoute>
+              <PaymentFailed />
             </ProtectedRoute>
           }
         />

@@ -29,16 +29,9 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 // CORS - MUST come before routes
-const allowedOrigins = process.env.CLIENT_ORIGINS?.split(",") || [];
 app.use(
   cors({
-    origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("CORS not allowed for this origin"));
-      }
-    },
+    origin: "*", // Allow all origins
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
@@ -60,7 +53,7 @@ app.use("/api/v0/payment", paymentRoutes); // stripe payment route
 const server = createServer(app);
 const io = new IOServer(server, {
   cors: {
-    origin: allowedOrigins,
+    origin: "*", // Allow all origins
     methods: ["GET", "POST"],
     credentials: true,
   },

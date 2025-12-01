@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Carousel, Card } from "../Components/ui/Card-Coursel";
 import FeaturedCard from "../Components/featuredCards";
 import LessonModel from "./LessonModel";
@@ -12,6 +13,7 @@ import image6 from "../assets/python.png";
 import { payForLesson } from "../api/payment";
 
 const Dashboard: React.FC = () => {
+  const navigate = useNavigate();
   const [openCard, setOpenCard] = useState(false);
   const [lessons, setLessons] = useState<any[]>([]);
   const [openDetails, setOpenDetails] = useState<any>(null);
@@ -46,6 +48,18 @@ const Dashboard: React.FC = () => {
       console.error("Error creating lesson:", error);
       alert("Failed to schedule lesson. Please try again.");
     }
+  };
+
+  const handleStartMeeting = (lesson: any) => {
+    const randomId = Math.random().toString(36).substring(2, 10);
+    navigate(`/room/${randomId}`, {
+      state: {
+        title: lesson.topic,
+        category: lesson.subject,
+        rating: 5,
+        autoSendVideo: true,
+      },
+    });
   };
 
   const meetings = [
@@ -146,6 +160,8 @@ const Dashboard: React.FC = () => {
                 time={`${lesson.date} • ${lesson.time}`}
                 onViewDetails={() => setOpenDetails(lesson)}
                 isPaid={false}
+                date={lesson.date}
+                lessonTime={lesson.time}
               />
             ))}
           </div>
@@ -174,6 +190,9 @@ const Dashboard: React.FC = () => {
                   time={`${lesson.date} • ${lesson.time}`}
                   onViewDetails={() => setOpenDetails(lesson)}
                   isPaid={true}
+                  date={lesson.date}
+                  lessonTime={lesson.time}
+                  onStartMeeting={() => handleStartMeeting(lesson)}
                 />
               ))}
             </div>

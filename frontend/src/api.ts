@@ -3,8 +3,7 @@ import axios from "axios";
 // Use environment variable or fallback to localhost for development
 const baseURL =
   import.meta.env.VITE_API_BASE_URL ||
-  "http://localhost:8000/api/v0"
-  ||
+  
   "https://meshspire-core-prod.onrender.com/api/v0";
 
 const API = axios.create({

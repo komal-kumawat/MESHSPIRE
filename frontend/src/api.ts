@@ -3,9 +3,8 @@ import axios from "axios";
 // Use environment variable or fallback to localhost for development
 const baseURL =
   import.meta.env.VITE_API_BASE_URL ||
-  "http://localhost:8000/api/v0"
-  ||
-   "https://meshspire-core-vjqd.onrender.com/api/v0";
+  
+  "https://meshspire-core-vjqd.onrender.com/api/v0";
 
 const API = axios.create({
   baseURL,
@@ -13,6 +12,11 @@ const API = axios.create({
     "Content-Type": "application/json",
   },
 });
+
+console.log("🌐 API Configuration:");
+console.log("   Mode:", import.meta.env.MODE);
+console.log("   VITE_API_BASE_URL:", import.meta.env.VITE_API_BASE_URL);
+console.log("   Base URL:", baseURL);
 
 API.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");

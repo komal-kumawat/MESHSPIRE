@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, Carousel } from "../Components/ui/Card-Coursel";
 import LessonModel from "./LessonModel";
 import { getRelevantLessons, confirmLesson, cancelLesson } from "../api";
@@ -11,6 +12,7 @@ import image5 from "../assets/quantum-computing.png";
 import image6 from "../assets/python.png";
 
 const TutorDashboard: React.FC = () => {
+  const navigate = useNavigate();
   const { userId } = useAuth();
   const [relevantLessons, setRelevantLessons] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -55,7 +57,7 @@ const TutorDashboard: React.FC = () => {
       console.error("❌ Error confirming lesson:", error);
       alert(
         error.response?.data?.message ||
-        "Failed to confirm lesson. Please try again."
+          "Failed to confirm lesson. Please try again."
       );
     } finally {
       setProcessingLessonId(null);
@@ -74,7 +76,7 @@ const TutorDashboard: React.FC = () => {
       console.error("❌ Error cancelling lesson:", error);
       alert(
         error.response?.data?.message ||
-        "Failed to cancel lesson. Please try again."
+          "Failed to cancel lesson. Please try again."
       );
     } finally {
       setProcessingLessonId(null);
@@ -86,6 +88,18 @@ const TutorDashboard: React.FC = () => {
     return lesson.confirmedTutors?.some(
       (ct: any) => ct.tutorId?._id === userId || ct.tutorId === userId
     );
+  };
+
+  const handleStartMeeting = (lesson: any) => {
+    const randomId = Math.random().toString(36).substring(2, 10);
+    navigate(`/room/${randomId}`, {
+      state: {
+        title: lesson.topic,
+        category: lesson.subject,
+        rating: 5,
+        autoSendVideo: true,
+      },
+    });
   };
 
   // Separate paid and unpaid lessons
@@ -184,6 +198,8 @@ const TutorDashboard: React.FC = () => {
                   isConfirmed={isLessonConfirmedByCurrentUser(lesson)}
                   isProcessing={processingLessonId === lesson._id}
                   isPaid={false}
+                  date={lesson.date}
+                  lessonTime={lesson.time}
                 />
               ))}
             </div>
@@ -214,6 +230,9 @@ const TutorDashboard: React.FC = () => {
                   onViewDetails={() => setOpenDetails(lesson)}
                   showActions={false}
                   isPaid={true}
+                  date={lesson.date}
+                  lessonTime={lesson.time}
+                  onStartMeeting={() => handleStartMeeting(lesson)}
                 />
               ))}
             </div>
@@ -228,17 +247,14 @@ const TutorDashboard: React.FC = () => {
         </div>
 
         <div className="mt-10 flex justify-center sm:justify-start">
-<a
-          href={`${window.location.origin}/tutor/${userId}`}
-          className="px-6 py-3 rounded-xl bg-gradient-to-r from-violet-900 via-violet-800 to-violet-900 hover:from-violet-800 hover:to-violet-700 transition-all font-semibold text-sm shadow-lg"
-
-          target="_blank"
-        >
-          Share Public Profile
-        </a>
-
+          <a
+            href={`${window.location.origin}/tutor/${userId}`}
+            className="px-6 py-3 rounded-xl bg-gradient-to-r from-violet-900 via-violet-800 to-violet-900 hover:from-violet-800 hover:to-violet-700 transition-all font-semibold text-sm shadow-lg"
+            target="_blank"
+          >
+            Share Public Profile
+          </a>
         </div>
-        
       </main>
 
       {openDetails && (
@@ -284,10 +300,11 @@ const TutorDashboard: React.FC = () => {
               <p className="text-gray-300">
                 <span className="font-semibold text-violet-300">Status:</span>{" "}
                 <span
-                  className={`${openDetails.status === "scheduled"
-                    ? "text-green-400"
-                    : "text-red-400"
-                    } font-semibold`}
+                  className={`${
+                    openDetails.status === "scheduled"
+                      ? "text-green-400"
+                      : "text-red-400"
+                  } font-semibold`}
                 >
                   {openDetails.status}
                 </span>

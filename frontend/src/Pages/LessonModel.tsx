@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 
 interface LessonModelProps {
   topic: string;
@@ -12,6 +12,9 @@ interface LessonModelProps {
   isConfirmed?: boolean;
   isProcessing?: boolean;
   isPaid?: boolean;
+  date?: string;
+  lessonTime?: string;
+  onStartMeeting?: () => void;
 }
 
 const LessonModel: React.FC<LessonModelProps> = ({
@@ -26,7 +29,49 @@ const LessonModel: React.FC<LessonModelProps> = ({
   isConfirmed = false,
   isProcessing = false,
   isPaid = false,
+  date,
+  lessonTime,
+  onStartMeeting,
 }) => {
+  const [isMeetingTimeReached, setIsMeetingTimeReached] = useState(false);
+
+  useEffect(() => {
+    if (!date || !lessonTime) return;
+
+    const checkMeetingTime = () => {
+      try {
+        // Parse date (format: "YYYY-MM-DD") and time (format: "HH:MM")
+        const [datePart] = date.split("T"); // Handle if date includes time
+        const [hours, minutes] = lessonTime.split(":");
+
+        const lessonDateTime = new Date(datePart);
+        lessonDateTime.setHours(
+          parseInt(hours, 10),
+          parseInt(minutes, 10),
+          0,
+          0
+        );
+
+        const now = new Date();
+
+        // Enable button if current time is within 10 minutes before or after the lesson time
+        const tenMinutesBefore = new Date(
+          lessonDateTime.getTime() - 10 * 60 * 1000
+        );
+        const lessonEnd = new Date(lessonDateTime.getTime() + 60 * 60 * 1000); // 1 hour after
+
+        setIsMeetingTimeReached(now >= tenMinutesBefore && now <= lessonEnd);
+      } catch (error) {
+        console.error("Error checking meeting time:", error);
+        setIsMeetingTimeReached(false);
+      }
+    };
+
+    checkMeetingTime();
+    const interval = setInterval(checkMeetingTime, 30000); // Check every 30 seconds
+
+    return () => clearInterval(interval);
+  }, [date, lessonTime]);
   return (
     <div
       className={`backdrop-blur-xl text-white rounded-2xl shadow-2xl px-6 py-5 w-80 space-y-4 transition-all duration-300 hover:scale-[1.02] ${
@@ -81,30 +126,63 @@ const LessonModel: React.FC<LessonModelProps> = ({
         </div>
       )}
 
-      <div className="pt-2 flex justify-end gap-2">
-        {showActions ? (
-          <>
-            {!isConfirmed ? (
+      <div className="pt-2 flex flex-col gap-2">
+        {/* Start Meeting Button - Only show for paid lessons */}
+        {isPaid && onStartMeeting && (
+          <button
+            onClick={onStartMeeting}
+            disabled={!isMeetingTimeReached}
+            className={`w-full px-4 py-2.5 rounded-lg text-sm font-semibold transition-all duration-300 
+                       shadow-lg active:scale-95 ${
+                         isMeetingTimeReached
+                           ? "bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 hover:shadow-blue-500/50"
+                           : "bg-gray-700 text-gray-400 cursor-not-allowed opacity-60"
+                       }`}
+            title={
+              !isMeetingTimeReached
+                ? "Meeting will be available 10 minutes before scheduled time"
+                : "Join the meeting now"
+            }
+          >
+            {isMeetingTimeReached ? "🎥 Start Meeting" : "🔒 Meeting Locked"}
+          </button>
+        )}
+
+        {/* Action Buttons */}
+        <div className="flex justify-end gap-2">
+          {showActions ? (
+            <>
+              {!isConfirmed ? (
+                <button
+                  onClick={onConfirm}
+                  disabled={isProcessing}
+                  className="px-4 py-2 rounded-lg text-sm font-semibold bg-gradient-to-r from-green-600 to-emerald-600 
+                             hover:from-green-500 hover:to-emerald-500 transition-all duration-300 
+                             shadow-lg hover:shadow-green-500/50 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isProcessing ? "Processing..." : "Confirm"}
+                </button>
+              ) : (
+                <button
+                  onClick={onCancel}
+                  disabled={isProcessing}
+                  className="px-4 py-2 rounded-lg text-sm font-semibold bg-gradient-to-r from-red-600 to-rose-600 
+                             hover:from-red-500 hover:to-rose-500 transition-all duration-300 
+                             shadow-lg hover:shadow-red-500/50 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isProcessing ? "Processing..." : "Cancel"}
+                </button>
+              )}
               <button
-                onClick={onConfirm}
-                disabled={isProcessing}
-                className="px-4 py-2 rounded-lg text-sm font-semibold bg-gradient-to-r from-green-600 to-emerald-600 
-                           hover:from-green-500 hover:to-emerald-500 transition-all duration-300 
-                           shadow-lg hover:shadow-green-500/50 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                onClick={onViewDetails}
+                className="px-4 py-2 rounded-lg text-sm font-semibold bg-gradient-to-r from-violet-600 to-purple-600 
+                           hover:from-violet-500 hover:to-purple-500 transition-all duration-300 
+                           shadow-lg hover:shadow-violet-500/50 active:scale-95"
               >
-                {isProcessing ? "Processing..." : "Confirm"}
+                View Details
               </button>
-            ) : (
-              <button
-                onClick={onCancel}
-                disabled={isProcessing}
-                className="px-4 py-2 rounded-lg text-sm font-semibold bg-gradient-to-r from-red-600 to-rose-600 
-                           hover:from-red-500 hover:to-rose-500 transition-all duration-300 
-                           shadow-lg hover:shadow-red-500/50 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isProcessing ? "Processing..." : "Cancel"}
-              </button>
-            )}
+            </>
+          ) : (
             <button
               onClick={onViewDetails}
               className="px-4 py-2 rounded-lg text-sm font-semibold bg-gradient-to-r from-violet-600 to-purple-600 
@@ -113,17 +191,8 @@ const LessonModel: React.FC<LessonModelProps> = ({
             >
               View Details
             </button>
-          </>
-        ) : (
-          <button
-            onClick={onViewDetails}
-            className="px-4 py-2 rounded-lg text-sm font-semibold bg-gradient-to-r from-violet-600 to-purple-600 
-                       hover:from-violet-500 hover:to-purple-500 transition-all duration-300 
-                       shadow-lg hover:shadow-violet-500/50 active:scale-95"
-          >
-            View Details
-          </button>
-        )}
+          )}
+        </div>
       </div>
     </div>
   );

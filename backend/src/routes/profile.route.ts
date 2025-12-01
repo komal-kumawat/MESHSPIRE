@@ -221,4 +221,22 @@ profileRoute.put(
   }
 );
 
+//Public tutor profile
+profileRoute.get("/tutor/:id", async (req, res) => {
+  const userId = req.params.id;
+  const profile = await Profile.findOne({ userId });
+  try {
+    const userId = req.params.id;
+    const profile = await Profile.findOne({ userId }).select("-__v -email");
+    if (!profile) {
+      return res
+        .status(StatusCodes.NOT_FOUND)
+        .json({ message: "Profile not found" });
+    }
+    res.status(StatusCodes.OK).json(profile);
+  } catch (err) {
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err);
+  }
+})
+
 export default profileRoute;

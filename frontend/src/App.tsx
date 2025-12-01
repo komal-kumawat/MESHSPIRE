@@ -11,6 +11,7 @@ import DashboardLayout from "./Pages/DashboardLayout";
 import TutorDashboard from "./Pages/TutorDashboard";
 import TutorUpdateProfile from "./Pages/TutorUpdateProfile";
 import TutorProfile from "./Pages/TutorProfile";
+import PublicTutorProfile from "./Pages/PublicTutorProfile";
 
 const App = () => {
   return (
@@ -89,6 +90,7 @@ const App = () => {
             </ProtectedRoute>
           }
         />
+        <Route path="/tutor/:id" element={<PublicTutorProfile />} />
 
         <Route path="*" element={<NotFound />} />
       </Routes>

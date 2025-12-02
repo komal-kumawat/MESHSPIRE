@@ -1,12 +1,15 @@
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
+import { useAuth } from "../Context/AuthContext";
 
 export default function PaymentFailed() {
   const navigate = useNavigate();
+  const { role } = useAuth();
 
   useEffect(() => {
-    setTimeout(() => navigate("/dashboard"), 3000);
-  }, [navigate]);
+    const dashboardPath = role === "tutor" ? "/tutor-dashboard" : "/dashboard";
+    setTimeout(() => navigate(dashboardPath), 3000);
+  }, [navigate, role]);
 
   return (
     <div className="min-h-screen bg-black text-white flex items-center justify-center p-4">
@@ -20,7 +23,11 @@ export default function PaymentFailed() {
         </p>
         <p className="text-sm text-gray-500">Redirecting to dashboard...</p>
         <button
-          onClick={() => navigate("/dashboard")}
+          onClick={() => {
+            const dashboardPath =
+              role === "tutor" ? "/tutor-dashboard" : "/dashboard";
+            navigate(dashboardPath);
+          }}
           className="mt-6 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-500 hover:to-purple-500 
                      transition-all px-6 py-3 rounded-xl font-semibold shadow-lg"
         >

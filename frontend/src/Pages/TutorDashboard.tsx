@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, Carousel } from "../Components/ui/Card-Coursel";
-import LessonModel from "./LessonModel";
+import LessonModel from "../Components/LessonModel";
 import { getRelevantLessons, confirmLesson, cancelLesson } from "../api";
 import { useAuth } from "../Context/AuthContext";
 import image1 from "../assets/calculus.png";

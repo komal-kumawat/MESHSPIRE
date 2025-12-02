@@ -111,23 +111,9 @@ const App = () => {
           }
         />
 
-        {/* Payment Routes */}
-        <Route
-          path="/payment-success"
-          element={
-            <ProtectedRoute>
-              <PaymentSuccess />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/payment-failed"
-          element={
-            <ProtectedRoute>
-              <PaymentFailed />
-            </ProtectedRoute>
-          }
-        />
+        {/* Payment Routes - No strict auth check to handle Stripe redirect */}
+        <Route path="/payment-success" element={<PaymentSuccess />} />
+        <Route path="/payment-failed" element={<PaymentFailed />} />
         <Route path="/tutor/:id" element={<PublicTutorProfile />} />
 
         <Route path="*" element={<NotFound />} />

@@ -1,11 +1,13 @@
-import axios from "axios";
+import API from "../api";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { useAuth } from "../Context/AuthContext";
 
 export default function PaymentSuccess() {
   const [params] = useSearchParams();
   const session_id = params.get("session_id");
   const navigate = useNavigate();
+  const { role } = useAuth();
   const [status, setStatus] = useState<"verifying" | "success" | "error">(
     "verifying"
   );
@@ -13,33 +15,29 @@ export default function PaymentSuccess() {
   useEffect(() => {
     if (!session_id) {
       setStatus("error");
-      setTimeout(() => navigate("/dashboard"), 3000);
+      const dashboardPath =
+        role === "tutor" ? "/tutor-dashboard" : "/dashboard";
+      setTimeout(() => navigate(dashboardPath), 3000);
       return;
     }
 
-    axios
-      .get(
-        `${
-          import.meta.env.VITE_API_URL
-        }/api/v0/payment/verify?session_id=${session_id}`,
-        {
-          withCredentials: true,
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      )
+    // Verify payment
+    API.get(`/payment/verify?session_id=${session_id}`)
       .then((res) => {
         console.log("Payment verified:", res.data);
         setStatus("success");
-        setTimeout(() => navigate("/dashboard"), 2000);
+        const dashboardPath =
+          role === "tutor" ? "/tutor-dashboard" : "/dashboard";
+        setTimeout(() => navigate(dashboardPath), 2000);
       })
       .catch((err) => {
         console.error("Payment verification error:", err);
         setStatus("error");
-        setTimeout(() => navigate("/dashboard"), 3000);
+        const dashboardPath =
+          role === "tutor" ? "/tutor-dashboard" : "/dashboard";
+        setTimeout(() => navigate(dashboardPath), 3000);
       });
-  }, [session_id, navigate]);
+  }, [session_id, navigate, role]);
 
   return (
     <div className="min-h-screen bg-black text-white flex items-center justify-center p-4">

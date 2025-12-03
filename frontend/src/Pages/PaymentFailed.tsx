@@ -4,12 +4,28 @@ import { useAuth } from "../Context/AuthContext";
 
 export default function PaymentFailed() {
   const navigate = useNavigate();
-  const { role } = useAuth();
+  const { role, loading: authLoading } = useAuth();
 
   useEffect(() => {
+    console.log("PaymentFailed page loaded:", {
+      role,
+      authLoading,
+      fullURL: window.location.href,
+    });
+
+    if (authLoading) {
+      console.log("Waiting for auth to load...");
+      return;
+    }
+
     const dashboardPath = role === "tutor" ? "/tutor-dashboard" : "/dashboard";
-    setTimeout(() => navigate(dashboardPath), 3000);
-  }, [navigate, role]);
+    const timer = setTimeout(() => {
+      console.log("Redirecting to:", dashboardPath);
+      navigate(dashboardPath);
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, [navigate, role, authLoading]);
 
   return (
     <div className="min-h-screen bg-black text-white flex items-center justify-center p-4">

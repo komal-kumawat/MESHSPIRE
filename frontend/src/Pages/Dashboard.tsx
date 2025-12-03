@@ -25,6 +25,21 @@ const Dashboard: React.FC = () => {
 
   useEffect(() => {
     fetchLessons();
+
+    // Refresh lessons when navigating back from payment
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        fetchLessons();
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    window.addEventListener("focus", fetchLessons);
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("focus", fetchLessons);
+    };
   }, []);
 
   const fetchLessons = async () => {

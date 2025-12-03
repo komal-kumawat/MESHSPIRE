@@ -23,6 +23,8 @@ interface LessonModelProps {
   date?: string;
   lessonTime?: string;
   onStartMeeting?: () => void;
+  onEditLesson? : ()=>void
+  
 }
 
 const subjectImages: Record<string, string> = {
@@ -42,12 +44,13 @@ const LessonModel: React.FC<LessonModelProps> = (props) => {
     showActions = false,
     onConfirm,
     onCancel,
-    isConfirmed = false,
+    isConfirmed,
     isProcessing = false,
     isPaid = false,
     date,
     lessonTime,
     onStartMeeting,
+    onEditLesson
   } = props;
 
   const [isMeetingTimeReached, setIsMeetingTimeReached] = useState(false);
@@ -111,7 +114,9 @@ const LessonModel: React.FC<LessonModelProps> = (props) => {
         ) : isConfirmed ? (
           <span className="text-green-300">Tutor Confirmed ✅</span>
         ) : (
-          <span className="text-red-300">Not Scheduled</span>
+          <span className="text-red-300">
+
+          </span>
 
         )}
       </p>
@@ -168,18 +173,28 @@ const LessonModel: React.FC<LessonModelProps> = (props) => {
           </>
         ) : (
           <>
-            {/* Purple Start Button */}
-            <button
-              onClick={onStartMeeting}
-              disabled={!isPaid || !isMeetingTimeReached}
-              className={`flex-1 py-2 rounded-xl text-white font-medium transition-all
+            {(isPaid && isMeetingTimeReached) ?
+              <button
+                onClick={onStartMeeting}
+                disabled={!isPaid || !isMeetingTimeReached}
+                className={`flex-1 py-2 rounded-xl text-white font-medium transition-all
                 ${isPaid && isMeetingTimeReached
-                  ? "bg-gradient-to-r from-violet-900 via-violet-800 to-violet-900 hover:opacity-90"
-                  : "bg-gray-700 text-gray-400 cursor-not-allowed opacity-50"
-                }`}
-            >
-              Start
-            </button>
+                    ? "bg-gradient-to-r from-violet-900 via-violet-800 to-violet-900 hover:opacity-90"
+                    : "bg-gray-700 text-gray-400 cursor-not-allowed opacity-50"
+                  }`}
+              >
+                Start
+              </button>
+              :
+              <button
+                onClick={onEditLesson}
+                className={`flex-1 py-2 rounded-xl text-white font-medium transition-all
+                    bg-gradient-to-r from-violet-900 via-violet-800 to-violet-900 hover:opacity-90
+                  `}
+              >
+                Edit
+              </button>
+            }
 
             {/* Gray View */}
             <button
@@ -192,6 +207,8 @@ const LessonModel: React.FC<LessonModelProps> = (props) => {
           </>
         )}
       </div>
+      
+      
     </div>
   );
 };

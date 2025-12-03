@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, Carousel } from "../Components/ui/Card-Coursel";
-import LessonModel from "./LessonModel";
+import LessonModel from "../Components/LessonModel";
 import { getRelevantLessons, confirmLesson, cancelLesson } from "../api";
 import { useAuth } from "../Context/AuthContext";
 import image1 from "../assets/calculus.png";
@@ -57,7 +57,7 @@ const TutorDashboard: React.FC = () => {
       console.error("❌ Error confirming lesson:", error);
       alert(
         error.response?.data?.message ||
-          "Failed to confirm lesson. Please try again."
+        "Failed to confirm lesson. Please try again."
       );
     } finally {
       setProcessingLessonId(null);
@@ -76,7 +76,7 @@ const TutorDashboard: React.FC = () => {
       console.error("❌ Error cancelling lesson:", error);
       alert(
         error.response?.data?.message ||
-          "Failed to cancel lesson. Please try again."
+        "Failed to cancel lesson. Please try again."
       );
     } finally {
       setProcessingLessonId(null);
@@ -299,16 +299,21 @@ const TutorDashboard: React.FC = () => {
               </p>
               <p className="text-gray-300">
                 <span className="font-semibold text-violet-300">Status:</span>{" "}
-                <span
-                  className={`${
-                    openDetails.status === "scheduled"
-                      ? "text-green-400"
+                <span className={`font-semibold ${openDetails.isPaid
+                    ? "text-green-400"
+                    : isLessonConfirmedByCurrentUser(openDetails)
+                      ? "text-green-500"
                       : "text-red-400"
-                  } font-semibold`}
+                  }`}
                 >
-                  {openDetails.status}
+                  {openDetails.isPaid
+                    ? "Paid & Scheduled"
+                    : isLessonConfirmedByCurrentUser(openDetails)
+                      ? "Tutor Confirmed (awaiting payment)"
+                      : "Awaiting Tutor Confirmation"}
                 </span>
               </p>
+
             </div>
 
             <button

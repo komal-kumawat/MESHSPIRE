@@ -309,8 +309,8 @@ const TutorDashboard: React.FC = () => {
                   {openDetails.isPaid
                     ? "Paid & Scheduled"
                     : isLessonConfirmedByCurrentUser(openDetails)
-                      ? "Tutor Confirmed (awaiting payment)"
-                      : "Awaiting Tutor Confirmation"}
+                      ? "Confirmed (awaiting payment)"
+                      : "Not Confirmed yet "}
                 </span>
               </p>
 

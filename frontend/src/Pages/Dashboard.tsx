@@ -333,18 +333,17 @@ const Dashboard: React.FC = () => {
 
                           {openDetails.isPaid && (
                             <div className="pt-1">
+                              <a href={`${window.location.origin}/tutor/${confirmedTutor.tutorId._id}`} target="_blank">
+
                               <button
-                                onClick={() =>
-                                  alert(
-                                    `Teacher Details:\n${confirmedTutor.tutorId?.name}\n${confirmedTutor.tutorId?.email}`
-                                  )
-                                }
+                                
                                 className="w-full bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-500 hover:to-purple-500
                                        transition-all px-4 py-2 rounded-lg font-semibold shadow-lg hover:shadow-violet-500/50
                                        active:scale-95 text-white"
                               >
                                 Teacher Details
                               </button>
+                              </a>
                             </div>
                           )}
                         </div>

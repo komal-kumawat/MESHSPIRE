@@ -68,11 +68,13 @@ export default function AuthPage() {
         let missing = false;
 
         if (res.data.user.role === "tutor") {
-          const u = res.data.user;
+          const profile = await API.get(`/profile/${res.data.user.id}`);
+          const u = profile.data;
+
           missing =
             !u.subjects?.length ||
             !u.experience ||
-            !u.languages?.trim() ||
+            !u.languages ||
             !u.qualification?.trim() ||
             !u.document?.length;
         }

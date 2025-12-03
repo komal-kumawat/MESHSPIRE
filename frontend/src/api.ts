@@ -12,11 +12,6 @@ const API = axios.create({
   },
 });
 
-console.log("🔧 API Configuration:");
-console.log("   Mode:", import.meta.env.MODE);
-console.log("   VITE_API_BASE_URL:", import.meta.env.VITE_API_BASE_URL);
-console.log("   Base URL:", baseURL);
-
 API.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
   if (token) {

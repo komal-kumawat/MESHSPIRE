@@ -96,21 +96,40 @@ export class PaymentController {
       // Update payment as completed
       const payment = await Payment.findOneAndUpdate(
         { stripeSessionId: session_id },
-        { status: "completed", stripePaymentIntentId: session.payment_intent },
+        {
+          status: "completed",
+          stripePaymentIntentId: session.payment_intent as string,
+        },
         { new: true }
       );
 
-      // Mark lesson as paid
-      await Lesson.findByIdAndUpdate(payment?.lessonId, { isPaid: true });
+      if (!payment) {
+        return res
+          .status(StatusCodes.NOT_FOUND)
+          .json({ message: "Payment record not found" });
+      }
 
-      return res
-        .status(StatusCodes.OK)
-        .json({ message: "Payment success", payment });
-    } catch (err) {
+      // Mark lesson as paid
+      const lesson = await Lesson.findByIdAndUpdate(
+        payment.lessonId,
+        { isPaid: true },
+        { new: true }
+      );
+
+      return res.status(StatusCodes.OK).json({
+        message: "Payment success",
+        payment,
+        lesson: {
+          id: lesson?._id,
+          topic: lesson?.topic,
+          isPaid: lesson?.isPaid,
+        },
+      });
+    } catch (err: any) {
       console.error("Payment verification error:", err);
       return res
         .status(StatusCodes.INTERNAL_SERVER_ERROR)
-        .json({ message: "Payment verification error" });
+        .json({ message: "Payment verification error", error: err.message });
     }
   }
 }

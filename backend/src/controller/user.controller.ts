@@ -188,12 +188,11 @@ export class UserController {
         maxAge: 7 * 24 * 60 * 60 * 1000,
       });
 
-      const basePath =
-        user.role === "tutor" ? "/tutor-dashboard" : "/dashboard";
       const userDoc: any = user; // ensure _id accessible
+      // Redirect to auth page with token params - let Auth.tsx handle navigation
       const redirectUrl = `${
         process.env.FRONTEND_URL
-      }${basePath}?token=${access}&name=${encodeURIComponent(
+      }/?token=${access}&name=${encodeURIComponent(
         user.name || ""
       )}&id=${userDoc._id.toString()}&role=${user.role}`;
 

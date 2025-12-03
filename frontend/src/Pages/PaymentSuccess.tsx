@@ -7,17 +7,34 @@ export default function PaymentSuccess() {
   const [params] = useSearchParams();
   const session_id = params.get("session_id");
   const navigate = useNavigate();
-  const { role } = useAuth();
-  const [status, setStatus] = useState<"verifying" | "success" | "error">(
-    "verifying"
-  );
+  const { role, token, loading: authLoading } = useAuth();
+  const [status, setStatus] = useState<
+    "verifying" | "success" | "error" | "auth_expired"
+  >("verifying");
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
+    // Wait for auth to load
+    if (authLoading) {
+      return;
+    }
+
     if (!session_id) {
       setStatus("error");
+      setErrorMessage("No payment session ID found.");
       const dashboardPath =
         role === "tutor" ? "/tutor-dashboard" : "/dashboard";
       setTimeout(() => navigate(dashboardPath), 3000);
+      return;
+    }
+
+    // Check if user is still authenticated
+    if (!token) {
+      setStatus("auth_expired");
+      setErrorMessage(
+        "Your session expired. Please sign in again to complete payment verification."
+      );
+      setTimeout(() => navigate("/"), 3000);
       return;
     }
 
@@ -32,12 +49,23 @@ export default function PaymentSuccess() {
       })
       .catch((err) => {
         console.error("Payment verification error:", err);
-        setStatus("error");
-        const dashboardPath =
-          role === "tutor" ? "/tutor-dashboard" : "/dashboard";
-        setTimeout(() => navigate(dashboardPath), 3000);
+
+        if (err.response?.status === 401) {
+          setStatus("auth_expired");
+          setErrorMessage("Your session expired. Please sign in again.");
+          setTimeout(() => navigate("/"), 3000);
+        } else {
+          setStatus("error");
+          setErrorMessage(
+            err.response?.data?.message ||
+              "Unable to verify payment. Please contact support if amount was deducted."
+          );
+          const dashboardPath =
+            role === "tutor" ? "/tutor-dashboard" : "/dashboard";
+          setTimeout(() => navigate(dashboardPath), 3000);
+        }
       });
-  }, [session_id, navigate, role]);
+  }, [session_id, navigate, role, token, authLoading]);
 
   return (
     <div className="min-h-screen bg-black text-white flex items-center justify-center p-4">
@@ -64,6 +92,17 @@ export default function PaymentSuccess() {
               Your lesson has been confirmed and paid.
             </p>
             <p className="text-sm text-gray-500">Redirecting to dashboard...</p>
+            <button
+              onClick={() => {
+                const dashboardPath =
+                  role === "tutor" ? "/tutor-dashboard" : "/dashboard";
+                navigate(dashboardPath);
+              }}
+              className="mt-4 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-500 hover:to-purple-500 
+                     transition-all px-6 py-3 rounded-xl font-semibold shadow-lg"
+            >
+              Go to Dashboard
+            </button>
           </>
         )}
 
@@ -74,10 +113,43 @@ export default function PaymentSuccess() {
               Verification Failed
             </h1>
             <p className="text-gray-400 mb-4">
-              Unable to verify payment. Please contact support if amount was
-              deducted.
+              {errorMessage ||
+                "Unable to verify payment. Please contact support if amount was deducted."}
             </p>
-            <p className="text-sm text-gray-500">Redirecting to dashboard...</p>
+            <p className="text-sm text-gray-500 mb-4">
+              Redirecting to dashboard...
+            </p>
+            <button
+              onClick={() => {
+                const dashboardPath =
+                  role === "tutor" ? "/tutor-dashboard" : "/dashboard";
+                navigate(dashboardPath);
+              }}
+              className="bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-500 hover:to-purple-500 
+                     transition-all px-6 py-3 rounded-xl font-semibold shadow-lg"
+            >
+              Return to Dashboard
+            </button>
+          </>
+        )}
+
+        {status === "auth_expired" && (
+          <>
+            <div className="text-yellow-500 text-6xl mb-6">⚠</div>
+            <h1 className="text-3xl font-bold text-yellow-400 mb-2">
+              Session Expired
+            </h1>
+            <p className="text-gray-400 mb-4">{errorMessage}</p>
+            <p className="text-sm text-gray-500 mb-4">
+              Redirecting to login...
+            </p>
+            <button
+              onClick={() => navigate("/")}
+              className="bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-500 hover:to-purple-500 
+                     transition-all px-6 py-3 rounded-xl font-semibold shadow-lg"
+            >
+              Go to Login
+            </button>
           </>
         )}
       </div>

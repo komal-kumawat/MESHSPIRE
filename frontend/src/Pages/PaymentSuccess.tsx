@@ -7,13 +7,18 @@ export default function PaymentSuccess() {
   const [params] = useSearchParams();
   const session_id = params.get("session_id");
   const navigate = useNavigate();
-  const { role, token } = useAuth();
+  const { role, token, loading: authLoading } = useAuth();
   const [status, setStatus] = useState<
     "verifying" | "success" | "error" | "auth_expired"
   >("verifying");
   const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
+    // Wait for auth to load
+    if (authLoading) {
+      return;
+    }
+
     if (!session_id) {
       setStatus("error");
       setErrorMessage("No payment session ID found.");
@@ -60,7 +65,7 @@ export default function PaymentSuccess() {
           setTimeout(() => navigate(dashboardPath), 3000);
         }
       });
-  }, [session_id, navigate, role, token]);
+  }, [session_id, navigate, role, token, authLoading]);
 
   return (
     <div className="min-h-screen bg-black text-white flex items-center justify-center p-4">
@@ -87,6 +92,17 @@ export default function PaymentSuccess() {
               Your lesson has been confirmed and paid.
             </p>
             <p className="text-sm text-gray-500">Redirecting to dashboard...</p>
+            <button
+              onClick={() => {
+                const dashboardPath =
+                  role === "tutor" ? "/tutor-dashboard" : "/dashboard";
+                navigate(dashboardPath);
+              }}
+              className="mt-4 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-500 hover:to-purple-500 
+                     transition-all px-6 py-3 rounded-xl font-semibold shadow-lg"
+            >
+              Go to Dashboard
+            </button>
           </>
         )}
 
@@ -100,7 +116,20 @@ export default function PaymentSuccess() {
               {errorMessage ||
                 "Unable to verify payment. Please contact support if amount was deducted."}
             </p>
-            <p className="text-sm text-gray-500">Redirecting to dashboard...</p>
+            <p className="text-sm text-gray-500 mb-4">
+              Redirecting to dashboard...
+            </p>
+            <button
+              onClick={() => {
+                const dashboardPath =
+                  role === "tutor" ? "/tutor-dashboard" : "/dashboard";
+                navigate(dashboardPath);
+              }}
+              className="bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-500 hover:to-purple-500 
+                     transition-all px-6 py-3 rounded-xl font-semibold shadow-lg"
+            >
+              Return to Dashboard
+            </button>
           </>
         )}
 
@@ -111,7 +140,16 @@ export default function PaymentSuccess() {
               Session Expired
             </h1>
             <p className="text-gray-400 mb-4">{errorMessage}</p>
-            <p className="text-sm text-gray-500">Redirecting to login...</p>
+            <p className="text-sm text-gray-500 mb-4">
+              Redirecting to login...
+            </p>
+            <button
+              onClick={() => navigate("/")}
+              className="bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-500 hover:to-purple-500 
+                     transition-all px-6 py-3 rounded-xl font-semibold shadow-lg"
+            >
+              Go to Login
+            </button>
           </>
         )}
       </div>

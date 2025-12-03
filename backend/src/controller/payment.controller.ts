@@ -3,6 +3,7 @@ import { StatusCodes } from "http-status-codes";
 import Stripe from "stripe";
 import Payment from "../models/payment.model";
 import Lesson from "../models/LessonModel";
+import { NotificationController } from "./notification.controller";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
   apiVersion: "2025-11-17.clover",
@@ -84,10 +85,24 @@ export class PaymentController {
       );
 
       if (session.payment_status !== "paid") {
-        await Payment.findOneAndUpdate(
+        const failedPayment = await Payment.findOneAndUpdate(
           { stripeSessionId: session_id },
-          { status: "failed" }
+          { status: "failed" },
+          { new: true }
         );
+
+        // Notify student about payment failure
+        if (failedPayment && failedPayment._id) {
+          await NotificationController.createNotification({
+            userId: failedPayment.userId.toString(),
+            type: "payment_failed",
+            title: "Payment Failed",
+            message: "Your payment was unsuccessful. Please try again.",
+            paymentId: failedPayment._id.toString(),
+            lessonId: failedPayment.lessonId.toString(),
+          });
+        }
+
         return res
           .status(StatusCodes.BAD_REQUEST)
           .json({ message: "Payment failed" });
@@ -115,6 +130,34 @@ export class PaymentController {
         { isPaid: true },
         { new: true }
       );
+
+      // Notify student about successful payment
+      if (payment._id) {
+        await NotificationController.createNotification({
+          userId: payment.userId.toString(),
+          type: "payment_success",
+          title: "Payment Successful",
+          message: `Payment successful for lesson "${
+            lesson?.topic || "your lesson"
+          }"`,
+          paymentId: payment._id.toString(),
+          lessonId: payment.lessonId.toString(),
+        });
+      }
+
+      // Notify tutor about successful payment
+      if (payment.tutorId && payment._id) {
+        await NotificationController.createNotification({
+          userId: payment.tutorId.toString(),
+          type: "payment_success",
+          title: "Payment Received",
+          message: `Payment received for lesson "${
+            lesson?.topic || "the lesson"
+          }"`,
+          paymentId: payment._id.toString(),
+          lessonId: payment.lessonId.toString(),
+        });
+      }
 
       return res.status(StatusCodes.OK).json({
         message: "Payment success",

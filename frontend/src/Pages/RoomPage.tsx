@@ -48,6 +48,14 @@ const Room: React.FC = () => {
   const [showChatAlert, setShowChatAlert] = useState(false);
   const roomId = roomIdParam || sessionStorage.getItem("currentRoom");
 
+  // Timer states
+  const [timeRemaining, setTimeRemaining] = useState(15 * 60); // 15 minutes in seconds
+  const [showTimeWarning, setShowTimeWarning] = useState(false);
+  const [warningMessage, setWarningMessage] = useState("");
+  const timerIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const fiveMinWarningShownRef = useRef(false);
+  const oneMinWarningShownRef = useRef(false);
+
   const copyRoomId = () => {
     if (roomId) {
       navigator.clipboard.writeText(roomId);
@@ -87,6 +95,60 @@ const Room: React.FC = () => {
   useEffect(() => {
     joinRoom();
   }, [joinRoom]);
+
+  // Timer effect - starts when meeting begins
+  useEffect(() => {
+    if (!localStream) return; // Only start timer when video call has started
+
+    // Start the timer
+    timerIntervalRef.current = setInterval(() => {
+      setTimeRemaining((prev) => {
+        if (prev <= 0) {
+          // Time's up - end the meeting
+          if (timerIntervalRef.current) {
+            clearInterval(timerIntervalRef.current);
+          }
+          endCall();
+          return 0;
+        }
+
+        const newTime = prev - 1;
+
+        // Show 5 minutes warning (at 5:00 remaining)
+        if (newTime === 5 * 60 && !fiveMinWarningShownRef.current) {
+          fiveMinWarningShownRef.current = true;
+          setWarningMessage("⚠️ Only 5 minutes left!");
+          setShowTimeWarning(true);
+          setTimeout(() => setShowTimeWarning(false), 5000);
+        }
+
+        // Show 1 minute warning (at 1:00 remaining)
+        if (newTime === 1 * 60 && !oneMinWarningShownRef.current) {
+          oneMinWarningShownRef.current = true;
+          setWarningMessage("⚠️ Only 1 minute left!");
+          setShowTimeWarning(true);
+          setTimeout(() => setShowTimeWarning(false), 5000);
+        }
+
+        return newTime;
+      });
+    }, 1000);
+
+    return () => {
+      if (timerIntervalRef.current) {
+        clearInterval(timerIntervalRef.current);
+      }
+    };
+  }, [localStream]);
+
+  // Format time as MM:SS
+  const formatTime = (seconds: number): string => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, "0")}:${secs
+      .toString()
+      .padStart(2, "0")}`;
+  };
 
   const addLocalTracksToPC = useCallback((pc: RTCPeerConnection) => {
     const stream = localStreamRef.current;
@@ -385,6 +447,11 @@ const Room: React.FC = () => {
   };
 
   const endCall = () => {
+    // Clear timer
+    if (timerIntervalRef.current) {
+      clearInterval(timerIntervalRef.current);
+    }
+
     if (localStream) localStream.getTracks().forEach((track) => track.stop());
     if (screenTrackRef.current) screenTrackRef.current.stop();
 
@@ -438,6 +505,29 @@ const Room: React.FC = () => {
           💬 Chat feature coming soon!
         </div>
       )}
+      {showTimeWarning && (
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-red-600 border-2 border-yellow-400 text-white px-8 py-4 rounded-xl shadow-2xl transition-opacity duration-700 animate-pulse text-xl font-bold z-50">
+          {warningMessage}
+        </div>
+      )}
+
+      {/* Timer Display - Bottom Left */}
+      <div className="absolute bottom-20 left-4 bg-black/70 text-white px-4 py-2 rounded-lg shadow-lg z-30 border border-gray-600">
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-semibold">Time:</span>
+          <span
+            className={`text-lg font-mono font-bold ${
+              timeRemaining <= 60
+                ? "text-red-500"
+                : timeRemaining <= 300
+                ? "text-yellow-400"
+                : "text-green-400"
+            }`}
+          >
+            {formatTime(timeRemaining)}
+          </span>
+        </div>
+      </div>
 
       {/* Remote videos */}
       {Object.entries(remoteStreams).map(([id, stream]) => (

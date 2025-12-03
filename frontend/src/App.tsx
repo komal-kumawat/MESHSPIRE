@@ -1,4 +1,5 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
+import { useEffect } from "react";
 import AuthPage from "./Pages/Auth";
 import Dashboard from "./Pages/Dashboard";
 import Room from "./Pages/RoomPage";
@@ -17,9 +18,25 @@ import PaymentFailed from "./Pages/PaymentFailed";
 import StudentCalendar from "./Pages/StudentCalendar";
 import TutorCalendar from "./Pages/TutorCalendar";
 
+// Route logger component
+function RouteLogger() {
+  const location = useLocation();
+
+  useEffect(() => {
+    console.log("Route changed:", {
+      pathname: location.pathname,
+      search: location.search,
+      fullPath: location.pathname + location.search,
+    });
+  }, [location]);
+
+  return null;
+}
+
 const App = () => {
   return (
     <BrowserRouter>
+      <RouteLogger />
       <Routes>
         {/* Public Route */}
         <Route path="/" element={<AuthPage />} />

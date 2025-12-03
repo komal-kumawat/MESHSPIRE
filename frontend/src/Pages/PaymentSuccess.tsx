@@ -12,16 +12,28 @@ export default function PaymentSuccess() {
     "verifying" | "success" | "error" | "auth_expired"
   >("verifying");
   const [errorMessage, setErrorMessage] = useState("");
+  const [retryCount, setRetryCount] = useState(0);
 
   useEffect(() => {
     // Wait for auth to load
     if (authLoading) {
+      console.log("Waiting for auth to load...");
       return;
     }
 
+    console.log("PaymentSuccess mounted:", {
+      session_id,
+      hasToken: !!token,
+      role,
+      authLoading,
+      fullURL: window.location.href,
+      origin: window.location.origin,
+    });
+
     if (!session_id) {
+      console.error("No session_id found in URL");
       setStatus("error");
-      setErrorMessage("No payment session ID found.");
+      setErrorMessage("No payment session ID found in the URL.");
       const dashboardPath =
         role === "tutor" ? "/tutor-dashboard" : "/dashboard";
       setTimeout(() => navigate(dashboardPath), 3000);
@@ -30,6 +42,7 @@ export default function PaymentSuccess() {
 
     // Check if user is still authenticated
     if (!token) {
+      console.error("No authentication token found");
       setStatus("auth_expired");
       setErrorMessage(
         "Your session expired. Please sign in again to complete payment verification."
@@ -38,23 +51,40 @@ export default function PaymentSuccess() {
       return;
     }
 
-    // Verify payment
-    API.get(`/payment/verify?session_id=${session_id}`)
-      .then((res) => {
-        console.log("Payment verified:", res.data);
+    // Verify payment with retry logic
+    const verifyPayment = async (attempt = 1) => {
+      try {
+        console.log(`Verifying payment (attempt ${attempt})...`);
+        const res = await API.get(`/payment/verify?session_id=${session_id}`);
+        console.log("Payment verified successfully:", res.data);
         setStatus("success");
         const dashboardPath =
           role === "tutor" ? "/tutor-dashboard" : "/dashboard";
         setTimeout(() => navigate(dashboardPath), 2000);
-      })
-      .catch((err) => {
+      } catch (err: any) {
         console.error("Payment verification error:", err);
 
         if (err.response?.status === 401) {
+          console.error("Authentication failed during payment verification");
           setStatus("auth_expired");
           setErrorMessage("Your session expired. Please sign in again.");
           setTimeout(() => navigate("/"), 3000);
+        } else if (err.response?.status === 404) {
+          console.error("Payment record not found");
+          setStatus("error");
+          setErrorMessage(
+            "Payment record not found. Please contact support if the amount was deducted."
+          );
+          const dashboardPath =
+            role === "tutor" ? "/tutor-dashboard" : "/dashboard";
+          setTimeout(() => navigate(dashboardPath), 3000);
+        } else if (attempt < 3 && err.code === "ECONNABORTED") {
+          // Retry on timeout
+          console.log(`Retrying payment verification... (${attempt}/3)`);
+          setRetryCount(attempt);
+          setTimeout(() => verifyPayment(attempt + 1), 2000);
         } else {
+          console.error("Payment verification failed:", err.response?.data);
           setStatus("error");
           setErrorMessage(
             err.response?.data?.message ||
@@ -64,7 +94,10 @@ export default function PaymentSuccess() {
             role === "tutor" ? "/tutor-dashboard" : "/dashboard";
           setTimeout(() => navigate(dashboardPath), 3000);
         }
-      });
+      }
+    };
+
+    verifyPayment();
   }, [session_id, navigate, role, token, authLoading]);
 
   return (
@@ -79,6 +112,11 @@ export default function PaymentSuccess() {
             <p className="text-gray-400">
               Please wait while we confirm your payment
             </p>
+            {retryCount > 0 && (
+              <p className="text-sm text-gray-500 mt-2">
+                Retry attempt {retryCount}/3...
+              </p>
+            )}
           </>
         )}
 

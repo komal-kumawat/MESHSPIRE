@@ -82,6 +82,7 @@ export const UpdateLesson = async(lessonId:string)=>{
 export const getLessonById = async(lessonId:string)=>{
   const response = await API.get(`/lesson/${lessonId}`);
   return response.data;
+  
 }
 
 export default API;

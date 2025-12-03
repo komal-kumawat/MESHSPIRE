@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import LessonModel from "../Components/LessonModel";
+import LessonCarousel from "../Components/LessonCarousel";
 import { getRelevantLessons, confirmLesson, cancelLesson } from "../api";
 import { useAuth } from "../Context/AuthContext";
 
@@ -112,7 +113,7 @@ const TutorDashboard: React.FC = () => {
               <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-violet-500"></div>
             </div>
           ) : unpaidLessons.length > 0 ? (
-            <div className="flex gap-4 flex-wrap pb-3">
+            <LessonCarousel>
               {unpaidLessons.map((lesson, index) => (
                 <LessonModel
                   key={lesson._id || index}
@@ -131,7 +132,7 @@ const TutorDashboard: React.FC = () => {
                   lessonTime={lesson.time}
                 />
               ))}
-            </div>
+            </LessonCarousel>
           ) : (
             <div className="bg-slate-900/40 backdrop-blur-xl border border-white/10 rounded-2xl p-8 text-center">
               <p className="text-gray-400 text-lg">
@@ -148,7 +149,7 @@ const TutorDashboard: React.FC = () => {
             <h1 className="text-2xl sm:text-3xl font-semibold mb-6 text-center sm:text-left">
               Confirmed Classes ✓
             </h1>
-            <div className="flex gap-4 flex-wrap pb-3">
+            <LessonCarousel>
               {paidLessons.map((lesson, index) => (
                 <LessonModel
                   key={lesson._id || index}
@@ -164,7 +165,7 @@ const TutorDashboard: React.FC = () => {
                   onStartMeeting={() => handleStartMeeting(lesson)}
                 />
               ))}
-            </div>
+            </LessonCarousel>
           </div>
         )}
 

@@ -18,7 +18,9 @@ import roomRoutes from "./routes/room.route";
 import profileRoute from "./routes/profile.route";
 import lessonRoute from "./routes/lesson.route";
 import paymentRoutes from "./routes/payment.routes";
+import notificationRoutes from "./routes/notification.route";
 import { RoomController } from "./controller/room.controller";
+import { notifyUpcomingMeetings } from "./utils/meetingNotifications";
 
 const app = express();
 
@@ -48,6 +50,7 @@ app.use("/api/v0/room", roomRoutes);
 app.use("/api/v0/profile", profileRoute);
 app.use("/api/v0/lesson", lessonRoute);
 app.use("/api/v0/payment", paymentRoutes); // stripe payment route
+app.use("/api/v0/notifications", notificationRoutes); // notification routes
 
 // Socket.io
 const server = createServer(app);
@@ -83,6 +86,18 @@ const start = async () => {
 
   server.listen(PORT, () => {
     console.log(`Server listening on port ${PORT}`);
+
+    // Check for upcoming meetings every 5 minutes
+    setInterval(() => {
+      notifyUpcomingMeetings().catch((err) =>
+        console.error("Error in meeting notification check:", err)
+      );
+    }, 5 * 60 * 1000); // 5 minutes
+
+    // Run once on startup
+    notifyUpcomingMeetings().catch((err) =>
+      console.error("Error in initial meeting notification check:", err)
+    );
   });
 };
 

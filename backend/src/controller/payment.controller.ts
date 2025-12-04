@@ -27,7 +27,7 @@ export class PaymentController {
 
       // Ensure CLIENT_URL has proper scheme
       const clientUrl =
-        process.env.CLIENT_URL || "https://meshspire.vercel.app";
+        process.env.CLIENT_URL || "https://meshspire-core.vercel.app";
       const baseUrl = clientUrl.startsWith("http")
         ? clientUrl
         : `https://${clientUrl}`;

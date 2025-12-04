@@ -17,6 +17,7 @@ import PaymentSuccess from "./Pages/PaymentSuccess";
 import PaymentFailed from "./Pages/PaymentFailed";
 import StudentCalendar from "./Pages/StudentCalendar";
 import TutorCalendar from "./Pages/TutorCalendar";
+import Chat from "./Pages/Chat";
 
 // Route logger component
 function RouteLogger() {
@@ -80,6 +81,22 @@ const App = () => {
             element={
               <ProtectedRoute allowedRoles={["tutor"]}>
                 <TutorCalendar />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard/chat"
+            element={
+              <ProtectedRoute allowedRoles={["student", "tutor"]}>
+                <Chat />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/tutor-dashboard/chat"
+            element={
+              <ProtectedRoute allowedRoles={["student", "tutor"]}>
+                <Chat />
               </ProtectedRoute>
             }
           />

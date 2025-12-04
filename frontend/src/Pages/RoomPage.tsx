@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useSocket } from "../providers/SocketProvider";
+import { useAuth } from "../Context/AuthContext";
 import VideocamIcon from "@mui/icons-material/Videocam";
 import VideocamOffIcon from "@mui/icons-material/VideocamOff";
 import CallEndIcon from "@mui/icons-material/CallEnd";
@@ -10,6 +11,7 @@ import ScreenShareIcon from "@mui/icons-material/ScreenShare";
 import StopScreenShareIcon from "@mui/icons-material/StopScreenShare";
 import ChatIcon from "@mui/icons-material/Chat";
 import FullscreenIcon from "@mui/icons-material/Fullscreen";
+import MeetingChat from "../Components/MeetingChat";
 
 interface PendingCandidates {
   [socketId: string]: RTCIceCandidateInit[];
@@ -20,6 +22,7 @@ interface PendingCandidates {
 
 const Room: React.FC = () => {
   const { socket } = useSocket();
+  const { user } = useAuth();
   const localVideoRef = useRef<HTMLVideoElement>(null);
   const [remoteStreams, setRemoteStreams] = useState<{
     [socketId: string]: MediaStream;
@@ -46,6 +49,7 @@ const Room: React.FC = () => {
     (location.state && (location.state as any).autoSendVideo) || false;
   const [showAlert, setShowAlert] = useState(false);
   const [showChatAlert, setShowChatAlert] = useState(false);
+  const [isChatOpen, setIsChatOpen] = useState(false);
   const roomId = roomIdParam || sessionStorage.getItem("currentRoom");
 
   // Timer states
@@ -626,15 +630,27 @@ const Room: React.FC = () => {
 
         {/* Chat */}
         <button
-          onClick={() => {
-            setShowChatAlert(true);
-            setTimeout(() => setShowChatAlert(false), 2000);
-          }}
-          className="w-10 h-10 sm:w-14 sm:h-14 flex items-center justify-center rounded-full bg-gray-800 hover:bg-gray-700 text-white shadow-md transition"
+          onClick={() => setIsChatOpen(!isChatOpen)}
+          className={`w-10 h-10 sm:w-14 sm:h-14 flex items-center justify-center rounded-full ${
+            isChatOpen
+              ? "bg-violet-600 hover:bg-violet-700"
+              : "bg-gray-800 hover:bg-gray-700"
+          } text-white shadow-md transition`}
         >
           <ChatIcon fontSize="small" className="sm:text-base" />
         </button>
       </div>
+
+      {/* Chat Interface */}
+      {isChatOpen && roomId && (
+        <div className="absolute top-20 right-4 h-[calc(100vh-180px)] w-[calc(100vw*5/28)] max-w-md z-40">
+          <MeetingChat
+            socket={socket}
+            roomId={roomId}
+            currentUserName={user?.name || user?.email || "Guest"}
+          />
+        </div>
+      )}
     </div>
   );
 };

@@ -154,8 +154,7 @@ export class LessonController {
       console.log(" All scheduled lessons found:", allLessons.length);
       allLessons.forEach((l, i) => {
         console.log(
-          `  ${i + 1}. ${l.topic} - subject: "${
-            l.subject
+          `  ${i + 1}. ${l.topic} - subject: "${l.subject
           }" (${typeof l.subject})`
         );
       });
@@ -170,8 +169,7 @@ export class LessonController {
           );
         } else {
           console.log(
-            `❌ No match: "${
-              lesson.subject
+            `❌ No match: "${lesson.subject
             }" not in tutor subjects [${normalizedSubjects.join(", ")}]`
           );
         }
@@ -242,7 +240,12 @@ export class LessonController {
   static async confirmLesson(req: AuthRequest, res: Response) {
     try {
       const lessonId = req.params.id;
-      const tutorId = req.user?.id;
+      const tutor = await Profile.findOne({ userId: req.user?.id, role: "tutor" });
+      if (!tutor) {
+        return res.status(StatusCodes.NOT_FOUND).json({ message: "Tutor not found" });
+      }
+      const tutorId = tutor._id;
+
 
       if (!tutorId) {
         return res
@@ -274,13 +277,16 @@ export class LessonController {
         {
           $push: {
             confirmedTutors: {
-              tutorId,
-              confirmedAt: new Date(),
-            },
+              tutorId: tutor._id,
+              userId: tutor.userId,
+              name: tutor.name,
+              confirmedAt: new Date()
+            }
           },
+
         },
         { new: true }
-      ).populate("confirmedTutors.tutorId", "name email");
+      ).populate("confirmedTutors.tutorId", "name email userId");
 
       // Create notification for student
       if (lesson.studentId) {

@@ -52,6 +52,16 @@ const Dashboard: React.FC = () => {
     try {
       setLoading(true);
       const data = await getMyLessons();
+      console.log("📚 Fetched lessons:", data);
+      // Log confirmed tutors for each lesson
+      data.forEach((lesson: any, idx: number) => {
+        if (lesson.confirmedTutors && lesson.confirmedTutors.length > 0) {
+          console.log(
+            `Lesson ${idx} (${lesson.topic}) confirmed tutors:`,
+            lesson.confirmedTutors
+          );
+        }
+      });
       setLessons(data);
     } catch (error) {
       console.error("Error fetching lessons:", error);
@@ -209,7 +219,9 @@ const Dashboard: React.FC = () => {
                 subject={lesson.subject}
                 time={`${lesson.date} • ${lesson.time}`}
                 onViewDetails={() => {
-                  console.log("View Details clicked for lesson:", lesson);
+                  console.log("📝 View Details clicked for lesson:", lesson);
+                  console.log("📝 Confirmed tutors:", lesson.confirmedTutors);
+                  console.log("📝 Is paid:", lesson.isPaid);
                   setOpenDetails(lesson);
                 }}
                 isPaid={false}
@@ -344,88 +356,152 @@ const Dashboard: React.FC = () => {
                   </h3>
                   <div className="space-y-2">
                     {openDetails.confirmedTutors.map(
-                      (confirmedTutor: any, index: number) => (
-                        <div
-                          key={index}
-                          className="bg-gradient-to-r from-green-900/30 to-emerald-900/30 p-4 rounded-xl border border-green-500/30 space-y-3"
-                        >
-                          <p className="text-gray-200 font-semibold">
-                            {confirmedTutor.tutorId?.name ||
-                              confirmedTutor.tutorId ||
-                              "Unknown Tutor"}
-                          </p>
+                      (confirmedTutor: any, index: number) => {
+                        console.log(
+                          `🔍 Processing tutor ${index}:`,
+                          confirmedTutor
+                        );
+                        console.log(
+                          `🔍 Tutor ID type:`,
+                          typeof confirmedTutor.tutorId
+                        );
+                        console.log(
+                          `🔍 Tutor ID value:`,
+                          confirmedTutor.tutorId
+                        );
 
-                          {confirmedTutor.tutorId?.email && (
-                            <p className="text-gray-400 text-sm">
-                              {confirmedTutor.tutorId.email}
+                        // Check if tutorId is populated (object) or just an ID (string)
+                        const isTutorPopulated =
+                          confirmedTutor.tutorId &&
+                          typeof confirmedTutor.tutorId === "object";
+                        const tutorName = isTutorPopulated
+                          ? confirmedTutor.tutorId.name
+                          : null;
+                        const tutorEmail = isTutorPopulated
+                          ? confirmedTutor.tutorId.email
+                          : null;
+                        const tutorId = isTutorPopulated
+                          ? confirmedTutor.tutorId._id
+                          : confirmedTutor.tutorId;
+
+                        console.log(`🔍 Extracted data:`, {
+                          isTutorPopulated,
+                          tutorName,
+                          tutorEmail,
+                          tutorId,
+                        });
+                        console.log(`🔍 isPaid:`, openDetails.isPaid);
+
+                        // Skip rendering if tutor data is invalid
+                        if (!tutorId) {
+                          console.warn(
+                            "⚠️ Invalid tutor data:",
+                            confirmedTutor
+                          );
+                          return null;
+                        }
+
+                        return (
+                          <div
+                            key={index}
+                            className="bg-gradient-to-r from-green-900/30 to-emerald-900/30 p-4 rounded-xl border border-green-500/30 space-y-3"
+                          >
+                            <p className="text-gray-200 font-semibold">
+                              {tutorName || "Tutor"}
                             </p>
-                          )}
 
-                          {confirmedTutor.confirmedAt && (
-                            <p className="text-gray-400 text-xs">
-                              Confirmed:{" "}
-                              {new Date(
-                                confirmedTutor.confirmedAt
-                              ).toLocaleString()}
-                            </p>
-                          )}
+                            {tutorEmail && (
+                              <p className="text-gray-400 text-sm">
+                                {tutorEmail}
+                              </p>
+                            )}
 
-                          {!openDetails.isPaid && (
-                            <div className="flex flex-col sm:flex-row gap-3 pt-1">
-                              <button
-                                onClick={async () => {
-                                  console.log("Initiating payment...");
-                                  try {
-                                    const url = await payForLesson({
-                                      tutorId: confirmedTutor.tutorId._id,
-                                      lessonId: openDetails._id,
-                                    });
-                                    window.location.href = url; // redirect to Stripe
-                                  } catch (error) {
-                                    console.error("Payment Error:", error);
-                                    alert("Payment failed. Try again later.");
-                                  }
-                                }}
-                                className="flex-1 bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500
-                                    transition-all px-4 py-2 rounded-lg font-semibold shadow-lg hover:shadow-green-500/50
+                            {confirmedTutor.confirmedAt && (
+                              <p className="text-gray-400 text-xs">
+                                Confirmed:{" "}
+                                {new Date(
+                                  confirmedTutor.confirmedAt
+                                ).toLocaleString()}
+                              </p>
+                            )}
+
+                            {(() => {
+                              console.log(
+                                `🔘 Rendering buttons for tutor. isPaid: ${openDetails.isPaid}`
+                              );
+                              if (!openDetails.isPaid) {
+                                console.log(
+                                  "🔘 Showing Pay & Confirm and Teacher Details buttons"
+                                );
+                                return (
+                                  <div className="flex flex-col sm:flex-row gap-3 pt-1">
+                                    <button
+                                      onClick={async () => {
+                                        console.log("💳 Initiating payment...");
+                                        try {
+                                          const url = await payForLesson({
+                                            tutorId: tutorId,
+                                            lessonId: openDetails._id,
+                                          });
+                                          window.location.href = url; // redirect to Stripe
+                                        } catch (error) {
+                                          console.error(
+                                            "Payment Error:",
+                                            error
+                                          );
+                                          alert(
+                                            "Payment failed. Try again later."
+                                          );
+                                        }
+                                      }}
+                                      className="flex-1 bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500
+                                        transition-all px-4 py-2 rounded-lg font-semibold shadow-lg hover:shadow-green-500/50
+                                        active:scale-95 text-white"
+                                    >
+                                      Pay & Confirm
+                                    </button>
+
+                                    <a
+                                      href={`${window.location.origin}/tutor/${tutorId}`}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                    >
+                                      <button
+                                        className="flex-1 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-500 hover:to-purple-500
+                                    transition-all px-4 py-2 rounded-lg font-semibold shadow-lg hover:shadow-violet-500/50
                                     active:scale-95 text-white"
-                              >
-                                Pay & Confirm
-                              </button>
-
-                              <a
-                                href={`${window.location.origin}/tutor/${confirmedTutor.tutorId._id}`}
-                                target="_blank"
-                              >
-                                <button
-                                  className="flex-1 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-500 hover:to-purple-500
-                                transition-all px-4 py-2 rounded-lg font-semibold shadow-lg hover:shadow-violet-500/50
-                                active:scale-95 text-white"
-                                >
-                                  Teacher Details
-                                </button>
-                              </a>
-                            </div>
-                          )}
-
-                          {openDetails.isPaid && (
-                            <div className="pt-1">
-                              <a
-                                href={`${window.location.origin}/tutor/${confirmedTutor.tutorId._id}`}
-                                target="_blank"
-                              >
-                                <button
-                                  className="w-full bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-500 hover:to-purple-500
-                                       transition-all px-4 py-2 rounded-lg font-semibold shadow-lg hover:shadow-violet-500/50
-                                       active:scale-95 text-white"
-                                >
-                                  Teacher Details
-                                </button>
-                              </a>
-                            </div>
-                          )}
-                        </div>
-                      )
+                                      >
+                                        Teacher Details
+                                      </button>
+                                    </a>
+                                  </div>
+                                );
+                              } else {
+                                console.log(
+                                  "🔘 Showing only Teacher Details button (paid)"
+                                );
+                                return (
+                                  <div className="pt-1">
+                                    <a
+                                      href={`${window.location.origin}/tutor/${tutorId}`}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                    >
+                                      <button
+                                        className="w-full bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-500 hover:to-purple-500
+                                           transition-all px-4 py-2 rounded-lg font-semibold shadow-lg hover:shadow-violet-500/50
+                                           active:scale-95 text-white"
+                                      >
+                                        Teacher Details
+                                      </button>
+                                    </a>
+                                  </div>
+                                );
+                              }
+                            })()}
+                          </div>
+                        );
+                      }
                     )}
                   </div>
                 </div>

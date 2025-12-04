@@ -44,9 +44,20 @@ const TutorDashboard: React.FC = () => {
   const handleConfirmLesson = async (lessonId: string) => {
     try {
       setProcessingLessonId(lessonId);
-      await confirmLesson(lessonId);
-      // Refresh the lessons list
-      await fetchRelevantLessons();
+      const response = await confirmLesson(lessonId);
+      console.log("✅ Lesson confirmed, full response:", response);
+      console.log("✅ Confirmed tutors:", response.lesson?.confirmedTutors);
+
+      // Update the local state immediately with the confirmed lesson
+      setRelevantLessons((prev) =>
+        prev.map((lesson) =>
+          lesson._id === lessonId
+            ? { ...lesson, confirmedTutors: response.lesson.confirmedTutors }
+            : lesson
+        )
+      );
+
+      console.log("✅ Local state updated for lesson:", lessonId);
     } catch (error: any) {
       console.error("❌ Error confirming lesson:", error);
       alert(
@@ -57,14 +68,22 @@ const TutorDashboard: React.FC = () => {
       setProcessingLessonId(null);
     }
   };
-
   const handleCancelLesson = async (lessonId: string) => {
     try {
       setProcessingLessonId(lessonId);
-      await cancelLesson(lessonId);
-      // Remove the lesson from the list immediately
+      const response = await cancelLesson(lessonId);
+      console.log("✅ Lesson cancelled, response:", response);
+
+      // Update the local state to remove the tutor from confirmedTutors
       setRelevantLessons((prev) =>
-        prev.filter((lesson) => lesson._id !== lessonId)
+        prev.map((lesson) =>
+          lesson._id === lessonId
+            ? {
+                ...lesson,
+                confirmedTutors: response.lesson.confirmedTutors || [],
+              }
+            : lesson
+        )
       );
     } catch (error: any) {
       console.error("❌ Error cancelling lesson:", error);

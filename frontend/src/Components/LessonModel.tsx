@@ -126,7 +126,6 @@ const LessonModel: React.FC<LessonModelProps> = (props) => {
 
       {/* Top Section */}
       <div className="flex items-start justify-between gap-3">
-        "
         <div className="w-28 sm:w-32 md:w-40 rounded-xl overflow-hidden shadow-md">
           <img
             src={imageSrc}

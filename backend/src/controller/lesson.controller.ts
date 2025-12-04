@@ -253,12 +253,10 @@ export class LessonController {
 
       if (!tutor) {
         console.error("❌ Tutor profile not found for userId:", userId);
-        return res
-          .status(StatusCodes.NOT_FOUND)
-          .json({
-            message:
-              "Tutor profile not found. Please complete your profile setup.",
-          });
+        return res.status(StatusCodes.NOT_FOUND).json({
+          message:
+            "Tutor profile not found. Please complete your profile setup.",
+        });
       }
 
       console.log("✅ Tutor profile found:", {
@@ -276,7 +274,7 @@ export class LessonController {
 
       // Check if tutor already confirmed
       const alreadyConfirmed = lesson.confirmedTutors?.some(
-        (ct: any) => ct.tutorId.toString() === tutor._id.toString()
+        (ct: any) => ct.tutorId.toString() === tutor.userId.toString()
       );
 
       if (alreadyConfirmed) {
@@ -286,23 +284,27 @@ export class LessonController {
           .json({ message: "You have already confirmed this lesson" });
       }
 
-      // Add tutor to confirmed list
+      // Add tutor to confirmed list - use tutor.userId (User ID) not tutor._id (Profile ID)
       const updated = await Lesson.findByIdAndUpdate(
         lessonId,
         {
           $push: {
             confirmedTutors: {
-              tutorId: tutor._id,
+              tutorId: tutor.userId,
               confirmedAt: new Date(),
             },
           },
         },
         { new: true }
-      ).populate("confirmedTutors.tutorId", "name email");
+      )
+        .populate("confirmedTutors.tutorId", "name email")
+        .populate("studentId", "name email");
 
       console.log("✅ Lesson confirmed successfully:", {
         lessonId,
         confirmedTutorsCount: updated?.confirmedTutors?.length,
+        confirmedTutors: updated?.confirmedTutors,
+        studentId: updated?.studentId,
       });
 
       // Create notification for student
@@ -387,16 +389,18 @@ export class LessonController {
           .json({ message: "Lesson not found" });
       }
 
-      // Remove tutor from confirmed list using the profile's _id
+      // Remove tutor from confirmed list using the user's ID (not profile ID)
       const updated = await Lesson.findByIdAndUpdate(
         lessonId,
         {
           $pull: {
-            confirmedTutors: { tutorId: tutor._id },
+            confirmedTutors: { tutorId: tutor.userId },
           },
         },
         { new: true }
-      ).populate("confirmedTutors.tutorId", "name email");
+      )
+        .populate("confirmedTutors.tutorId", "name email")
+        .populate("studentId", "name email");
 
       res.status(StatusCodes.OK).json({
         message: "Lesson cancellation successful",

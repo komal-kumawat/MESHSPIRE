@@ -24,6 +24,7 @@ interface LessonModelProps {
   lessonTime?: string;
   onStartMeeting?: () => void;
   onEditLesson?: () => void;
+  onDelete?: () => void;
 }
 
 const subjectImages: Record<string, string> = {
@@ -50,6 +51,7 @@ const LessonModel: React.FC<LessonModelProps> = (props) => {
     lessonTime,
     onStartMeeting,
     onEditLesson,
+    onDelete,
   } = props;
 
   const [isMeetingTimeReached, setIsMeetingTimeReached] = useState(false);
@@ -84,11 +86,40 @@ const LessonModel: React.FC<LessonModelProps> = (props) => {
       flex flex-col w-[260px] sm:w-[380px] md:w-[480px]
       p-4 sm:p-6 rounded-2xl
       backdrop-blur-lg bg-slate-900/60 border border-white/20 shadow-lg hover:shadow-xl
-      transition-all duration-300
+      transition-all duration-300 relative
       "
     >
+      {/* Delete Button - Top Right */}
+      {onDelete && (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onDelete();
+          }}
+          className="absolute top-3 right-3 p-2 rounded-full bg-red-900/40 hover:bg-red-800/60 
+                     border border-red-500/30 transition-all duration-200 hover:scale-110 z-10"
+          title="Delete lesson"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-5 w-5 text-red-300"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+            />
+          </svg>
+        </button>
+      )}
+
       {/* Top Section */}
       <div className="flex items-start justify-between gap-3">
+        "
         <div className="w-28 sm:w-32 md:w-40 rounded-xl overflow-hidden shadow-md">
           <img
             src={imageSrc}
@@ -96,7 +127,6 @@ const LessonModel: React.FC<LessonModelProps> = (props) => {
             className="w-full h-full object-cover"
           />
         </div>
-
         <p
           className="text-right text-sm font-semibold text-violet-300 bg-violet-900/30
                       px-3 py-1 rounded-full border border-violet-400/20"
@@ -146,13 +176,16 @@ const LessonModel: React.FC<LessonModelProps> = (props) => {
       )}
 
       {/* Buttons Section */}
-      <div className="mt-5 flex gap-3 relative z-10">
+      <div className="mt-5 flex gap-3 relative">
         {showActions ? (
           <>
             {/* Confirm / Cancel Buttons */}
             {!isConfirmed ? (
               <button
-                onClick={onConfirm}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onConfirm?.();
+                }}
                 disabled={isProcessing}
                 className="flex-1 px-4 py-2 rounded-xl text-sm font-semibold 
                            bg-green-700 hover:bg-green-600 transition-all
@@ -162,7 +195,10 @@ const LessonModel: React.FC<LessonModelProps> = (props) => {
               </button>
             ) : (
               <button
-                onClick={onCancel}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onCancel?.();
+                }}
                 disabled={isProcessing}
                 className="flex-1 px-4 py-2 rounded-xl text-sm font-semibold 
                            bg-red-700 hover:bg-red-600 transition-all
@@ -174,7 +210,10 @@ const LessonModel: React.FC<LessonModelProps> = (props) => {
 
             {/* View Button */}
             <button
-              onClick={onViewDetails}
+              onClick={(e) => {
+                e.stopPropagation();
+                onViewDetails();
+              }}
               className="flex-1 py-2 rounded-xl text-white font-medium
                          bg-gray-800 hover:bg-gray-900 transition-all"
             >
@@ -185,7 +224,10 @@ const LessonModel: React.FC<LessonModelProps> = (props) => {
           <>
             {isPaid && isMeetingTimeReached ? (
               <button
-                onClick={onStartMeeting}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onStartMeeting?.();
+                }}
                 disabled={!isPaid || !isMeetingTimeReached}
                 className={`flex-1 py-2 rounded-xl text-white font-medium transition-all
                 ${
@@ -198,7 +240,10 @@ const LessonModel: React.FC<LessonModelProps> = (props) => {
               </button>
             ) : (
               <button
-                onClick={onEditLesson}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onEditLesson?.();
+                }}
                 className={`flex-1 py-2 rounded-xl text-white font-medium transition-all
                     bg-gradient-to-r from-violet-900 via-violet-800 to-violet-900 hover:opacity-90
                   `}
@@ -209,7 +254,10 @@ const LessonModel: React.FC<LessonModelProps> = (props) => {
 
             {/* Gray View */}
             <button
-              onClick={onViewDetails}
+              onClick={(e) => {
+                e.stopPropagation();
+                onViewDetails();
+              }}
               className="flex-1 py-2 rounded-xl text-white font-medium
                          bg-gray-800 hover:bg-gray-900 transition-all"
             >

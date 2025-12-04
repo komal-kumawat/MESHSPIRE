@@ -121,7 +121,13 @@ const TutorDashboard: React.FC = () => {
                   subject={lesson.subject}
                   time={`${lesson.date} • ${lesson.time}`}
                   studentName={lesson.studentId?.name || "Unknown Student"}
-                  onViewDetails={() => setOpenDetails(lesson)}
+                  onViewDetails={() => {
+                    console.log(
+                      "Tutor view details clicked for lesson:",
+                      lesson
+                    );
+                    setOpenDetails(lesson);
+                  }}
                   showActions={true}
                   onConfirm={() => handleConfirmLesson(lesson._id)}
                   onCancel={() => handleCancelLesson(lesson._id)}
@@ -157,7 +163,13 @@ const TutorDashboard: React.FC = () => {
                   subject={lesson.subject}
                   time={`${lesson.date} • ${lesson.time}`}
                   studentName={lesson.studentId?.name || "Unknown Student"}
-                  onViewDetails={() => setOpenDetails(lesson)}
+                  onViewDetails={() => {
+                    console.log(
+                      "Tutor view details clicked for paid lesson:",
+                      lesson
+                    );
+                    setOpenDetails(lesson);
+                  }}
                   showActions={false}
                   isPaid={true}
                   date={lesson.date}
@@ -182,12 +194,18 @@ const TutorDashboard: React.FC = () => {
 
       {openDetails && (
         <div
-          className="fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center z-50 px-4"
-          onClick={() => setOpenDetails(null)}
+          className="fixed inset-0 bg-black/80 backdrop-blur-sm flex justify-center items-center z-[9999] px-4"
+          onClick={() => {
+            console.log("Tutor modal overlay clicked, closing...");
+            setOpenDetails(null);
+          }}
         >
           <div
             className="bg-gradient-to-br from-slate-900 to-slate-800 text-white p-8 rounded-2xl w-full sm:w-[480px] space-y-5 shadow-2xl border border-violet-500/20"
-            onClick={(e) => e.stopPropagation()}
+            onClick={(e) => {
+              console.log("Tutor modal content clicked");
+              e.stopPropagation();
+            }}
           >
             <div className="flex justify-between items-start">
               <h2 className="text-3xl font-bold bg-gradient-to-r from-violet-400 to-purple-400 bg-clip-text text-transparent">

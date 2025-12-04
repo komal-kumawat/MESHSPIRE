@@ -81,5 +81,9 @@ export const getLessonById = async (lessonId: string) => {
   const response = await API.get(`/lesson/${lessonId}`);
   return response.data;
 };
+export const deleteLesson = async (lessonId: string) => {
+  const response = await API.delete(`/lesson/delete/${lessonId}`);
+  return response.data;
+};
 
 export default API;

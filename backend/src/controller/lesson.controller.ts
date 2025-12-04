@@ -386,4 +386,45 @@ export class LessonController {
       });
     }
   }
+
+  // Delete a lesson (only by student who created it or admin)
+  static async deleteLesson(req: AuthRequest, res: Response) {
+    try {
+      const lessonId = req.params.id;
+      const userId = req.user?.id;
+
+      if (!userId) {
+        return res
+          .status(StatusCodes.UNAUTHORIZED)
+          .json({ message: "Unauthorized" });
+      }
+
+      const lesson = await Lesson.findById(lessonId);
+      if (!lesson) {
+        return res
+          .status(StatusCodes.NOT_FOUND)
+          .json({ message: "Lesson not found" });
+      }
+
+      // Check if user is the student who created the lesson
+      if (lesson.studentId?.toString() !== userId) {
+        return res
+          .status(StatusCodes.FORBIDDEN)
+          .json({ message: "You can only delete lessons you created" });
+      }
+
+      // Delete the lesson
+      await Lesson.findByIdAndDelete(lessonId);
+
+      res.status(StatusCodes.OK).json({
+        message: "Lesson deleted successfully",
+      });
+    } catch (err) {
+      console.error(err);
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+        message: "Error deleting lesson",
+        err,
+      });
+    }
+  }
 }

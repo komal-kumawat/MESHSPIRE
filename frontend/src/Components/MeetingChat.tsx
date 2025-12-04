@@ -51,11 +51,11 @@ const MeetingChat: React.FC<MeetingChatProps> = ({
     if (!inputMessage.trim()) return;
 
     const timestamp = new Date().toISOString();
-    const messageData = {
+    const messageData: Message = {
       message: inputMessage,
       sender: currentUserName,
       timestamp,
-      socketId: socket.id,
+      socketId: socket.id || "",
     };
 
     // Add message immediately to local state

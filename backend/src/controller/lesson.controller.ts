@@ -242,25 +242,33 @@ export class LessonController {
   static async confirmLesson(req: AuthRequest, res: Response) {
     try {
       const lessonId = req.params.id;
+      const userId = req.user?.id;
+
+      console.log("🔄 Confirm lesson request:", { lessonId, userId });
+
       const tutor = await Profile.findOne({
-        userId: req.user?.id,
+        userId: userId,
         role: "tutor",
       });
+
       if (!tutor) {
+        console.error("❌ Tutor profile not found for userId:", userId);
         return res
           .status(StatusCodes.NOT_FOUND)
-          .json({ message: "Tutor not found" });
+          .json({
+            message:
+              "Tutor profile not found. Please complete your profile setup.",
+          });
       }
-      const tutorId = tutor._id;
 
-      if (!tutorId) {
-        return res
-          .status(StatusCodes.UNAUTHORIZED)
-          .json({ message: "Unauthorized" });
-      }
+      console.log("✅ Tutor profile found:", {
+        tutorId: tutor._id,
+        name: tutor.name,
+      });
 
       const lesson = await Lesson.findById(lessonId);
       if (!lesson) {
+        console.error("❌ Lesson not found:", lessonId);
         return res
           .status(StatusCodes.NOT_FOUND)
           .json({ message: "Lesson not found" });
@@ -268,10 +276,11 @@ export class LessonController {
 
       // Check if tutor already confirmed
       const alreadyConfirmed = lesson.confirmedTutors?.some(
-        (ct: any) => ct.tutorId.toString() === tutorId
+        (ct: any) => ct.tutorId.toString() === tutor._id.toString()
       );
 
       if (alreadyConfirmed) {
+        console.log("⚠️ Tutor already confirmed this lesson");
         return res
           .status(StatusCodes.CONFLICT)
           .json({ message: "You have already confirmed this lesson" });
@@ -284,14 +293,17 @@ export class LessonController {
           $push: {
             confirmedTutors: {
               tutorId: tutor._id,
-              userId: tutor.userId,
-              name: tutor.name,
               confirmedAt: new Date(),
             },
           },
         },
         { new: true }
-      ).populate("confirmedTutors.tutorId", "name email userId");
+      ).populate("confirmedTutors.tutorId", "name email");
+
+      console.log("✅ Lesson confirmed successfully:", {
+        lessonId,
+        confirmedTutorsCount: updated?.confirmedTutors?.length,
+      });
 
       // Create notification for student
       if (lesson.studentId) {
@@ -348,12 +360,24 @@ export class LessonController {
   static async cancelLesson(req: AuthRequest, res: Response) {
     try {
       const lessonId = req.params.id;
-      const tutorId = req.user?.id;
+      const userId = req.user?.id;
 
-      if (!tutorId) {
+      if (!userId) {
         return res
           .status(StatusCodes.UNAUTHORIZED)
           .json({ message: "Unauthorized" });
+      }
+
+      // Get the tutor profile
+      const tutor = await Profile.findOne({
+        userId: userId,
+        role: "tutor",
+      });
+
+      if (!tutor) {
+        return res
+          .status(StatusCodes.NOT_FOUND)
+          .json({ message: "Tutor profile not found" });
       }
 
       const lesson = await Lesson.findById(lessonId);
@@ -363,12 +387,12 @@ export class LessonController {
           .json({ message: "Lesson not found" });
       }
 
-      // Remove tutor from confirmed list
+      // Remove tutor from confirmed list using the profile's _id
       const updated = await Lesson.findByIdAndUpdate(
         lessonId,
         {
           $pull: {
-            confirmedTutors: { tutorId },
+            confirmedTutors: { tutorId: tutor._id },
           },
         },
         { new: true }

@@ -216,6 +216,9 @@ const Dashboard: React.FC = () => {
                 date={lesson.date}
                 lessonTime={lesson.time}
                 onDelete={() => handleDeleteLesson(lesson._id, lesson.topic)}
+                hasConfirmedTutors={
+                  lesson.confirmedTutors && lesson.confirmedTutors.length > 0
+                }
               />
             ))}
           </LessonCarousel>

@@ -25,6 +25,7 @@ interface LessonModelProps {
   onStartMeeting?: () => void;
   onEditLesson?: () => void;
   onDelete?: () => void;
+  hasConfirmedTutors?: boolean;
 }
 
 const subjectImages: Record<string, string> = {
@@ -52,6 +53,7 @@ const LessonModel: React.FC<LessonModelProps> = (props) => {
     onStartMeeting,
     onEditLesson,
     onDelete,
+    hasConfirmedTutors = false,
   } = props;
 
   const [isMeetingTimeReached, setIsMeetingTimeReached] = useState(false);
@@ -82,21 +84,26 @@ const LessonModel: React.FC<LessonModelProps> = (props) => {
 
   return (
     <div
-      className="
+      className={`
       flex flex-col w-[260px] sm:w-[380px] md:w-[480px]
       p-4 sm:p-6 rounded-2xl
-      backdrop-blur-lg bg-slate-900/60 border border-white/20 shadow-lg hover:shadow-xl
+      backdrop-blur-lg bg-slate-900/60 shadow-lg hover:shadow-xl
       transition-all duration-300 relative
-      "
+      ${
+        hasConfirmedTutors && !isPaid
+          ? "border-2 border-green-500/60 shadow-green-500/20"
+          : "border border-white/20"
+      }
+      `}
     >
-      {/* Delete Button - Top Right */}
+      {/* Delete Button - Top Left */}
       {onDelete && (
         <button
           onClick={(e) => {
             e.stopPropagation();
             onDelete();
           }}
-          className="absolute top-3 right-3 p-2 rounded-full bg-red-900/40 hover:bg-red-800/60 
+          className="absolute top-3 left-3 p-2 rounded-full bg-red-900/40 hover:bg-red-800/60 
                      border border-red-500/30 transition-all duration-200 hover:scale-110 z-10"
           title="Delete lesson"
         >
@@ -172,6 +179,17 @@ const LessonModel: React.FC<LessonModelProps> = (props) => {
                         border border-green-500/20"
         >
           ✓ Payment Confirmed
+        </div>
+      )}
+
+      {/* Tutor Confirmed Badge */}
+      {hasConfirmedTutors && !isPaid && (
+        <div
+          className="mt-2 text-sm text-green-300 bg-green-900/30 px-3 py-2 rounded-lg
+                        border border-green-500/20 flex items-center gap-2"
+        >
+          <span className="text-green-400 text-lg">✓</span>
+          <span>Tutor Confirmed - Awaiting Payment</span>
         </div>
       )}
 

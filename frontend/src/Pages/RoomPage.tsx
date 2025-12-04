@@ -22,7 +22,7 @@ interface PendingCandidates {
 
 const Room: React.FC = () => {
   const { socket } = useSocket();
-  const { user } = useAuth();
+  const { username } = useAuth();
   const localVideoRef = useRef<HTMLVideoElement>(null);
   const [remoteStreams, setRemoteStreams] = useState<{
     [socketId: string]: MediaStream;
@@ -48,7 +48,6 @@ const Room: React.FC = () => {
   const autoSendVideo =
     (location.state && (location.state as any).autoSendVideo) || false;
   const [showAlert, setShowAlert] = useState(false);
-  const [showChatAlert, setShowChatAlert] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const roomId = roomIdParam || sessionStorage.getItem("currentRoom");
 
@@ -504,11 +503,6 @@ const Room: React.FC = () => {
           ✅ Room ID copied!
         </div>
       )}
-      {showChatAlert && (
-        <div className="absolute top-16 right-4 bg-violet-800 border-2 border-gray-400 text-white px-4 py-2 rounded-xl shadow-lg transition-opacity duration-700 animate-pulse">
-          💬 Chat feature coming soon!
-        </div>
-      )}
       {showTimeWarning && (
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-red-600 border-2 border-yellow-400 text-white px-8 py-4 rounded-xl shadow-2xl transition-opacity duration-700 animate-pulse text-xl font-bold z-50">
           {warningMessage}
@@ -647,7 +641,7 @@ const Room: React.FC = () => {
           <MeetingChat
             socket={socket}
             roomId={roomId}
-            currentUserName={user?.name || user?.email || "Guest"}
+            currentUserName={username || "Guest"}
           />
         </div>
       )}

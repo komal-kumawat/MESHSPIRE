@@ -32,7 +32,7 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
     () =>
       io(
         import.meta.env.VITE_BACKEND_URL ||
-          "https://meshspire-core-prod.onrender.com",
+          "https://meshspire-core.onrender.com",
         {
           transports: ["websocket"], // force WebSocket (better for signaling)
           autoConnect: true,

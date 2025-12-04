@@ -299,7 +299,18 @@ export class LessonController {
           userId: lesson.studentId.toString(),
           type: "lesson_confirmed",
           title: "Lesson Confirmed",
-          message: `Your lesson "${lesson.topic}" has been confirmed by a tutor. You can now chat with them!`,
+          message: `Your lesson "${lesson.topic}" has been confirmed by ${tutor.name}. You can now chat with them!`,
+          lessonId: lessonId,
+        });
+      }
+
+      // Create notification for tutor
+      if (tutor.userId) {
+        await NotificationController.createNotification({
+          userId: tutor.userId.toString(),
+          type: "lesson_confirmed",
+          title: "Lesson Confirmed",
+          message: `You confirmed the lesson "${lesson.topic}". You can now chat with the student!`,
           lessonId: lessonId,
         });
       }
@@ -308,12 +319,12 @@ export class LessonController {
       try {
         const conversation = await createConversation(
           lessonId,
-          tutorId.toString()
+          tutor.userId.toString()
         );
         console.log(`✅ Chat conversation created for lesson ${lessonId}`, {
           conversationId: conversation._id,
           studentId: lesson.studentId,
-          tutorId: tutorId,
+          tutorUserId: tutor.userId,
         });
       } catch (convError) {
         console.error("Error creating conversation:", convError);

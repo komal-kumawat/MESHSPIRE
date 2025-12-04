@@ -262,9 +262,15 @@ export const uploadFile = async (req: Request, res: Response) => {
 };
 
 // Create conversation when tutor confirms lesson
-export const createConversation = async (lessonId: string, tutorId: string) => {
+export const createConversation = async (
+  lessonId: string,
+  tutorUserId: string
+) => {
   try {
-    console.log("🔧 Creating conversation for lesson:", { lessonId, tutorId });
+    console.log("🔧 Creating conversation for lesson:", {
+      lessonId,
+      tutorUserId,
+    });
 
     const lesson = await Lesson.findById(lessonId);
     if (!lesson) {
@@ -280,7 +286,7 @@ export const createConversation = async (lessonId: string, tutorId: string) => {
     const existingConversation = await Conversation.findOne({
       lessonId,
       studentId: lesson.studentId,
-      tutorId,
+      tutorId: tutorUserId,
     });
 
     if (existingConversation) {
@@ -291,11 +297,21 @@ export const createConversation = async (lessonId: string, tutorId: string) => {
     const conversation = new Conversation({
       lessonId,
       studentId: lesson.studentId,
-      tutorId,
+      tutorId: tutorUserId,
     });
 
     await conversation.save();
     console.log("✅ New conversation created:", conversation._id);
+
+    // Emit real-time notification to both users
+    if (io) {
+      io.to(`user:${lesson.studentId}`).emit(
+        "conversation-created",
+        conversation
+      );
+      io.to(`user:${tutorUserId}`).emit("conversation-created", conversation);
+    }
+
     return conversation;
   } catch (error) {
     console.error("❌ Error creating conversation:", error);

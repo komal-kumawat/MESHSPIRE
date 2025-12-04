@@ -233,8 +233,14 @@ const Dashboard: React.FC = () => {
       )}
 
       {openDetails && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center z-50 px-4">
-          <div className="bg-gradient-to-br from-slate-900 to-slate-800 text-white p-8 rounded-2xl w-full sm:w-[480px] space-y-5 shadow-2xl border border-violet-500/20 max-h-[90vh] overflow-y-auto">
+        <div
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center z-50 px-4"
+          onClick={() => setOpenDetails(null)}
+        >
+          <div
+            className="bg-gradient-to-br from-slate-900 to-slate-800 text-white p-8 rounded-2xl w-full sm:w-[480px] space-y-5 shadow-2xl border border-violet-500/20 max-h-[90vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="flex justify-between items-start">
               <h2 className="text-3xl font-bold bg-gradient-to-r from-violet-400 to-purple-400 bg-clip-text text-transparent">
                 {openDetails.topic}
@@ -386,7 +392,7 @@ const Dashboard: React.FC = () => {
               onClick={() => setOpenDetails(null)}
               className="w-full mt-4 bg-gradient-to-r from-violet-600 to-purple-600 
                        hover:from-violet-500 hover:to-purple-500 transition-all duration-300 
-                       px-4 py-3 rounded-xl fo  userId: openDetails.studentId,nt-semibold shadow-lg hover:shadow-violet-500/50"
+                       px-4 py-3 rounded-xl font-semibold shadow-lg hover:shadow-violet-500/50"
             >
               Close
             </button>

@@ -61,8 +61,14 @@ const Chat: React.FC = () => {
       );
     });
 
+    // Listen for new conversations
+    socket.on("conversation-created", () => {
+      fetchConversations();
+    });
+
     return () => {
       socket.off("new-message");
+      socket.off("conversation-created");
       if (userId) {
         socket.emit("leave-user-room", userId);
       }

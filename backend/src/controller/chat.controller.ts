@@ -48,11 +48,15 @@ export const upload = multer({
 export const getConversations = async (req: Request, res: Response) => {
   try {
     const userId = req.user?._id;
-    const userRole = req.user?.role;
 
     if (!userId) {
       return res.status(401).json({ message: "Unauthorized" });
     }
+
+    // Fetch user role from database since it's not in the JWT token
+    const User = (await import("../models/user.model")).default;
+    const user = await User.findById(userId).select("role").lean();
+    const userRole = user?.role;
 
     console.log("📋 Fetching conversations for user:", { userId, userRole });
 
@@ -86,14 +90,13 @@ export const getConversations = async (req: Request, res: Response) => {
         tutorId: conv.tutorId?._id,
       });
 
-      // Only show conversations where:
-      // 1. Lesson is paid
-      // 2. Both user names exist (properly populated)
-      return isPaid === true && hasStudentName && hasTutorName;
+      // Show conversations where both user names exist (properly populated)
+      // Removed isPaid filter to allow chat immediately after tutor confirms
+      return hasStudentName && hasTutorName;
     });
 
     console.log(
-      `✅ Returning ${conversations.length} paid lesson conversations with valid user data`
+      `✅ Returning ${conversations.length} conversations with valid user data`
     );
 
     res.json(conversations);
@@ -107,11 +110,15 @@ export const getConversations = async (req: Request, res: Response) => {
 export const getAllConversationsDebug = async (req: Request, res: Response) => {
   try {
     const userId = req.user?._id;
-    const userRole = req.user?.role;
 
     if (!userId) {
       return res.status(401).json({ message: "Unauthorized" });
     }
+
+    // Fetch user role from database since it's not in the JWT token
+    const User = (await import("../models/user.model")).default;
+    const user = await User.findById(userId).select("role").lean();
+    const userRole = user?.role;
 
     console.log("🔍 DEBUG: Fetching ALL conversations for user:", {
       userId,

@@ -196,6 +196,48 @@ export class PaymentController {
             conversationId: conversation?._id,
             lessonId: payment.lessonId,
           });
+
+          // Send automatic "Hi" messages from both student and tutor
+          if (conversation?._id) {
+            try {
+              const Message = (await import("../models/message.model")).default;
+
+              // Student sends "Hi" message
+              const studentMessage = new Message({
+                conversationId: conversation._id,
+                senderId: payment.userId,
+                receiverId: payment.tutorId,
+                content: "Hi! Looking forward to our lesson.",
+                messageType: "text",
+              });
+              await studentMessage.save();
+              console.log("✅ Auto-sent greeting from student");
+
+              // Tutor sends "Hi" message
+              const tutorMessage = new Message({
+                conversationId: conversation._id,
+                senderId: payment.tutorId,
+                receiverId: payment.userId,
+                content:
+                  "Hi! I'm excited to help you learn. Feel free to ask any questions!",
+                messageType: "text",
+              });
+              await tutorMessage.save();
+              console.log("✅ Auto-sent greeting from tutor");
+
+              // Update conversation with last message
+              const Conversation = (
+                await import("../models/conversation.model")
+              ).default;
+              await Conversation.findByIdAndUpdate(conversation._id, {
+                lastMessage:
+                  "Hi! I'm excited to help you learn. Feel free to ask any questions!",
+                lastMessageAt: new Date(),
+              });
+            } catch (msgError) {
+              console.error("⚠️ Error sending automatic greetings:", msgError);
+            }
+          }
         } catch (convError) {
           console.error(
             "⚠️ Error ensuring conversation after payment:",

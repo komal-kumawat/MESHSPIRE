@@ -147,7 +147,7 @@ const TutorDashboard: React.FC = () => {
         {!loading && paidLessons.length > 0 && (
           <div className="mb-10">
             <h1 className="text-2xl sm:text-3xl font-semibold mb-6 text-center sm:text-left">
-              Confirmed Classes ✓
+              Confirmed Classes
             </h1>
             <LessonCarousel>
               {paidLessons.map((lesson, index) => (
@@ -234,8 +234,8 @@ const TutorDashboard: React.FC = () => {
                   {openDetails.isPaid
                     ? "Paid & Scheduled"
                     : isLessonConfirmedByCurrentUser(openDetails)
-                      ? "Confirmed (awaiting payment)"
-                      : "Not Confirmed yet "}
+                    ? "Confirmed (awaiting payment)"
+                    : "Not Confirmed yet "}
                 </span>
               </p>
             </div>

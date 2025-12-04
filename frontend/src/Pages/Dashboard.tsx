@@ -194,7 +194,7 @@ const Dashboard: React.FC = () => {
           <>
             <div className="flex justify-between items-center mt-8">
               <h2 className="text-2xl font-bold tracking-wide">
-                Confirmed Classes ✓
+                Confirmed Classes
               </h2>
             </div>
             <LessonCarousel>
@@ -333,32 +333,34 @@ const Dashboard: React.FC = () => {
                                 Pay & Confirm
                               </button>
 
-                              <a href={`${window.location.origin}/tutor/${confirmedTutor.tutorId._id}`} target="_blank">
-                              <button
-
-                                className="flex-1 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-500 hover:to-purple-500
+                              <a
+                                href={`${window.location.origin}/tutor/${confirmedTutor.tutorId._id}`}
+                                target="_blank"
+                              >
+                                <button
+                                  className="flex-1 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-500 hover:to-purple-500
                                 transition-all px-4 py-2 rounded-lg font-semibold shadow-lg hover:shadow-violet-500/50
                                 active:scale-95 text-white"
-                              >
-                                Teacher Details
-                              </button>
+                                >
+                                  Teacher Details
+                                </button>
                               </a>
-
                             </div>
                           )}
 
                           {openDetails.isPaid && (
                             <div className="pt-1">
-                              <a href={`${window.location.origin}/tutor/${confirmedTutor.tutorId._id}`} target="_blank">
-
-                              <button
-                                
-                                className="w-full bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-500 hover:to-purple-500
+                              <a
+                                href={`${window.location.origin}/tutor/${confirmedTutor.tutorId._id}`}
+                                target="_blank"
+                              >
+                                <button
+                                  className="w-full bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-500 hover:to-purple-500
                                        transition-all px-4 py-2 rounded-lg font-semibold shadow-lg hover:shadow-violet-500/50
                                        active:scale-95 text-white"
-                              >
-                                Teacher Details
-                              </button>
+                                >
+                                  Teacher Details
+                                </button>
                               </a>
                             </div>
                           )}
@@ -372,13 +374,13 @@ const Dashboard: React.FC = () => {
             {/* No Tutors Confirmed Yet */}
             {(!openDetails.confirmedTutors ||
               openDetails.confirmedTutors.length === 0) && (
-                <div className="bg-slate-800/50 p-4 rounded-xl border border-white/5">
-                  <p className="text-gray-400 text-center">
-                    No tutors have confirmed yet. Please wait for a tutor to
-                    accept your lesson request.
-                  </p>
-                </div>
-              )}
+              <div className="bg-slate-800/50 p-4 rounded-xl border border-white/5">
+                <p className="text-gray-400 text-center">
+                  No tutors have confirmed yet. Please wait for a tutor to
+                  accept your lesson request.
+                </p>
+              </div>
+            )}
 
             <button
               onClick={() => setOpenDetails(null)}
@@ -390,9 +392,8 @@ const Dashboard: React.FC = () => {
             </button>
           </div>
         </div>
-      )
-      }
-    </div >
+      )}
+    </div>
   );
 };
 

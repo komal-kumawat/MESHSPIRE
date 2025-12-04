@@ -184,6 +184,27 @@ export class PaymentController {
         });
       }
 
+      // Ensure conversation exists between student and tutor after payment
+      if (payment.tutorId && payment.lessonId) {
+        try {
+          const { createConversation } = await import("./chat.controller");
+          const conversation = await createConversation(
+            payment.lessonId.toString(),
+            payment.tutorId.toString()
+          );
+          console.log("✅ Conversation ensured after payment:", {
+            conversationId: conversation?._id,
+            lessonId: payment.lessonId,
+          });
+        } catch (convError) {
+          console.error(
+            "⚠️ Error ensuring conversation after payment:",
+            convError
+          );
+          // Don't fail payment if conversation creation fails
+        }
+      }
+
       return res.status(StatusCodes.OK).json({
         message: "Payment success",
         payment,

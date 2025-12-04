@@ -335,11 +335,13 @@ export class LessonController {
           lessonId,
           tutor.userId.toString()
         );
-        console.log(`✅ Chat conversation created for lesson ${lessonId}`, {
-          conversationId: conversation._id,
-          studentId: lesson.studentId,
-          tutorUserId: tutor.userId,
-        });
+        if (conversation?._id) {
+          console.log(`✅ Chat conversation created for lesson ${lessonId}`, {
+            conversationId: conversation._id,
+            studentId: lesson.studentId,
+            tutorUserId: tutor.userId,
+          });
+        }
       } catch (convError) {
         console.error("Error creating conversation:", convError);
         // Don't fail the request if conversation creation fails

@@ -21,13 +21,13 @@ export interface Conversation {
     _id: string;
     name: string;
     email: string;
-    avatar?: string;
+    avatarUrl?: string;
   };
   tutorId: {
     _id: string;
     name: string;
     email: string;
-    avatar?: string;
+    avatarUrl?: string;
   };
   lastMessage?: string;
   lastMessageAt?: string;
@@ -43,12 +43,12 @@ export interface Message {
   senderId: {
     _id: string;
     name: string;
-    avatar?: string;
+    avatarUrl?: string;
   };
   receiverId: {
     _id: string;
     name: string;
-    avatar?: string;
+    avatarUrl?: string;
   };
   content: string;
   messageType: "text" | "file";

@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../Context/AuthContext";
+import { getUnreadCount } from "../api/chat";
+import { useSocket } from "../providers/SocketProvider";
 import logo from "../assets/favicon.svg";
 import ExpandedLogo from "../assets/logo_dark.svg";
 import HomeIcon from "@mui/icons-material/Home";
@@ -17,9 +19,12 @@ const Sidebar: React.FC<SidebarProps> = ({ onExpandChange }) => {
   const [active, setActive] = useState("home");
   const [indicatorTop, setIndicatorTop] = useState(0);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
   const buttonsRef = useRef<(HTMLButtonElement | null)[]>([]);
   const navigate = useNavigate();
+  const location = useLocation();
   const { role } = useAuth();
+  const { socket } = useSocket();
 
   const buttons = [
     {
@@ -28,7 +33,12 @@ const Sidebar: React.FC<SidebarProps> = ({ onExpandChange }) => {
       label: "Home",
       path: role === "tutor" ? "/tutor-dashboard" : "/dashboard",
     },
-    { id: "chat", icon: <ChatIcon />, label: "Chat", path: "/dashboard/#chat" },
+    {
+      id: "chat",
+      icon: <ChatIcon />,
+      label: "Chat",
+      path: role === "tutor" ? "/tutor-dashboard/chat" : "/dashboard/chat",
+    },
     {
       id: "calendar",
       icon: <CalendarTodayIcon />,
@@ -50,6 +60,18 @@ const Sidebar: React.FC<SidebarProps> = ({ onExpandChange }) => {
     },
   ];
 
+  // Set active button based on current route
+  useEffect(() => {
+    const currentPath = location.pathname;
+    const activeButton = buttons.find((btn) => btn.path === currentPath);
+    if (activeButton) {
+      setActive(activeButton.id);
+    } else {
+      // Default to home if no match
+      setActive("home");
+    }
+  }, [location.pathname, role]);
+
   useEffect(() => {
     const activeIndex = buttons.findIndex((btn) => btn.id === active);
     const btn = buttonsRef.current[activeIndex];
@@ -58,6 +80,29 @@ const Sidebar: React.FC<SidebarProps> = ({ onExpandChange }) => {
       setIndicatorTop(iconCenter - 16);
     }
   }, [active]);
+
+  useEffect(() => {
+    // Fetch unread count initially
+    fetchUnreadCount();
+
+    // Listen for new messages to update the badge
+    socket.on("new-message", () => {
+      fetchUnreadCount();
+    });
+
+    return () => {
+      socket.off("new-message");
+    };
+  }, [socket]);
+
+  const fetchUnreadCount = async () => {
+    try {
+      const count = await getUnreadCount();
+      setUnreadCount(count);
+    } catch (error) {
+      console.error("Error fetching unread count:", error);
+    }
+  };
 
   const handleClick = (id: string, path: string) => {
     setActive(id);
@@ -130,8 +175,13 @@ const Sidebar: React.FC<SidebarProps> = ({ onExpandChange }) => {
                 }
               `}
             >
-              <span className="text-[1.6rem] flex justify-center items-center">
+              <span className="text-[1.6rem] flex justify-center items-center relative">
                 {btn.icon}
+                {btn.id === "chat" && unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                    {unreadCount > 9 ? "9+" : unreadCount}
+                  </span>
+                )}
               </span>
               <span
                 className={`ml-4 text-sm font-medium whitespace-nowrap transition-opacity duration-300 ${
@@ -144,20 +194,26 @@ const Sidebar: React.FC<SidebarProps> = ({ onExpandChange }) => {
           ))}
         </div>
       </div>
-
       {/* Mobile Bottom Navigation */}
       <div className="fixed bottom-0 left-0 right-0 bg-slate-900/80 backdrop-blur-md border-t border-white/10 flex justify-around items-center py-2 z-50 md:hidden">
         {buttons.map((btn) => (
           <button
             key={btn.id}
             onClick={() => handleClick(btn.id, btn.path)}
-            className={`flex flex-col items-center justify-center text-xs ${
+            className={`flex flex-col items-center justify-center text-xs relative ${
               active === btn.id
                 ? "text-green-400"
                 : "text-gray-400 hover:text-white"
             }`}
           >
-            <span className="text-[1.6rem]">{btn.icon}</span>
+            <span className="text-[1.6rem] relative">
+              {btn.icon}
+              {btn.id === "chat" && unreadCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                  {unreadCount > 9 ? "9+" : unreadCount}
+                </span>
+              )}
+            </span>
             <span>{btn.label}</span>
           </button>
         ))}

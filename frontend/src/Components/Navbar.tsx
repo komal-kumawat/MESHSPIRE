@@ -2,9 +2,9 @@ import React, { useState, useRef, useEffect } from "react";
 import { useAuth } from "../Context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
-import NotificationsIcon from "@mui/icons-material/Notifications";
 import SearchIcon from "@mui/icons-material/Search";
 import API from "../api";
+import NotificationDropdown from "./NotificationDropdown";
 
 interface NavbarProps {
   isSidebarExpanded: boolean;
@@ -17,7 +17,6 @@ const Navbar: React.FC<NavbarProps> = ({ isSidebarExpanded }) => {
   const dropdownRef = useRef<HTMLDivElement | null>(null);
   const [avatar, setAvatar] = useState("");
   const [name, setName] = useState("");
-
 
   const handleLogout = () => {
     logout();
@@ -70,8 +69,9 @@ const Navbar: React.FC<NavbarProps> = ({ isSidebarExpanded }) => {
 
       <div className="flex items-center gap-3 sm:gap-4 lg:gap-5 relative">
         <div
-          className={`relative flex items-center transition-all duration-300 ${isSidebarExpanded ? "hidden xl:flex" : "hidden lg:flex"
-            }`}
+          className={`relative flex items-center transition-all duration-300 ${
+            isSidebarExpanded ? "hidden xl:flex" : "hidden lg:flex"
+          }`}
         >
           <input
             type="text"
@@ -82,8 +82,7 @@ const Navbar: React.FC<NavbarProps> = ({ isSidebarExpanded }) => {
           <SearchIcon className="absolute right-3 text-gray-400 cursor-pointer text-lg sm:text-xl" />
         </div>
 
-        <NotificationsIcon className="text-gray-300 cursor-pointer hover:text-white transition text-lg sm:text-xl lg:text-2xl" />
-
+        <NotificationDropdown isSidebarExpanded={isSidebarExpanded} />
 
         <div className="relative" ref={dropdownRef}>
           {avatar ? (
@@ -104,10 +103,11 @@ const Navbar: React.FC<NavbarProps> = ({ isSidebarExpanded }) => {
             <div
               className={`absolute -right-2 sm:-right-4 top-8 sm:top-10 mt-2 sm:mt-3 w-36 sm:w-40 bg-slate-900/90 backdrop-blur-md text-white rounded-xl shadow-xl border border-[rgba(255,255,255,0.15)] 
               transform transition-all duration-300 ease-out z-50
-              ${userDropDown
+              ${
+                userDropDown
                   ? "opacity-100 translate-y-0"
                   : "opacity-0 -translate-y-3 pointer-events-none"
-                }`}
+              }`}
             >
               <div className="px-3 sm:px-4 py-2 border-b border-gray-700 text-xs sm:text-sm truncate">
                 {name
@@ -130,7 +130,7 @@ const Navbar: React.FC<NavbarProps> = ({ isSidebarExpanded }) => {
                     Update Profile
                   </div>
                 </>
-              ):(
+              ) : (
                 <>
                   <div
                     className="px-3 sm:px-4 py-2 cursor-pointer hover:bg-[rgba(255,255,255,0.1)] transition text-xs sm:text-sm"
@@ -146,7 +146,7 @@ const Navbar: React.FC<NavbarProps> = ({ isSidebarExpanded }) => {
                     Update Profile
                   </div>
                 </>
-              ) }
+              )}
 
               <button
                 onClick={handleLogout}

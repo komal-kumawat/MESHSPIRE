@@ -3,6 +3,8 @@ import { StatusCodes } from "http-status-codes";
 import { z } from "zod";
 import Lesson from "../models/LessonModel";
 import { AuthRequest } from "../middleware/auth.middleware";
+import { NotificationController } from "./notification.controller";
+import { createConversation } from "./chat.controller";
 import Profile from "../models/profile.model";
 
 // Validation schema
@@ -35,6 +37,40 @@ export class LessonController {
       };
 
       const lesson = await Lesson.create(lessonData);
+
+      // Notify relevant tutors about new lesson
+      try {
+        const normalizedSubject = parsed.data.subject.toLowerCase().trim();
+
+        // Find tutors who teach this subject
+        const relevantProfiles = await Profile.find({
+          role: "tutor",
+          subjects: {
+            $elemMatch: {
+              $regex: new RegExp(`^${normalizedSubject}$`, "i"),
+            },
+          },
+        });
+
+        // Create notifications for each relevant tutor
+        const notificationPromises = relevantProfiles.map((profile) =>
+          NotificationController.createNotification({
+            userId: profile.userId.toString(),
+            type: "new_lesson",
+            title: "New Lesson Available",
+            message: `A new ${parsed.data.subject} lesson is available: ${parsed.data.topic}`,
+            lessonId: lesson._id.toString(),
+          })
+        );
+
+        await Promise.all(notificationPromises);
+        console.log(
+          `✅ Notified ${relevantProfiles.length} tutors about new lesson`
+        );
+      } catch (notifError) {
+        console.error("Error notifying tutors:", notifError);
+        // Don't fail the request if notification fails
+      }
 
       res.status(StatusCodes.CREATED).json({
         message: "Lesson created successfully",
@@ -251,6 +287,30 @@ export class LessonController {
         },
         { new: true }
       ).populate("confirmedTutors.tutorId", "name email userId");
+
+      // Create notification for student
+      if (lesson.studentId) {
+        await NotificationController.createNotification({
+          userId: lesson.studentId.toString(),
+          type: "lesson_confirmed",
+          title: "Lesson Confirmed",
+          message: `Your lesson "${lesson.topic}" has been confirmed by a tutor. You can now chat with them!`,
+          lessonId: lessonId,
+        });
+      }
+
+      // Create conversation between student and tutor
+      try {
+        const conversation = await createConversation(lessonId, tutorId);
+        console.log(`✅ Chat conversation created for lesson ${lessonId}`, {
+          conversationId: conversation._id,
+          studentId: lesson.studentId,
+          tutorId: tutorId,
+        });
+      } catch (convError) {
+        console.error("Error creating conversation:", convError);
+        // Don't fail the request if conversation creation fails
+      }
 
       res.status(StatusCodes.OK).json({
         message: "Lesson confirmed successfully",

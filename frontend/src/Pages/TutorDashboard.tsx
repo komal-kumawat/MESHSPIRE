@@ -1,15 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Card, Carousel } from "../Components/ui/Card-Coursel";
 import LessonModel from "../Components/LessonModel";
+import LessonCarousel from "../Components/LessonCarousel";
 import { getRelevantLessons, confirmLesson, cancelLesson } from "../api";
 import { useAuth } from "../Context/AuthContext";
-import image1 from "../assets/calculus.png";
-import image2 from "../assets/algebra.png";
-import image3 from "../assets/digital_logic.png";
-import image4 from "../assets/probablity.png";
-import image5 from "../assets/quantum-computing.png";
-import image6 from "../assets/python.png";
 
 const TutorDashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -57,7 +51,7 @@ const TutorDashboard: React.FC = () => {
       console.error("❌ Error confirming lesson:", error);
       alert(
         error.response?.data?.message ||
-        "Failed to confirm lesson. Please try again."
+          "Failed to confirm lesson. Please try again."
       );
     } finally {
       setProcessingLessonId(null);
@@ -76,7 +70,7 @@ const TutorDashboard: React.FC = () => {
       console.error("❌ Error cancelling lesson:", error);
       alert(
         error.response?.data?.message ||
-        "Failed to cancel lesson. Please try again."
+          "Failed to cancel lesson. Please try again."
       );
     } finally {
       setProcessingLessonId(null);
@@ -106,70 +100,6 @@ const TutorDashboard: React.FC = () => {
   const unpaidLessons = relevantLessons.filter((lesson) => !lesson.isPaid);
   const paidLessons = relevantLessons.filter((lesson) => lesson.isPaid);
 
-  // Featured class topics (sample static data)
-  const featured = [
-    {
-      title: "Intro to Calculus",
-      icon: image1,
-      category: "Foundations",
-      description: "Limits, derivatives & intuition for rate of change.",
-      rating: 4.7,
-    },
-    {
-      title: "Algebra Essentials",
-      icon: image2,
-      category: "Core Skills",
-      description: "Equations, factoring & problem‑solving patterns.",
-      rating: 4.5,
-    },
-    {
-      title: "Digital Logic Basics",
-      icon: image3,
-      category: "CS Concepts",
-      description: "Binary systems, gates & simple circuit reasoning.",
-      rating: 4.3,
-    },
-    {
-      title: "Probability Concepts",
-      icon: image4,
-      category: "Statistics",
-      description: "Random variables, events & everyday applications.",
-      rating: 4.9,
-    },
-    {
-      title: "Quantum Computing Intro",
-      icon: image5,
-      category: "Advanced",
-      description: "Qubits, superposition & why it matters.",
-      rating: 4.6,
-    },
-    {
-      title: "Python for Problem Solving",
-      icon: image6,
-      category: "Programming",
-      description: "Clean coding patterns & algorithmic thinking.",
-      rating: 4.8,
-    },
-  ];
-
-  const cards = featured.map((c, i) => (
-    <Card
-      key={i}
-      index={i}
-      card={{
-        src: c.icon,
-        title: c.title,
-        category: c.category,
-        rating: c.rating,
-        content: (
-          <p className="text-gray-700 text-sm sm:text-base leading-relaxed">
-            {c.description}
-          </p>
-        ),
-      }}
-    />
-  ));
-
   return (
     <div className="bg-black text-white flex flex-col w-full overflow-x-hidden min-h-screen">
       <main className="px-4 sm:px-6 py-6 sm:py-8">
@@ -183,7 +113,7 @@ const TutorDashboard: React.FC = () => {
               <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-violet-500"></div>
             </div>
           ) : unpaidLessons.length > 0 ? (
-            <div className="flex gap-4 flex-wrap pb-3">
+            <LessonCarousel>
               {unpaidLessons.map((lesson, index) => (
                 <LessonModel
                   key={lesson._id || index}
@@ -202,7 +132,7 @@ const TutorDashboard: React.FC = () => {
                   lessonTime={lesson.time}
                 />
               ))}
-            </div>
+            </LessonCarousel>
           ) : (
             <div className="bg-slate-900/40 backdrop-blur-xl border border-white/10 rounded-2xl p-8 text-center">
               <p className="text-gray-400 text-lg">
@@ -219,7 +149,7 @@ const TutorDashboard: React.FC = () => {
             <h1 className="text-2xl sm:text-3xl font-semibold mb-6 text-center sm:text-left">
               Confirmed Classes ✓
             </h1>
-            <div className="flex gap-4 flex-wrap pb-3">
+            <LessonCarousel>
               {paidLessons.map((lesson, index) => (
                 <LessonModel
                   key={lesson._id || index}
@@ -235,16 +165,9 @@ const TutorDashboard: React.FC = () => {
                   onStartMeeting={() => handleStartMeeting(lesson)}
                 />
               ))}
-            </div>
+            </LessonCarousel>
           </div>
         )}
-
-        <h1 className="text-2xl sm:text-3xl font-semibold mb-6 text-center sm:text-left">
-          Featured Classes
-        </h1>
-        <div className="max-w-[100vw] overflow-x-hidden scrollbar-hide">
-          <Carousel items={cards} />
-        </div>
 
         <div className="mt-10 flex justify-center sm:justify-start">
           <a
@@ -299,9 +222,11 @@ const TutorDashboard: React.FC = () => {
               </p>
               <p className="text-gray-300">
                 <span className="font-semibold text-violet-300">Status:</span>{" "}
-                <span className={`font-semibold ${openDetails.isPaid
-                    ? "text-green-400"
-                    : isLessonConfirmedByCurrentUser(openDetails)
+                <span
+                  className={`font-semibold ${
+                    openDetails.isPaid
+                      ? "text-green-400"
+                      : isLessonConfirmedByCurrentUser(openDetails)
                       ? "text-green-500"
                       : "text-red-400"
                   }`}
@@ -313,7 +238,6 @@ const TutorDashboard: React.FC = () => {
                       : "Not Confirmed yet "}
                 </span>
               </p>
-
             </div>
 
             <button

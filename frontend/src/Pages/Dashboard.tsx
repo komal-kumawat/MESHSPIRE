@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Carousel, Card } from "../Components/ui/Card-Coursel";
 import FeaturedCard from "../Components/featuredCards";
 import LessonModel from "../Components/LessonModel";
+import LessonCarousel from "../Components/LessonCarousel";
 import { createLesson, getMyLessons } from "../api";
 import image1 from "../assets/calculus.png";
 import image2 from "../assets/algebra.png";
@@ -166,7 +167,7 @@ const Dashboard: React.FC = () => {
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-violet-500"></div>
           </div>
         ) : unpaidLessons.length > 0 ? (
-          <div className="flex gap-5 flex-wrap pb-3">
+          <LessonCarousel>
             {unpaidLessons.map((lesson, index) => (
               <LessonModel
                 key={lesson._id || index}
@@ -179,7 +180,7 @@ const Dashboard: React.FC = () => {
                 lessonTime={lesson.time}
               />
             ))}
-          </div>
+          </LessonCarousel>
         ) : (
           <div className="bg-slate-900/40 backdrop-blur-xl border border-white/10 rounded-2xl p-8 text-center">
             <p className="text-gray-400 text-lg">
@@ -196,7 +197,7 @@ const Dashboard: React.FC = () => {
                 Confirmed Classes ✓
               </h2>
             </div>
-            <div className="flex gap-4 flex-wrap pb-3">
+            <LessonCarousel>
               {paidLessons.map((lesson, index) => (
                 <LessonModel
                   key={lesson._id || index}
@@ -210,7 +211,7 @@ const Dashboard: React.FC = () => {
                   onStartMeeting={() => handleStartMeeting(lesson)}
                 />
               ))}
-            </div>
+            </LessonCarousel>
           </>
         )}
 

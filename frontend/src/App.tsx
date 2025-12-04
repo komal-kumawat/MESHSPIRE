@@ -1,4 +1,5 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
+import { useEffect } from "react";
 import AuthPage from "./Pages/Auth";
 import Dashboard from "./Pages/Dashboard";
 import Room from "./Pages/RoomPage";
@@ -16,10 +17,27 @@ import PaymentSuccess from "./Pages/PaymentSuccess";
 import PaymentFailed from "./Pages/PaymentFailed";
 import StudentCalendar from "./Pages/StudentCalendar";
 import TutorCalendar from "./Pages/TutorCalendar";
+import Chat from "./Pages/Chat";
+
+// Route logger component
+function RouteLogger() {
+  const location = useLocation();
+
+  useEffect(() => {
+    console.log("Route changed:", {
+      pathname: location.pathname,
+      search: location.search,
+      fullPath: location.pathname + location.search,
+    });
+  }, [location]);
+
+  return null;
+}
 
 const App = () => {
   return (
     <BrowserRouter>
+      <RouteLogger />
       <Routes>
         {/* Public Route */}
         <Route path="/" element={<AuthPage />} />
@@ -63,6 +81,22 @@ const App = () => {
             element={
               <ProtectedRoute allowedRoles={["tutor"]}>
                 <TutorCalendar />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard/chat"
+            element={
+              <ProtectedRoute allowedRoles={["student", "tutor"]}>
+                <Chat />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/tutor-dashboard/chat"
+            element={
+              <ProtectedRoute allowedRoles={["student", "tutor"]}>
+                <Chat />
               </ProtectedRoute>
             }
           />

@@ -4,6 +4,7 @@ import { z } from "zod";
 import Lesson from "../models/LessonModel";
 import { AuthRequest } from "../middleware/auth.middleware";
 import { NotificationController } from "./notification.controller";
+import { createConversation } from "./chat.controller";
 import Profile from "../models/profile.model";
 
 // Validation schema
@@ -287,9 +288,22 @@ export class LessonController {
           userId: lesson.studentId.toString(),
           type: "lesson_confirmed",
           title: "Lesson Confirmed",
-          message: `Your lesson "${lesson.topic}" has been confirmed by a tutor`,
+          message: `Your lesson "${lesson.topic}" has been confirmed by a tutor. You can now chat with them!`,
           lessonId: lessonId,
         });
+      }
+
+      // Create conversation between student and tutor
+      try {
+        const conversation = await createConversation(lessonId, tutorId);
+        console.log(`✅ Chat conversation created for lesson ${lessonId}`, {
+          conversationId: conversation._id,
+          studentId: lesson.studentId,
+          tutorId: tutorId,
+        });
+      } catch (convError) {
+        console.error("Error creating conversation:", convError);
+        // Don't fail the request if conversation creation fails
       }
 
       res.status(StatusCodes.OK).json({

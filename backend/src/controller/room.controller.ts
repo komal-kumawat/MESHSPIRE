@@ -2,10 +2,30 @@ import { Server, Socket } from "socket.io";
 
 const roomToSockets: Map<string, string[]> = new Map();
 const socketToRoom: Map<string, string> = new Map();
+const userToSocket: Map<string, string> = new Map(); // Map userId to socketId
 
 export function RoomController(io: Server, socket: Socket) {
   console.log("Socket connected:", socket.id);
 
+  // Chat events
+  socket.on("join-user-room", (userId: string) => {
+    userToSocket.set(userId, socket.id);
+    socket.join(`user:${userId}`);
+    console.log(`User ${userId} joined their room`);
+  });
+
+  socket.on("leave-user-room", (userId: string) => {
+    userToSocket.delete(userId);
+    socket.leave(`user:${userId}`);
+    console.log(`User ${userId} left their room`);
+  });
+
+  socket.on("send-message", (data: { receiverId: string; message: any }) => {
+    io.to(`user:${data.receiverId}`).emit("new-message", data.message);
+    console.log(`Message sent to user ${data.receiverId}`);
+  });
+
+  // Video room events
   socket.on("join-room", ({ roomId }: { roomId: string }) => {
     if (!roomId) return;
 
@@ -20,6 +40,29 @@ export function RoomController(io: Server, socket: Socket) {
 
     socket.to(roomId).emit("new-participant", { socketId: socket.id });
   });
+
+  // Room chat events
+  socket.on(
+    "send-room-message",
+    ({
+      roomId,
+      message,
+      sender,
+    }: {
+      roomId: string;
+      message: string;
+      sender: string;
+    }) => {
+      const timestamp = new Date().toISOString();
+      io.to(roomId).emit("room-message", {
+        message,
+        sender,
+        timestamp,
+        socketId: socket.id,
+      });
+      console.log(`Message sent to room ${roomId} from ${sender}`);
+    }
+  );
 
   socket.on(
     "offer",
@@ -67,6 +110,15 @@ export function RoomController(io: Server, socket: Socket) {
   });
 
   socket.on("disconnect", () => {
+    // Clean up user mapping
+    for (const [userId, socketId] of userToSocket.entries()) {
+      if (socketId === socket.id) {
+        userToSocket.delete(userId);
+        break;
+      }
+    }
+
+    // Clean up room
     const roomId = socketToRoom.get(socket.id);
     if (!roomId) return;
     leaveRoom(socket.id, roomId);

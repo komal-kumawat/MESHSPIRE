@@ -25,12 +25,37 @@ export class PaymentController {
       // 🔹 Hardcode amount to 0 for testing
       const amount = 0;
 
-      // Ensure CLIENT_URL has proper scheme
+      // Ensure CLIENT_URL has proper scheme - PRODUCTION FIX
+      // Priority: CLIENT_URL -> FRONTEND_URL -> hardcoded production URL
       const clientUrl =
-        process.env.CLIENT_URL || "https://meshspire-core.vercel.app";
-      const baseUrl = clientUrl.startsWith("http")
-        ? clientUrl
-        : `https://${clientUrl}`;
+        process.env.CLIENT_URL ||
+        process.env.FRONTEND_URL ||
+        "https://meshspire-core.vercel.app";
+
+      // Clean and validate URL
+      let baseUrl = clientUrl.trim();
+      // Replace wrong URL if it exists
+      if (
+        baseUrl.includes("meshspire.vercel.app") &&
+        !baseUrl.includes("meshspire-core")
+      ) {
+        baseUrl = "https://meshspire-core.vercel.app";
+        console.warn(
+          "⚠️ Correcting CLIENT_URL from meshspire.vercel.app to meshspire-core.vercel.app"
+        );
+      }
+      // Add https if missing
+      if (!baseUrl.startsWith("http")) {
+        baseUrl = `https://${baseUrl}`;
+      }
+      // Remove trailing slash
+      baseUrl = baseUrl.replace(/\/$/, "");
+
+      console.log("💳 Creating Stripe session with URLs:", {
+        baseUrl,
+        successUrl: `${baseUrl}/payment-success`,
+        cancelUrl: `${baseUrl}/payment-failed`,
+      });
 
       const session = await stripe.checkout.sessions.create({
         payment_method_types: ["card"],

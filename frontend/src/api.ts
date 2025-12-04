@@ -1,7 +1,9 @@
 import axios from "axios";
 
 // Use environment variable or fallback to production for deployment
-const baseURL = "https://meshspire-core-prod.onrender.com/api/v0";
+const baseURL =
+  import.meta.env.VITE_API_BASE_URL ||
+  "https://meshspire-core-prod.onrender.com/api/v0";
 
 const API = axios.create({
   baseURL,
@@ -71,14 +73,13 @@ export const cancelLesson = async (lessonId: string) => {
   const response = await API.post(`/lesson/cancel/${lessonId}`);
   return response.data;
 };
-export const UpdateLesson = async(lessonId:string)=>{
+export const UpdateLesson = async (lessonId: string) => {
   const response = await API.put(`/lesson/update/${lessonId}`);
   return response.data;
-}
-export const getLessonById = async(lessonId:string)=>{
+};
+export const getLessonById = async (lessonId: string) => {
   const response = await API.get(`/lesson/${lessonId}`);
   return response.data;
-  
-}
+};
 
 export default API;

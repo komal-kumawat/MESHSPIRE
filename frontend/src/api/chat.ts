@@ -1,6 +1,8 @@
 import axios from "axios";
 
-const BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:8000";
+const BASE_URL =
+  import.meta.env.VITE_BACKEND_URL ||
+  "https://meshspire-core-prod.onrender.com";
 
 const api = axios.create({
   baseURL: `${BASE_URL}/api/v0/chat`,

@@ -154,7 +154,8 @@ export class LessonController {
       console.log(" All scheduled lessons found:", allLessons.length);
       allLessons.forEach((l, i) => {
         console.log(
-          `  ${i + 1}. ${l.topic} - subject: "${l.subject
+          `  ${i + 1}. ${l.topic} - subject: "${
+            l.subject
           }" (${typeof l.subject})`
         );
       });
@@ -169,7 +170,8 @@ export class LessonController {
           );
         } else {
           console.log(
-            `❌ No match: "${lesson.subject
+            `❌ No match: "${
+              lesson.subject
             }" not in tutor subjects [${normalizedSubjects.join(", ")}]`
           );
         }
@@ -240,12 +242,16 @@ export class LessonController {
   static async confirmLesson(req: AuthRequest, res: Response) {
     try {
       const lessonId = req.params.id;
-      const tutor = await Profile.findOne({ userId: req.user?.id, role: "tutor" });
+      const tutor = await Profile.findOne({
+        userId: req.user?.id,
+        role: "tutor",
+      });
       if (!tutor) {
-        return res.status(StatusCodes.NOT_FOUND).json({ message: "Tutor not found" });
+        return res
+          .status(StatusCodes.NOT_FOUND)
+          .json({ message: "Tutor not found" });
       }
       const tutorId = tutor._id;
-
 
       if (!tutorId) {
         return res
@@ -280,10 +286,9 @@ export class LessonController {
               tutorId: tutor._id,
               userId: tutor.userId,
               name: tutor.name,
-              confirmedAt: new Date()
-            }
+              confirmedAt: new Date(),
+            },
           },
-
         },
         { new: true }
       ).populate("confirmedTutors.tutorId", "name email userId");
@@ -301,7 +306,10 @@ export class LessonController {
 
       // Create conversation between student and tutor
       try {
-        const conversation = await createConversation(lessonId, tutorId);
+        const conversation = await createConversation(
+          lessonId,
+          tutorId.toString()
+        );
         console.log(`✅ Chat conversation created for lesson ${lessonId}`, {
           conversationId: conversation._id,
           studentId: lesson.studentId,

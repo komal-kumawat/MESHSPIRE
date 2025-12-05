@@ -280,6 +280,7 @@ const Dashboard: React.FC = () => {
                   lessonTime={lesson.time}
                   onStartMeeting={() => handleStartMeeting(lesson)}
                   onDelete={() => handleDeleteLesson(lesson._id, lesson.topic)}
+                  onEditLesson={()=>OnEditLesson(lesson._id)}
                 />
               ))}
             </LessonCarousel>

@@ -504,3 +504,97 @@ export const getUnreadCount = async (req: Request, res: Response) => {
     res.status(500).json({ message: "Error fetching unread count" });
   }
 };
+
+// Ensure a conversation exists for a paid lesson between student and a confirmed tutor
+export const ensureConversation = async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?._id;
+    const { lessonId, tutorId } = req.body as {
+      lessonId: string;
+      tutorId: string;
+    };
+
+    console.log("🔧 ensureConversation called:", {
+      userId,
+      lessonId,
+      tutorId,
+      userIdType: typeof userId,
+      lessonIdType: typeof lessonId,
+      tutorIdType: typeof tutorId,
+    });
+
+    if (!userId) {
+      console.error("❌ No userId in request");
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+    if (!lessonId || !tutorId) {
+      console.error("❌ Missing lessonId or tutorId");
+      return res
+        .status(400)
+        .json({ message: "lessonId and tutorId are required" });
+    }
+
+    // Validate lesson is paid and the requester is the student of the lesson
+    const lesson = await Lesson.findById(lessonId).lean();
+    console.log("📚 Lesson found:", {
+      lessonId,
+      exists: !!lesson,
+      isPaid: lesson?.isPaid,
+      studentId: lesson?.studentId,
+      confirmedTutorsCount: lesson?.confirmedTutors?.length,
+    });
+
+    if (!lesson) {
+      console.error("❌ Lesson not found");
+      return res.status(404).json({ message: "Lesson not found" });
+    }
+    if (!lesson.isPaid) {
+      console.error("❌ Lesson is not paid");
+      return res.status(403).json({ message: "Lesson is not paid" });
+    }
+
+    console.log("🔍 Checking student match:", {
+      lessonStudentId: lesson.studentId?.toString(),
+      requestUserId: userId.toString(),
+      match: lesson.studentId?.toString() === userId.toString(),
+    });
+
+    if (lesson.studentId?.toString() !== userId.toString()) {
+      console.error("❌ User is not the student of this lesson");
+      return res
+        .status(403)
+        .json({ message: "Only the student can start this conversation" });
+    }
+
+    // Validate tutor is confirmed for this lesson
+    console.log("🔍 Checking confirmed tutors:", lesson.confirmedTutors);
+    const isTutorConfirmed = (lesson.confirmedTutors || []).some((ct: any) => {
+      const ctTutorId = ct.tutorId?.toString();
+      const match = ctTutorId === tutorId.toString();
+      console.log("   Checking tutor:", { ctTutorId, tutorId, match });
+      return match;
+    });
+
+    console.log("✅ Tutor confirmed:", isTutorConfirmed);
+
+    if (!isTutorConfirmed) {
+      console.error("❌ Tutor is not confirmed for this lesson");
+      return res
+        .status(403)
+        .json({ message: "Tutor is not confirmed for this lesson" });
+    }
+
+    // Create or return existing conversation
+    console.log("🔧 Creating/finding conversation...");
+    const conversation = await createConversation(lessonId, tutorId);
+    if (!conversation) {
+      console.error("❌ Failed to create conversation");
+      return res.status(500).json({ message: "Failed to create conversation" });
+    }
+    console.log("✅ Conversation ready:", conversation._id);
+    return res.status(200).json(conversation);
+  } catch (error) {
+    console.error("❌ Error ensuring conversation:", error);
+    return res.status(500).json({ message: "Error ensuring conversation" });
+  }
+};

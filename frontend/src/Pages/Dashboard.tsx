@@ -12,9 +12,12 @@ import image4 from "../assets/probablity.png";
 import image5 from "../assets/quantum-computing.png";
 import image6 from "../assets/python.png";
 import { payForLesson } from "../api/payment";
+import { ensureConversation } from "../api/chat";
+import { useAuth } from "../Context/AuthContext";
 
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
+  const { role } = useAuth();
   const [openCard, setOpenCard] = useState(false);
   const [lessons, setLessons] = useState<any[]>([]);
   const [openDetails, setOpenDetails] = useState<any>(null);
@@ -93,6 +96,54 @@ const Dashboard: React.FC = () => {
     });
   };
 
+  const handleStartChat = async (lesson: any, confirmedTutor: any) => {
+    try {
+      console.log("🚀 Starting chat with:", { lesson, confirmedTutor });
+
+      const tutorId =
+        typeof confirmedTutor.tutorId === "object"
+          ? confirmedTutor.tutorId._id
+          : confirmedTutor.tutorId;
+
+      console.log("📝 Extracted tutorId:", tutorId);
+
+      if (!tutorId) {
+        alert("Tutor information is not available. Please try again.");
+        return;
+      }
+
+      console.log(
+        "📞 Creating conversation for lesson:",
+        lesson._id,
+        "with tutor:",
+        tutorId
+      );
+
+      const conversation = await ensureConversation({
+        lessonId: lesson._id,
+        tutorId,
+      });
+
+      console.log("✅ Conversation created/found:", conversation);
+
+      navigate(role === "tutor" ? "/tutor-dashboard/chat" : "/dashboard/chat", {
+        state: { conversationId: conversation._id },
+      });
+    } catch (e: any) {
+      console.error("❌ Error starting chat:", e);
+      console.error("❌ Error response:", e.response);
+      console.error("❌ Error details:", e.response?.data || e.message);
+
+      const errorMessage =
+        e.response?.data?.message || e.message || "Unknown error";
+      console.error("❌ Specific error message:", errorMessage);
+
+      alert(
+        `Unable to start chat: ${errorMessage}\n\nPlease try again or contact support.`
+      );
+    }
+  };
+
   const handleDeleteLesson = (lessonId: string, lessonTitle: string) => {
     setDeleteConfirmation({
       show: true,
@@ -120,6 +171,13 @@ const Dashboard: React.FC = () => {
 
   const cancelDelete = () => {
     setDeleteConfirmation({ show: false, lessonId: null, lessonTitle: "" });
+  };
+
+  const handleEditLesson = (lesson: any) => {
+    console.log("✏️ Edit lesson clicked:", lesson);
+    // For now, just show the details modal
+    // In the future, you could navigate to an edit page or show an edit modal
+    setOpenDetails(lesson);
   };
 
   const meetings = [
@@ -268,6 +326,23 @@ const Dashboard: React.FC = () => {
                   date={lesson.date}
                   lessonTime={lesson.time}
                   onStartMeeting={() => handleStartMeeting(lesson)}
+                  onEditLesson={() => handleEditLesson(lesson)}
+                  onStartChat={() => {
+                    console.log("💬 Chat button clicked for lesson:", lesson);
+                    console.log("📋 Confirmed tutors:", lesson.confirmedTutors);
+
+                    const firstConfirmed = (lesson.confirmedTutors || []).find(
+                      (ct: any) => !!ct.tutorId
+                    );
+
+                    console.log("👤 First confirmed tutor:", firstConfirmed);
+
+                    if (!firstConfirmed) {
+                      alert("No confirmed tutor found for this lesson.");
+                      return;
+                    }
+                    handleStartChat(lesson, firstConfirmed);
+                  }}
                   onDelete={() => handleDeleteLesson(lesson._id, lesson.topic)}
                 />
               ))}
@@ -481,14 +556,25 @@ const Dashboard: React.FC = () => {
                                   "🔘 Showing only Teacher Details button (paid)"
                                 );
                                 return (
-                                  <div className="pt-1">
+                                  <div className="pt-1 flex gap-3">
+                                    <button
+                                      className="px-3 py-2 text-xs bg-gradient-to-r from-violet-600 to-purple-600 rounded-lg hover:from-violet-500 hover:to-purple-500"
+                                      onClick={() =>
+                                        handleStartChat(
+                                          openDetails,
+                                          confirmedTutor
+                                        )
+                                      }
+                                    >
+                                      Chat
+                                    </button>
                                     <a
                                       href={`${window.location.origin}/tutor/${tutorId}`}
                                       target="_blank"
                                       rel="noopener noreferrer"
                                     >
                                       <button
-                                        className="w-full bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-500 hover:to-purple-500
+                                        className="flex-1 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-500 hover:to-purple-500
                                            transition-all px-4 py-2 rounded-lg font-semibold shadow-lg hover:shadow-violet-500/50
                                            active:scale-95 text-white"
                                       >

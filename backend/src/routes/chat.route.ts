@@ -7,6 +7,7 @@ import {
   upload,
   getUnreadCount,
   getAllConversationsDebug,
+  ensureConversation,
 } from "../controller/chat.controller";
 import { authMiddleware } from "../middleware/auth.middleware";
 
@@ -22,5 +23,6 @@ router.get(
 router.post("/messages", authMiddleware, sendMessage);
 router.post("/upload", authMiddleware, upload.single("file"), uploadFile);
 router.get("/unread-count", authMiddleware, getUnreadCount);
+router.post("/ensure-conversation", authMiddleware, ensureConversation);
 
 export default router;

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { useLocation } from "react-router-dom";
 import { useAuth } from "../Context/AuthContext";
 import { useSocket } from "../providers/SocketProvider";
 import {
@@ -6,9 +7,11 @@ import {
   getMessages,
   sendMessage as sendMessageApi,
   uploadFile,
+  ensureConversation,
   type Conversation,
   type Message,
 } from "../api/chat";
+import { getMyLessons } from "../api";
 import SendIcon from "@mui/icons-material/Send";
 import AttachFileIcon from "@mui/icons-material/AttachFile";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
@@ -26,8 +29,18 @@ const Chat: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [paidLessonsTutors, setPaidLessonsTutors] = useState<
+    Array<{
+      lessonId: string;
+      topic: string;
+      tutorId: string;
+      tutorName: string;
+    }>
+  >([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const location = useLocation() as { state?: { conversationId?: string } };
+  const pendingConversationId = location.state?.conversationId;
 
   useEffect(() => {
     fetchConversations();
@@ -131,6 +144,39 @@ const Chat: React.FC = () => {
         });
       }
       setConversations(filtered);
+
+      // Auto-select deep-linked conversation if present
+      if (pendingConversationId) {
+        const match = filtered.find((c) => c._id === pendingConversationId);
+        if (match) setSelectedConversation(match);
+      }
+
+      // If no paid conversations, prepare a fallback list from paid lessons
+      if (filtered.length === 0 && role === "student") {
+        try {
+          const lessons = await getMyLessons();
+          const paid = (lessons || []).filter((l: any) => l.isPaid);
+          const tutors = paid.flatMap((l: any) =>
+            (l.confirmedTutors || [])
+              .filter((ct: any) => !!ct.tutorId)
+              .map((ct: any) => ({
+                lessonId: l._id,
+                topic: l.topic,
+                tutorId:
+                  typeof ct.tutorId === "object" ? ct.tutorId._id : ct.tutorId,
+                tutorName:
+                  typeof ct.tutorId === "object"
+                    ? ct.tutorId.name || "Tutor"
+                    : "Tutor",
+              }))
+          );
+          setPaidLessonsTutors(tutors);
+        } catch (e) {
+          console.warn("⚠️ Could not fetch paid lessons for fallback:", e);
+        }
+      } else {
+        setPaidLessonsTutors([]);
+      }
     } catch (error) {
       console.error("❌ Error fetching conversations:", error);
     } finally {
@@ -296,6 +342,49 @@ const Chat: React.FC = () => {
                   ? "Conversations will appear here after you complete payment for a confirmed lesson. Once paid, you can chat with your tutor!"
                   : "Conversations will appear here when students complete payment for lessons you've confirmed."}
               </p>
+
+              {role === "student" && paidLessonsTutors.length > 0 && (
+                <div className="mt-6 w-full max-w-md text-left">
+                  <h4 className="text-sm font-semibold text-violet-300 mb-3">
+                    Paid lessons with confirmed tutors
+                  </h4>
+                  <div className="space-y-2">
+                    {paidLessonsTutors.map((item) => (
+                      <div
+                        key={`${item.lessonId}-${item.tutorId}`}
+                        className="flex items-center justify-between bg-slate-800/50 border border-white/10 rounded-xl p-3"
+                      >
+                        <div>
+                          <p className="text-white text-sm font-medium">
+                            {item.tutorName}
+                          </p>
+                          <p className="text-xs text-violet-400">
+                            {item.topic}
+                          </p>
+                        </div>
+                        <button
+                          className="px-3 py-2 text-xs bg-gradient-to-r from-violet-600 to-purple-600 rounded-lg hover:from-violet-500 hover:to-purple-500"
+                          onClick={async () => {
+                            try {
+                              const conv = await ensureConversation({
+                                lessonId: item.lessonId,
+                                tutorId: item.tutorId,
+                              });
+                              await fetchConversations();
+                              setSelectedConversation(conv);
+                            } catch (e) {
+                              alert("Failed to start chat. Please try again.");
+                              console.error(e);
+                            }
+                          }}
+                        >
+                          Start Chat
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           ) : (
             conversations.map((conv) => {

@@ -23,6 +23,7 @@ interface LessonModelProps {
   date?: string;
   lessonTime?: string;
   onStartMeeting?: () => void;
+  onStartChat?: () => void;
   onEditLesson?: () => void;
   onDelete?: () => void;
   hasConfirmedTutors?: boolean;
@@ -51,6 +52,7 @@ const LessonModel: React.FC<LessonModelProps> = (props) => {
     date,
     lessonTime,
     onStartMeeting,
+    onStartChat,
     onEditLesson,
     onDelete,
     hasConfirmedTutors = false,
@@ -280,6 +282,19 @@ const LessonModel: React.FC<LessonModelProps> = (props) => {
             >
               View
             </button>
+
+            {/* Chat Button for paid lessons */}
+            {isPaid && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onStartChat?.();
+                }}
+                className="flex-1 py-2 rounded-xl text-white font-medium bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-500 hover:to-purple-500 transition-all"
+              >
+                Chat
+              </button>
+            )}
           </>
         )}
       </div>

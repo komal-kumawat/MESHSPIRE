@@ -95,27 +95,42 @@ const Chat: React.FC = () => {
       const data = await getConversations();
       console.log("📋 Fetched conversations from API:", {
         count: data.length,
-        conversations: data,
+        currentUserId: userId,
+        currentUserRole: role,
+        conversations: data.map((c) => ({
+          id: c._id,
+          lessonTopic: c.lessonId?.topic,
+          isPaid: c.lessonId?.isPaid,
+          studentName: c.studentId?.name,
+          tutorName: c.tutorId?.name,
+        })),
       });
+      // Filter to paid lessons only (student and tutor)
+      const filtered = data.filter((c) => c.lessonId?.isPaid);
 
-      if (data.length === 0) {
-        console.warn("⚠️ No conversations returned from API. This could mean:");
-        console.warn("1. No lessons have been confirmed by tutors");
+      if (filtered.length === 0) {
+        console.warn(
+          "⚠️ No conversations returned from API. Possible reasons:"
+        );
+        console.warn("1. No lessons have been confirmed by tutors yet");
         console.warn("2. No confirmed lessons have been paid for yet");
         console.warn("3. User data is not properly populated in conversations");
+        console.warn(
+          "💡 To enable chat: Student must request lesson → Tutor confirms → Student pays"
+        );
       }
-
-      if (data.length > 0) {
+      if (filtered.length > 0) {
         console.log("First conversation details:", {
-          id: data[0]._id,
-          studentName: data[0].studentId?.name,
-          studentId: data[0].studentId?._id,
-          tutorName: data[0].tutorId?.name,
-          tutorId: data[0].tutorId?._id,
-          lessonTopic: data[0].lessonId?.topic,
+          id: filtered[0]._id,
+          studentName: filtered[0].studentId?.name,
+          studentId: filtered[0].studentId?._id,
+          tutorName: filtered[0].tutorId?.name,
+          tutorId: filtered[0].tutorId?._id,
+          lessonTopic: filtered[0].lessonId?.topic,
+          lessonPaid: filtered[0].lessonId?.isPaid,
         });
       }
-      setConversations(data);
+      setConversations(filtered);
     } catch (error) {
       console.error("❌ Error fetching conversations:", error);
     } finally {
@@ -265,7 +280,7 @@ const Chat: React.FC = () => {
             Messages
           </h2>
           <p className="text-gray-400 text-sm mt-1">
-            {conversations.length} conversations
+            {conversations.length} paid conversations
           </p>
         </div>
 
@@ -276,10 +291,10 @@ const Chat: React.FC = () => {
               <h3 className="text-xl font-semibold text-gray-300 mb-2">
                 No conversations yet
               </h3>
-              <p className="text-gray-500 text-sm">
+              <p className="text-gray-500 text-sm max-w-md">
                 {role === "student"
-                  ? "Conversations will appear here after a tutor confirms your lesson and you complete payment"
-                  : "Conversations will appear here when you confirm lessons and students complete payment"}
+                  ? "Conversations will appear here after you complete payment for a confirmed lesson. Once paid, you can chat with your tutor!"
+                  : "Conversations will appear here when students complete payment for lessons you've confirmed."}
               </p>
             </div>
           ) : (

@@ -72,11 +72,12 @@ export const getConversations = async (req: Request, res: Response) => {
 
     console.log(`✅ Found ${allConversations.length} total conversations`);
 
-    // Filter to only show conversations for paid lessons
+    // Filter to only show conversations for paid lessons with valid user data
     const conversations = allConversations.filter((conv: any) => {
-      const isPaid = conv.lessonId?.isPaid;
+      const isPaid = conv.lessonId?.isPaid === true;
       const hasStudentName = !!conv.studentId?.name;
       const hasTutorName = !!conv.tutorId?.name;
+      const hasLesson = !!conv.lessonId;
 
       console.log(`Conversation ${conv._id}:`, {
         lessonId: conv.lessonId?._id,
@@ -90,13 +91,12 @@ export const getConversations = async (req: Request, res: Response) => {
         tutorId: conv.tutorId?._id,
       });
 
-      // Show conversations where both user names exist (properly populated)
-      // Removed isPaid filter to allow chat immediately after tutor confirms
-      return hasStudentName && hasTutorName;
+      // Show conversations only for PAID lessons where both user names exist
+      return isPaid && hasStudentName && hasTutorName && hasLesson;
     });
 
     console.log(
-      `✅ Returning ${conversations.length} conversations with valid user data`
+      `✅ Returning ${conversations.length} paid conversations with valid user data`
     );
 
     res.json(conversations);
@@ -165,7 +165,6 @@ export const getMessages = async (req: Request, res: Response) => {
   try {
     const { conversationId } = req.params;
     const userId = req.user?._id;
-    const userRole = req.user?.role;
 
     if (!userId) {
       return res.status(401).json({ message: "Unauthorized" });
@@ -200,8 +199,10 @@ export const getMessages = async (req: Request, res: Response) => {
       { isRead: true }
     );
 
-    // Update unread count
-    if (userRole === "student") {
+    // Update unread count by inferring the viewer's role from participation
+    const viewerIsStudent =
+      conversation.studentId.toString() === userId.toString();
+    if (viewerIsStudent) {
       conversation.unreadCountStudent = 0;
     } else {
       conversation.unreadCountTutor = 0;
@@ -220,7 +221,7 @@ export const sendMessage = async (req: Request, res: Response) => {
   try {
     const { conversationId, content, messageType = "text" } = req.body;
     const userId = req.user?._id;
-    const userRole = req.user?.role;
+    // Do not rely on role from JWT; infer from conversation membership
 
     if (!userId) {
       return res.status(401).json({ message: "Unauthorized" });
@@ -272,11 +273,7 @@ export const sendMessage = async (req: Request, res: Response) => {
       io.to(`user:${receiverId}`).emit("new-message", populatedMessage);
     }
 
-    res.status(201).json(populatedMessage);
-    if (io) {
-      io.to(`user:${receiverId}`).emit("new-message", populatedMessage);
-    }
-
+    // Return the created message once
     res.status(201).json(populatedMessage);
   } catch (error) {
     console.error("Error sending message:", error);
@@ -344,6 +341,11 @@ export const uploadFile = async (req: Request, res: Response) => {
       .populate("senderId", "name avatarUrl")
       .populate("receiverId", "name avatarUrl");
 
+    // Emit real-time message via Socket.IO to receiver
+    if (io) {
+      io.to(`user:${receiverId}`).emit("new-message", populatedMessage);
+    }
+
     res.status(201).json(populatedMessage);
   } catch (error) {
     console.error("Error uploading file:", error);
@@ -364,6 +366,7 @@ export const createConversation = async (
 
     const lesson = await Lesson.findById(lessonId);
     if (!lesson) {
+      console.error("❌ Lesson not found:", lessonId);
       throw new Error("Lesson not found");
     }
 
@@ -371,6 +374,7 @@ export const createConversation = async (
       studentId: lesson.studentId,
       studentIdType: typeof lesson.studentId,
       topic: lesson.topic,
+      isPaid: lesson.isPaid,
     });
 
     // Verify the users exist
@@ -388,6 +392,12 @@ export const createConversation = async (
     });
 
     if (!student || !tutor) {
+      console.error(
+        "❌ User not found - Student:",
+        !!student,
+        "Tutor:",
+        !!tutor
+      );
       throw new Error(
         `User not found - Student: ${!!student}, Tutor: ${!!tutor}`
       );
@@ -401,13 +411,14 @@ export const createConversation = async (
     })
       .populate("studentId", "name email avatarUrl")
       .populate("tutorId", "name email avatarUrl")
-      .populate("lessonId", "topic subject date time");
+      .populate("lessonId", "topic subject date time isPaid");
 
     if (existingConversation) {
       console.log("✅ Conversation already exists:", {
         id: existingConversation._id,
         studentName: (existingConversation.studentId as any)?.name,
         tutorName: (existingConversation.tutorId as any)?.name,
+        lessonPaid: (existingConversation.lessonId as any)?.isPaid,
       });
       return existingConversation;
     }
@@ -430,7 +441,7 @@ export const createConversation = async (
     const populatedConversation = await Conversation.findById(conversation._id)
       .populate("studentId", "name email avatarUrl")
       .populate("tutorId", "name email avatarUrl")
-      .populate("lessonId", "topic subject date time")
+      .populate("lessonId", "topic subject date time isPaid")
       .lean();
 
     console.log("✅ Populated conversation:", {
@@ -438,6 +449,7 @@ export const createConversation = async (
       studentName: (populatedConversation?.studentId as any)?.name,
       tutorName: (populatedConversation?.tutorId as any)?.name,
       lessonTopic: (populatedConversation?.lessonId as any)?.topic,
+      lessonPaid: (populatedConversation?.lessonId as any)?.isPaid,
     });
 
     // Emit real-time notification to both users
@@ -454,6 +466,8 @@ export const createConversation = async (
         "conversation-created",
         populatedConversation
       );
+    } else {
+      console.warn("⚠️ Socket.io not available or conversation not populated");
     }
 
     return populatedConversation;
@@ -467,24 +481,24 @@ export const createConversation = async (
 export const getUnreadCount = async (req: Request, res: Response) => {
   try {
     const userId = req.user?._id;
-    const userRole = req.user?.role;
-
     if (!userId) {
       return res.status(401).json({ message: "Unauthorized" });
     }
 
-    const query =
-      userRole === "tutor" ? { tutorId: userId } : { studentId: userId };
-    const conversations = await Conversation.find(query);
+    // Find conversations where the user participates
+    const conversations = await Conversation.find({
+      $or: [{ tutorId: userId }, { studentId: userId }],
+    }).select("tutorId studentId unreadCountTutor unreadCountStudent");
 
-    const totalUnread = conversations.reduce((sum, conv) => {
-      return (
-        sum +
-        (userRole === "tutor" ? conv.unreadCountTutor : conv.unreadCountStudent)
-      );
+    const totalUnread = conversations.reduce((sum: number, conv: any) => {
+      const isTutor = conv.tutorId?.toString() === userId.toString();
+      const isStudent = conv.studentId?.toString() === userId.toString();
+      if (isTutor) return sum + (conv.unreadCountTutor || 0);
+      if (isStudent) return sum + (conv.unreadCountStudent || 0);
+      return sum;
     }, 0);
 
-    res.json({ unreadCount: totalUnread });
+    return res.json({ unreadCount: totalUnread });
   } catch (error) {
     console.error("Error fetching unread count:", error);
     res.status(500).json({ message: "Error fetching unread count" });

@@ -16,6 +16,7 @@ export interface Conversation {
     subject: string;
     date: string;
     time: string;
+    isPaid?: boolean;
   };
   studentId: {
     _id: string;

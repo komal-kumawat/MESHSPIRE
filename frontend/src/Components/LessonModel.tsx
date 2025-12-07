@@ -70,7 +70,7 @@ const LessonModel: React.FC<LessonModelProps> = (props) => {
 
       const now = new Date();
       const tenMinBefore = new Date(lessonDate.getTime() - 10 * 60 * 1000);
-      const end = new Date(lessonDate.getTime() + 60 * 60 * 1000);
+      const end = new Date(lessonDate.getTime() + 5 * 60 * 1000);
       const expiredMeetingTime = new Date(lessonDate.getTime() + 5 * 60 * 1000);
       setIsMeetingTimeReached(now >= tenMinBefore && now <= end);
       setIsExpired(now > expiredMeetingTime);

@@ -91,8 +91,21 @@ const Room: React.FC = () => {
   const joinRoom = useCallback(async () => {
     if (!roomId) return;
     sessionStorage.setItem("currentRoom", roomId);
+
+    // ALWAYS join the Socket.IO room first for chat to work
+    console.log(
+      "🚪 Joining Socket.IO room:",
+      roomId,
+      "with socket:",
+      socket.id
+    );
+    socket.emit("join-room", { roomId });
+
+    // Then try to get media stream
     const stream = await getUserMediaStream();
-    if (stream) socket.emit("join-room", { roomId });
+    if (!stream) {
+      console.warn("⚠️ Media stream failed, but already joined room for chat");
+    }
   }, [getUserMediaStream, roomId, socket]);
 
   useEffect(() => {
@@ -637,7 +650,7 @@ const Room: React.FC = () => {
 
       {/* Chat Interface */}
       {isChatOpen && roomId && (
-        <div className="absolute top-20 right-4 h-[calc(100vh-180px)] w-[calc(100vw*5/28)] max-w-md z-40">
+        <div className="absolute top-16 right-6 h-[calc(100vh-140px)] w-96 max-w-[90vw] z-50 animate-slideIn">
           <MeetingChat
             socket={socket}
             roomId={roomId}

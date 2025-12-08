@@ -22,6 +22,8 @@ const Dashboard: React.FC = () => {
   const [lessons, setLessons] = useState<any[]>([]);
   const [openDetails, setOpenDetails] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [edit, setEdit] = useState(false);
+  const [editData, setEditData] = useState(null);
   const [deleteConfirmation, setDeleteConfirmation] = useState<{
     show: boolean;
     lessonId: string | null;
@@ -31,6 +33,7 @@ const Dashboard: React.FC = () => {
   // Separate paid and unpaid lessons
   const unpaidLessons = lessons.filter((lesson) => !lesson.isPaid);
   const paidLessons = lessons.filter((lesson) => lesson.isPaid);
+  
 
   useEffect(() => {
     fetchLessons();
@@ -50,6 +53,13 @@ const Dashboard: React.FC = () => {
       window.removeEventListener("focus", fetchLessons);
     };
   }, []);
+
+  const OnEditLesson = (lessonId: string) => {
+    const lesson = lessons.find((l) => l._id === lessonId);
+    setEdit(true);
+    setEditData(lesson);
+    setOpenCard(true);
+  }
 
   const fetchLessons = async () => {
     try {
@@ -164,7 +174,7 @@ const Dashboard: React.FC = () => {
       console.error("Error deleting lesson:", error);
       alert(
         error.response?.data?.message ||
-          "Failed to delete lesson. Please try again."
+        "Failed to delete lesson. Please try again."
       );
     }
   };
@@ -307,6 +317,7 @@ const Dashboard: React.FC = () => {
                 isPaid={false}
                 date={lesson.date}
                 lessonTime={lesson.time}
+                onEditLesson={() => OnEditLesson(lesson._id)}
                 onDelete={() => handleDeleteLesson(lesson._id, lesson.topic)}
                 hasConfirmedTutors={
                   lesson.confirmedTutors && lesson.confirmedTutors.length > 0
@@ -386,6 +397,7 @@ const Dashboard: React.FC = () => {
                     handleStartChat(lesson, firstConfirmed);
                   }}
                   onDelete={() => handleDeleteLesson(lesson._id, lesson.topic)}
+                  onEditLesson={()=>OnEditLesson(lesson._id)}
                 />
               ))}
             </LessonCarousel>
@@ -409,8 +421,11 @@ const Dashboard: React.FC = () => {
       {openCard && (
         <FeaturedCard
           open={openCard}
-          onClose={() => setOpenCard(false)}
+          onClose={() => {setOpenCard(false); setEdit(false) }}
           onSchedule={handleScheduleLesson}
+          editMode={edit}
+          lessonData={editData}
+
         />
       )}
 
@@ -715,6 +730,7 @@ const Dashboard: React.FC = () => {
             {/* No Tutors Confirmed Yet */}
             {(!openDetails.confirmedTutors ||
               openDetails.confirmedTutors.length === 0) && (
+<<<<<<< HEAD
               <div className="bg-slate-800/40 backdrop-blur-sm p-6 rounded-xl border border-white/10 text-center">
                 <div className="w-16 h-16 rounded-full bg-gradient-to-br from-slate-700/50 to-slate-600/50 flex items-center justify-center mx-auto mb-3">
                   <svg
@@ -740,6 +756,15 @@ const Dashboard: React.FC = () => {
                 </p>
               </div>
             )}
+=======
+                <div className="bg-slate-800/50 p-4 rounded-xl border border-white/5">
+                  <p className="text-gray-400 text-center">
+                    No tutors have confirmed yet. Please wait for a tutor to
+                    accept your lesson request.
+                  </p>
+                </div>
+              )}
+>>>>>>> 28ee4b84f96442cb772db2a7c5d5b20ca1dffa97
 
             <button
               onClick={() => setOpenDetails(null)}

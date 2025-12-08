@@ -44,13 +44,17 @@ const Sidebar: React.FC = () => {
       id: "analytics",
       icon: <EqualizerIcon />,
       label: "Analytics",
-      path: "/dashboard/#analytics",
+      path:
+        role === "tutor"
+          ? "/tutor-dashboard/analytics"
+          : "/dashboard/analytics",
     },
     {
       id: "settings",
       icon: <SettingsIcon />,
       label: "Settings",
-      path: "/dashboard/#settings",
+      path:
+        role === "tutor" ? "/tutor-dashboard/settings" : "/dashboard/settings",
     },
   ];
 
@@ -71,7 +75,7 @@ const Sidebar: React.FC = () => {
     const btn = buttonsRef.current[activeIndex];
     if (btn) {
       const iconCenter = btn.offsetTop + btn.offsetHeight / 2;
-      setIndicatorTop(iconCenter - 16);
+      setIndicatorTop(iconCenter - 20);
     }
   }, [active]);
 
@@ -141,7 +145,7 @@ const Sidebar: React.FC = () => {
               className={`group relative flex items-center justify-center w-full py-3 my-1 rounded-xl transition-all duration-300
                 ${
                   active === btn.id
-                    ? "bg-white/10 text-green-400"
+                    ? "bg-white/10 text-white"
                     : "text-gray-400 hover:bg-white/5 hover:text-white"
                 }
               `}
@@ -171,7 +175,7 @@ const Sidebar: React.FC = () => {
             onClick={() => handleClick(btn.id, btn.path)}
             className={`flex flex-col items-center justify-center text-xs relative transition-colors duration-200 ${
               active === btn.id
-                ? "text-green-400"
+                ? "text-white"
                 : "text-gray-400 hover:text-white"
             }`}
           >

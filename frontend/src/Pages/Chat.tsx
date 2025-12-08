@@ -317,7 +317,7 @@ const Chat: React.FC = () => {
   }
 
   return (
-    <div className="h-screen bg-black text-white flex overflow-hidden p-2 md:p-4 gap-2 md:gap-4">
+    <div className="h-full max-h-[calc(100vh-4rem)] md:max-h-[calc(100vh-5rem)] bg-black text-white flex overflow-hidden p-2 md:p-4 gap-2 md:gap-4">
       {/* Conversations Sidebar */}
       <div
         className={`${
@@ -325,7 +325,7 @@ const Chat: React.FC = () => {
         } flex-col w-full md:w-80 lg:w-96 bg-gradient-to-b from-slate-900/80 to-slate-900/50 backdrop-blur-xl rounded-xl md:rounded-2xl border border-white/10 overflow-hidden`}
       >
         {/* Static Header - No Scroll */}
-        <div className="flex-shrink-0 p-6 border-b border-white/10 bg-gradient-to-r from-emerald-900/30 via-green-900/20 to-slate-900/30">
+        <div className="flex-shrink-0 p-4 border-b border-white/10 bg-gradient-to-r from-emerald-900/30 via-green-900/20 to-slate-900/30">
           <h2 className="text-2xl font-bold bg-gradient-to-r from-emerald-400 to-green-400 bg-clip-text text-transparent">
             Messages
           </h2>
@@ -423,11 +423,17 @@ const Chat: React.FC = () => {
                     <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-emerald-500 to-green-500 rounded-r-full" />
                   )}
 
-                  <div className="flex-shrink-0">
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-emerald-500 to-green-600 flex items-center justify-center text-lg font-bold shadow-lg shadow-emerald-500/20">
+                  <a
+                    href={`${window.location.origin}/tutor/${otherUser._id}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => e.stopPropagation()}
+                    className="flex-shrink-0"
+                  >
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-emerald-500 to-green-600 flex items-center justify-center text-lg font-bold shadow-lg shadow-emerald-500/20 hover:scale-110 transition-transform cursor-pointer">
                       {otherUser.name.charAt(0).toUpperCase()}
                     </div>
-                  </div>
+                  </a>
 
                   <div className="flex-1 min-w-0 text-left">
                     <div className="flex justify-between items-start mb-1">
@@ -441,7 +447,7 @@ const Chat: React.FC = () => {
                       )}
                     </div>
                     <p className="text-xs text-emerald-400 mb-1 font-medium">
-                      {conv.lessonId.topic}
+                      {conv.lessonId.subject} Tutor
                     </p>
                     {conv.lastMessage && (
                       <p className="text-sm text-gray-400 truncate">
@@ -482,16 +488,23 @@ const Chat: React.FC = () => {
                 }
                 return (
                   <>
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-emerald-500 to-green-600 flex items-center justify-center font-bold text-lg shadow-lg shadow-emerald-500/30">
-                      {otherUser.name.charAt(0).toUpperCase()}
-                    </div>
+                    <a
+                      href={`${window.location.origin}/tutor/${otherUser._id}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-shrink-0"
+                    >
+                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-emerald-500 to-green-600 flex items-center justify-center font-bold text-lg shadow-lg shadow-emerald-500/30 hover:scale-110 transition-transform cursor-pointer">
+                        {otherUser.name.charAt(0).toUpperCase()}
+                      </div>
+                    </a>
 
                     <div className="flex-1">
                       <h3 className="font-semibold text-white text-lg">
                         {otherUser.name}
                       </h3>
                       <p className="text-xs text-emerald-400 font-medium">
-                        {selectedConversation.lessonId.topic}
+                        {selectedConversation.lessonId.subject} Tutor
                       </p>
                     </div>
 

@@ -60,7 +60,7 @@ const LessonModel: React.FC<LessonModelProps> = (props) => {
 
   const [isMeetingTimeReached, setIsMeetingTimeReached] = useState(false);
   const { role } = useAuth();
-
+  const [isExpired, setIsExpired] = useState(false);
   // Meeting Unlock Logic
   useEffect(() => {
     if (!date || !lessonTime) return;
@@ -72,9 +72,11 @@ const LessonModel: React.FC<LessonModelProps> = (props) => {
 
       const now = new Date();
       const tenMinBefore = new Date(lessonDate.getTime() - 10 * 60 * 1000);
-      const end = new Date(lessonDate.getTime() + 60 * 60 * 1000);
-
+      const end = new Date(lessonDate.getTime() + 5 * 60 * 1000);
+      const expiredMeetingTime = new Date(lessonDate.getTime() + 5 * 60 * 1000);
       setIsMeetingTimeReached(now >= tenMinBefore && now <= end);
+      setIsExpired(now > expiredMeetingTime);
+
     };
 
     checkTime();
@@ -91,11 +93,10 @@ const LessonModel: React.FC<LessonModelProps> = (props) => {
       p-4 sm:p-6 rounded-2xl
       backdrop-blur-lg bg-slate-900/60 shadow-lg hover:shadow-xl
       transition-all duration-300 relative
-      ${
-        hasConfirmedTutors && !isPaid
+      ${hasConfirmedTutors && !isPaid
           ? "border-2 border-green-500/60 shadow-green-500/20"
           : "border border-white/20"
-      }
+        }
       `}
     >
       {/* Delete Button - Top Left */}
@@ -182,6 +183,14 @@ const LessonModel: React.FC<LessonModelProps> = (props) => {
           ✓ Payment Confirmed
         </div>
       )}
+      {isExpired && (
+        <div
+          className="mt-2 text-sm text-red-300 bg-red-900/30 px-3 py-2 rounded-lg
+                        border border-red-500/20"
+        >
+          Expired Meeting
+        </div>
+      )}
 
       {/* Tutor Confirmed Badge */}
       {hasConfirmedTutors && !isPaid && (
@@ -249,11 +258,10 @@ const LessonModel: React.FC<LessonModelProps> = (props) => {
                 }}
                 disabled={!isPaid || !isMeetingTimeReached}
                 className={`flex-1 py-2 rounded-xl text-white font-medium transition-all
-                ${
-                  isPaid && isMeetingTimeReached
+                ${isPaid && isMeetingTimeReached
                     ? "bg-gradient-to-r from-violet-900 via-violet-800 to-violet-900 hover:opacity-90"
                     : "bg-gray-700 text-gray-400 cursor-not-allowed opacity-50"
-                }`}
+                  }`}
               >
                 Start
               </button>
@@ -261,14 +269,22 @@ const LessonModel: React.FC<LessonModelProps> = (props) => {
               <button
                 onClick={(e) => {
                   e.stopPropagation();
+                  if (isExpired) {
+                    alert("Meeting expired");
+                    return;
+                  }
                   onEditLesson?.();
                 }}
-                className={`flex-1 py-2 rounded-xl text-white font-medium transition-all
-                    bg-gradient-to-r from-violet-900 via-violet-800 to-violet-900 hover:opacity-90
-                  `}
+                className={`flex-1 py-2 rounded-xl font-medium transition-all
+              ${isExpired
+                    ? "bg-gray-700 text-gray-400 cursor-not-allowed opacity-50"
+                    : "text-white bg-gradient-to-r from-violet-900 via-violet-800 to-violet-900 hover:opacity-90"
+                  }
+              `}
               >
                 Edit
               </button>
+
             )}
 
             {/* Gray View */}

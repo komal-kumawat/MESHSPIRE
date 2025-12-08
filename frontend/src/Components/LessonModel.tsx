@@ -76,7 +76,6 @@ const LessonModel: React.FC<LessonModelProps> = (props) => {
       const expiredMeetingTime = new Date(lessonDate.getTime() + 5 * 60 * 1000);
       setIsMeetingTimeReached(now >= tenMinBefore && now <= end);
       setIsExpired(now > expiredMeetingTime);
-
     };
 
     checkTime();
@@ -94,19 +93,12 @@ const LessonModel: React.FC<LessonModelProps> = (props) => {
       backdrop-blur-xl bg-gradient-to-b from-slate-900/80 to-slate-900/50 
       shadow-xl hover:shadow-2xl
       transition-all duration-300 relative
-<<<<<<< HEAD
       border hover:border-emerald-500/30
       ${
         hasConfirmedTutors && !isPaid
           ? "border-emerald-500/60 shadow-emerald-500/20 ring-2 ring-emerald-500/20"
           : "border-white/10"
       }
-=======
-      ${hasConfirmedTutors && !isPaid
-          ? "border-2 border-green-500/60 shadow-green-500/20"
-          : "border border-white/20"
-        }
->>>>>>> 28ee4b84f96442cb772db2a7c5d5b20ca1dffa97
       `}
     >
       {/* Delete Button - Top Right Corner */}
@@ -317,20 +309,12 @@ const LessonModel: React.FC<LessonModelProps> = (props) => {
                   onStartMeeting?.();
                 }}
                 disabled={!isPaid || !isMeetingTimeReached}
-<<<<<<< HEAD
                 className={`flex-1 py-2.5 rounded-xl text-white font-semibold transition-all shadow-md active:scale-95
                 ${
                   isPaid && isMeetingTimeReached
                     ? "bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500 border border-emerald-500/20"
                     : "bg-slate-700 text-gray-400 cursor-not-allowed opacity-50"
                 }`}
-=======
-                className={`flex-1 py-2 rounded-xl text-white font-medium transition-all
-                ${isPaid && isMeetingTimeReached
-                    ? "bg-gradient-to-r from-violet-900 via-violet-800 to-violet-900 hover:opacity-90"
-                    : "bg-gray-700 text-gray-400 cursor-not-allowed opacity-50"
-                  }`}
->>>>>>> 28ee4b84f96442cb772db2a7c5d5b20ca1dffa97
               >
                 🎥 Start
               </button>
@@ -344,22 +328,12 @@ const LessonModel: React.FC<LessonModelProps> = (props) => {
                   }
                   onEditLesson?.();
                 }}
-<<<<<<< HEAD
                 className="flex-1 py-2.5 rounded-xl text-white font-semibold transition-all
                     bg-gradient-to-r from-slate-700 to-slate-600 hover:from-slate-600 hover:to-slate-500
                     border border-slate-500/20 shadow-md active:scale-95"
-=======
-                className={`flex-1 py-2 rounded-xl font-medium transition-all
-              ${isExpired
-                    ? "bg-gray-700 text-gray-400 cursor-not-allowed opacity-50"
-                    : "text-white bg-gradient-to-r from-violet-900 via-violet-800 to-violet-900 hover:opacity-90"
-                  }
-              `}
->>>>>>> 28ee4b84f96442cb772db2a7c5d5b20ca1dffa97
               >
                 Edit
               </button>
-
             )}
 
             {/* View Button */}

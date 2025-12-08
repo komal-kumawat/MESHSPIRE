@@ -129,7 +129,6 @@ const FeaturedCard: React.FC<FeaturedCardProps> = ({
             exit={{ x: "100%" }}
             transition={{ type: "spring", stiffness: 130, damping: 20 }}
           >
-<<<<<<< HEAD
             <div className="p-6 sm:p-8">
               <div className="mb-8">
                 <h2 className="text-3xl sm:text-4xl font-bold mb-2 bg-gradient-to-r from-emerald-400 via-green-300 to-emerald-400 bg-clip-text text-transparent">
@@ -137,22 +136,6 @@ const FeaturedCard: React.FC<FeaturedCardProps> = ({
                 </h2>
                 <div className="h-1 w-24 bg-gradient-to-r from-emerald-500 to-green-500 rounded-full"></div>
               </div>
-=======
-            <div className="p-6">
-              {editMode? 
-              <h2 className="text-3xl font-bold mb-6 pb-4 border-b border-violet-500/20 bg-gradient-to-r from-violet-300 to-purple-300 bg-clip-text text-transparent">
-               Update your Lesson
-                
-              </h2>
-              :
-              <h2 className="text-3xl font-bold mb-6 pb-4 border-b border-violet-500/20 bg-gradient-to-r from-violet-300 to-purple-300 bg-clip-text text-transparent">
-               Schedule your Lesson
-                
-              </h2>
-              
-              }
-
->>>>>>> 28ee4b84f96442cb772db2a7c5d5b20ca1dffa97
 
               <form className="flex flex-col gap-6">
                 <div>
@@ -285,7 +268,6 @@ const FeaturedCard: React.FC<FeaturedCardProps> = ({
                     />
                   </div>
 
-<<<<<<< HEAD
                   <div>
                     <label className="font-semibold text-emerald-200 flex items-center gap-2 mb-2">
                       <svg
@@ -312,25 +294,6 @@ const FeaturedCard: React.FC<FeaturedCardProps> = ({
                       className="w-full p-3 rounded-xl bg-slate-800/60 backdrop-blur-sm border border-emerald-500/20 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500/50 transition-all"
                     />
                   </div>
-=======
-                    className="w-full p-3 rounded-xl mt-2 bg-slate-800/70 border border-violet-500/20 text-white focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all"
-                  />
-                </div>
-
-                <div>
-                  <label className="font-semibold text-violet-200 flex items-center gap-2">
-                    Time <span className="text-red-400">*</span>
-                  </label>
-                  <input
-                    id="time"
-                    type="time"
-                    required
-                    min={minTime}
-                    value={selectedTime}
-                    onChange={(e) => setSelectedTime(e.target.value)}
-                    className="w-full p-3 rounded-xl mt-2 bg-slate-800/70 border border-violet-500/20 text-white focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all"
-                  />
->>>>>>> 28ee4b84f96442cb772db2a7c5d5b20ca1dffa97
                 </div>
                   {editMode?
                   <button
@@ -356,7 +319,6 @@ const FeaturedCard: React.FC<FeaturedCardProps> = ({
                            disabled:opacity-50 disabled:cursor-not-allowed active:scale-95
                            border border-emerald-500/20 flex items-center justify-center gap-2"
                 >
-<<<<<<< HEAD
                   {isSubmitting ? (
                     <>
                       <svg
@@ -398,10 +360,6 @@ const FeaturedCard: React.FC<FeaturedCardProps> = ({
                       Schedule Lesson
                     </>
                   )}
-=======
-
-                  {isSubmitting ? "Scheduling..." : "Schedule Lesson"}
->>>>>>> 28ee4b84f96442cb772db2a7c5d5b20ca1dffa97
                 </button>
               
                   }
@@ -410,12 +368,7 @@ const FeaturedCard: React.FC<FeaturedCardProps> = ({
               <button
                 onClick={onClose}
                 disabled={isSubmitting}
-<<<<<<< HEAD
                 className="w-full py-3 mt-4 rounded-xl bg-slate-800/60 backdrop-blur-sm border border-slate-600/30 text-gray-200 hover:bg-slate-700/60 transition-all hover:border-slate-500/50 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
-=======
-                className="w-full py-3 mt-4 rounded-xl bg-slate-800/70 border border-violet-500/20 text-gray-200 hover:bg-slate-700/70 transition-all hover:border-violet-400/30 disabled:opacity-50 disabled:cursor-not-allowed"
-
->>>>>>> 28ee4b84f96442cb772db2a7c5d5b20ca1dffa97
               >
                 Cancel
               </button>

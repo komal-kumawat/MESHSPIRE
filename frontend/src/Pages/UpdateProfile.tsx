@@ -45,11 +45,6 @@ const UpdateProfile: React.FC = () => {
     languages: "",
   });
 
-  // Helper function to convert text to sentence case
-  const toSentenceCase = (text: string) => {
-    if (!text) return text;
-    return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
-  };
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | undefined>(undefined);
   const [loading, setLoading] = useState(true);

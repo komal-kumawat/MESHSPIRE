@@ -36,12 +36,12 @@ export class PaymentController {
       let baseUrl = clientUrl.trim();
       // Replace wrong URL if it exists
       if (
-        baseUrl.includes("meshspire.vercel.app") &&
+        baseUrl.includes("meshspire-core.vercel.app") &&
         !baseUrl.includes("meshspire-core")
       ) {
         baseUrl = "https://meshspire-core.vercel.app";
         console.warn(
-          "⚠️ Correcting CLIENT_URL from meshspire.vercel.app to meshspire-core.vercel.app"
+          "⚠️ Correcting CLIENT_URL from meshspire-core.vercel.app to meshspire-core.vercel.app"
         );
       }
       // Add https if missing

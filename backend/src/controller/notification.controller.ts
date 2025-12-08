@@ -156,6 +156,31 @@ export class NotificationController {
     }
   }
 
+  // Delete all notifications
+  static async deleteAllNotifications(req: AuthRequest, res: Response) {
+    try {
+      const userId = req.user?.id;
+
+      if (!userId) {
+        return res.status(StatusCodes.UNAUTHORIZED).json({
+          message: "User not authenticated",
+        });
+      }
+
+      await Notification.deleteMany({ userId });
+
+      res.status(StatusCodes.OK).json({
+        message: "All notifications deleted successfully",
+      });
+    } catch (err) {
+      console.error("Error deleting all notifications:", err);
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+        message: "Error while deleting all notifications",
+        err,
+      });
+    }
+  }
+
   // Create a notification (internal use by other controllers)
   static async createNotification(data: {
     userId: string;

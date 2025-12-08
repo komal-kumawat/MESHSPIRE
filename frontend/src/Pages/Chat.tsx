@@ -538,7 +538,7 @@ const Chat: React.FC = () => {
                             <a
                               href={`${
                                 import.meta.env.VITE_BACKEND_URL ||
-                                "http://localhost:8000"
+                                "https://meshspire-core.onrender.com"
                               }${message.fileUrl}`}
                               download
                               target="_blank"

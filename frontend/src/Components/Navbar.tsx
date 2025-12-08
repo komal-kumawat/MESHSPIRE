@@ -64,7 +64,7 @@ const Navbar: React.FC<NavbarProps> = ({ isSidebarExpanded }) => {
       >
         {name
           ? `Hello, ${name.charAt(0).toUpperCase() + name.slice(1)}`
-          : `Hello ${username}`}
+          : `Hello, ${username}`}
       </div>
 
       <div className="flex items-center gap-3 sm:gap-4 lg:gap-5 relative">

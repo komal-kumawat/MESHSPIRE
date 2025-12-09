@@ -105,10 +105,10 @@ const UpdateProfile: React.FC = () => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const MAX_SIZE = 1024 * 1024; 
+    const MAX_SIZE = 2*1024 * 1024; 
 
     if (file.size > MAX_SIZE) {
-      setMessage("Image size is too large! Please upload an image under 1 MB.");
+      setMessage("Image size is too large! Please upload an image under 2 MB.");
       setSelectedFile(null);
       return;
     }

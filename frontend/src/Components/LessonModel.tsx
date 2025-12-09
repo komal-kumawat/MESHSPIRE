@@ -40,7 +40,6 @@ const LessonModel: React.FC<LessonModelProps> = (props) => {
   const {
     topic,
     subject,
-    time,
     onViewDetails,
     studentName,
     showActions = false,
@@ -85,62 +84,114 @@ const LessonModel: React.FC<LessonModelProps> = (props) => {
 
   const imageSrc = subjectImages[subject] || Probability;
 
+  // Format date and time for display
+  const formatDateTime = () => {
+    if (!date || !lessonTime) return null;
+
+    const dateObj = new Date(date);
+    const options: Intl.DateTimeFormatOptions = {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    };
+    const formattedDate = dateObj.toLocaleDateString("en-US", options);
+
+    // Convert 24h time to 12h format
+    const [hours, minutes] = lessonTime.split(":");
+    const hour = parseInt(hours);
+    const ampm = hour >= 12 ? "PM" : "AM";
+    const displayHour = hour % 12 || 12;
+    const formattedTime = `${displayHour}:${minutes} ${ampm}`;
+
+    return { formattedTime, formattedDate };
+  };
+
+  const dateTime = formatDateTime();
+
+  // Helper function to capitalize first letter of each word
+  const toSentenceCase = (str: string) => {
+    if (!str) return "";
+    return str
+      .split(" ")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(" ");
+  };
+
   return (
     <div
+      onClick={() => {
+        // Make entire card clickable only for paid lessons
+        if (isPaid) {
+          onViewDetails();
+        }
+      }}
       className={`
-      flex flex-col w-[320px] h-[340px]
-      p-5 rounded-xl
-      backdrop-blur-xl bg-gradient-to-b from-slate-900/80 to-slate-900/50 
-      shadow-xl hover:shadow-2xl
+      flex flex-col w-[280px] sm:w-[380px] md:w-[440px] h-[240px] sm:h-[260px] md:h-[280px]
+      p-4 sm:p-5 rounded-xl
+      backdrop-blur-lg shadow-lg hover:shadow-xl
       transition-all duration-300 relative
-      border hover:border-emerald-500/30
+      border cursor-pointer
       ${
         hasConfirmedTutors && !isPaid
-          ? "border-emerald-500/60 shadow-emerald-500/20 ring-2 ring-emerald-500/20"
-          : "border-white/10"
+          ? "bg-emerald-950/40 border-emerald-500/60 shadow-emerald-500/20 ring-2 ring-emerald-500/20"
+          : "bg-slate-900/60 border-white/20 hover:border-emerald-500/30"
       }
       `}
     >
-      {/* Top Section with Image and Subject Badge */}
+      {/* Top Section - Image on right, Topic and Tutor on left */}
       <div className="flex items-start justify-between gap-4 mb-3">
-        <div className="w-20 h-20 rounded-xl overflow-hidden shadow-lg ring-2 ring-white/5 flex-shrink-0">
-          <img
-            src={imageSrc}
-            alt={subject}
-            className="w-full h-full object-cover"
-          />
+        {/* Left side: Topic and Tutor Name */}
+        <div className="flex-1 min-w-0">
+          <h2 className="text-base sm:text-lg font-bold text-white leading-tight truncate">
+            {toSentenceCase(topic)}
+          </h2>
+          <p className="text-xs sm:text-sm text-gray-300 mt-1">
+            {studentName ? (
+              role === "tutor" ? (
+                <>Tutor: {toSentenceCase(studentName)}</>
+              ) : (
+                <>Tutor: {toSentenceCase(studentName)}</>
+              )
+            ) : isConfirmed ? (
+              <span className="text-emerald-300">Tutor Confirmed</span>
+            ) : (
+              <span className="text-amber-300">Awaiting Tutor</span>
+            )}
+          </p>
         </div>
-        <div className="flex flex-col gap-2 items-end">
-          <span
-            className="text-xs font-semibold text-emerald-200 bg-emerald-500/10
-                        px-3 py-1.5 rounded-full border border-emerald-500/30"
-          >
-            {subject}
-          </span>
-          {/* Delete Button */}
+
+        {/* Right side: Image with delete button */}
+        <div className="relative">
+          <div className="w-16 sm:w-20 md:w-24 h-16 sm:h-20 md:h-24 rounded-xl overflow-hidden shadow-lg ring-2 ring-white/5 flex-shrink-0">
+            <img
+              src={imageSrc}
+              alt={subject}
+              className="w-full h-full object-cover"
+            />
+          </div>
+
+          {/* Delete Button - Top right of image */}
           {onDelete && (
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 onDelete();
               }}
-              className="p-1.5 rounded-full bg-red-900/30 hover:bg-red-800/50 
-                         border border-red-500/30 hover:border-red-500/50 transition-all duration-200 
-                         hover:scale-110 active:scale-95 group"
+              className="absolute -top-2 -right-2 p-1.5 rounded-full bg-red-900/80 hover:bg-red-800 
+                         border border-red-500/50 hover:border-red-500/70 transition-all duration-200 
+                         hover:scale-110 active:scale-95 group shadow-lg z-10"
               title="Delete lesson"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className="h-3.5 w-3.5 text-red-400 group-hover:text-red-300"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
+                className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-red-200 group-hover:text-white transition-colors"
+                viewBox="0 0 20 20"
+                fill="currentColor"
               >
                 <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                  fillRule="evenodd"
+                  d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+                  clipRule="evenodd"
                 />
               </svg>
             </button>
@@ -148,106 +199,102 @@ const LessonModel: React.FC<LessonModelProps> = (props) => {
         </div>
       </div>
 
-      {/* Content Section - Fixed Height */}
-      <div className="flex-1 flex flex-col min-h-0">
-        {/* Topic */}
-        <h2 className="text-base font-bold text-white leading-tight line-clamp-2 mb-2">
-          {topic}
-        </h2>
-
-        {/* Student / Instructor */}
-        <p className="text-sm text-gray-300 mb-3">
-          {studentName ? (
-            role === "tutor" ? (
-              <>
-                Student: <span className="text-white">{studentName}</span>
-              </>
-            ) : (
-              <>
-                Instructor: <span className="text-white">{studentName}</span>
-              </>
-            )
-          ) : isConfirmed ? (
-            <span className="text-green-300">Tutor Confirmed</span>
-          ) : (
-            <span className="text-red-300"></span>
-          )}
-        </p>
-
-        {/* Time */}
-        <div
-          className="flex items-center gap-2 text-sm text-gray-300 
-                        bg-slate-800/50 backdrop-blur-sm px-3 py-2 rounded-lg border border-white/10 mb-2"
+      {/* Subject Badge below image section */}
+      <div className="mb-3">
+        <span
+          className="inline-block text-xs font-semibold text-emerald-200 bg-emerald-500/10
+                      px-3 py-1.5 rounded-full border border-emerald-500/30"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-4 w-4 text-emerald-400 flex-shrink-0"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-            />
-          </svg>
-          <span className="font-medium truncate">{time}</span>
-        </div>
-
-        {/* Status Badges */}
-        {isPaid && (
-          <div
-            className="text-xs text-emerald-300 bg-emerald-900/30 backdrop-blur-sm px-3 py-2 rounded-lg
-                          border border-emerald-500/30 flex items-center gap-2 font-medium mb-2"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-3.5 w-3.5 flex-shrink-0"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <path
-                fillRule="evenodd"
-                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                clipRule="evenodd"
-              />
-            </svg>
-            <span className="truncate">Payment Confirmed</span>
-          </div>
-        )}
-        {isExpired && (
-          <div
-            className="text-xs text-red-300 bg-red-900/30 px-3 py-2 rounded-lg
-                          border border-red-500/20 mb-2"
-          >
-            Expired Meeting
-          </div>
-        )}
-
-        {/* Tutor Confirmed Badge */}
-        {hasConfirmedTutors && !isPaid && (
-          <div
-            className="text-xs text-emerald-300 bg-emerald-900/30 backdrop-blur-sm px-3 py-2 rounded-lg
-                          border border-emerald-500/30 flex items-center gap-2 font-medium mb-2"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-3.5 w-3.5 flex-shrink-0"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <path
-                fillRule="evenodd"
-                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                clipRule="evenodd"
-              />
-            </svg>
-            <span className="truncate">Tutor Confirmed - Payment Pending</span>
-          </div>
-        )}
+          {subject}
+        </span>
       </div>
+
+      {/* Date and Time - Readable format (Time first, then date) */}
+      {dateTime && (
+        <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-200 mb-3 flex-wrap">
+          <div className="flex items-center gap-1.5">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-4 w-4 text-emerald-400 flex-shrink-0"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+            <span className="font-medium">{dateTime.formattedTime}</span>
+          </div>
+          <span className="text-gray-400">•</span>
+          <div className="flex items-center gap-1.5">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-4 w-4 text-emerald-400 flex-shrink-0"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+              />
+            </svg>
+            <span className="font-medium">{dateTime.formattedDate}</span>
+          </div>
+        </div>
+      )}
+
+      {/* Status Badges */}
+      {(isPaid || isExpired) && (
+        <div className="flex flex-col gap-2 mb-3">
+          {isPaid && (
+            <div
+              className="text-xs text-emerald-300 bg-emerald-900/30 backdrop-blur-sm px-3 py-1.5 rounded-lg
+                            border border-emerald-500/30 flex items-center gap-2 font-medium"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-3.5 w-3.5 flex-shrink-0"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                  clipRule="evenodd"
+                />
+              </svg>
+              <span className="truncate">Payment Confirmed</span>
+            </div>
+          )}
+          {isExpired && (
+            <div
+              className="text-xs text-red-300 bg-red-900/30 px-3 py-1.5 rounded-lg
+                            border border-red-500/30 flex items-center gap-2 font-medium"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-3.5 w-3.5 flex-shrink-0"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                  clipRule="evenodd"
+                />
+              </svg>
+              <span className="truncate">Expired</span>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Buttons Section - Fixed at Bottom */}
       <div className="flex gap-2 mt-auto pt-3">
@@ -261,7 +308,7 @@ const LessonModel: React.FC<LessonModelProps> = (props) => {
                   onConfirm?.();
                 }}
                 disabled={isProcessing}
-                className="flex-1 px-3 py-2 rounded-lg text-sm font-semibold 
+                className="flex-1 px-3 py-2 rounded-lg text-xs sm:text-sm font-semibold 
                            bg-gradient-to-r from-emerald-600 to-green-600
                            hover:from-emerald-500 hover:to-green-500
                            transition-all border border-emerald-500/20
@@ -278,7 +325,7 @@ const LessonModel: React.FC<LessonModelProps> = (props) => {
                   onCancel?.();
                 }}
                 disabled={isProcessing}
-                className="flex-1 px-3 py-2 rounded-lg text-sm font-semibold 
+                className="flex-1 px-3 py-2 rounded-lg text-xs sm:text-sm font-semibold 
                            bg-gradient-to-r from-red-600 to-red-700
                            hover:from-red-500 hover:to-red-600
                            transition-all border border-red-500/20
@@ -296,7 +343,7 @@ const LessonModel: React.FC<LessonModelProps> = (props) => {
                 e.stopPropagation();
                 onViewDetails();
               }}
-              className="flex-1 py-2 rounded-lg text-white text-sm font-semibold
+              className="flex-1 py-2 rounded-lg text-white text-xs sm:text-sm font-semibold
                          bg-slate-700 hover:bg-slate-600 transition-all
                          border border-slate-500/20 shadow-md
                          active:scale-95"
@@ -304,41 +351,64 @@ const LessonModel: React.FC<LessonModelProps> = (props) => {
               View
             </button>
           </>
+        ) : isPaid ? (
+          <>
+            {/* Confirmed Classes - Start Meeting and Chat */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                if (!isMeetingTimeReached && !isExpired) {
+                  return; // Do nothing if not time yet
+                }
+                if (isExpired) {
+                  alert("Meeting has expired");
+                  return;
+                }
+                onStartMeeting?.();
+              }}
+              disabled={!isMeetingTimeReached || isExpired}
+              className={`flex-1 py-2 rounded-lg text-white text-xs sm:text-sm font-semibold transition-all shadow-md
+                ${
+                  isMeetingTimeReached && !isExpired
+                    ? "bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500 border border-emerald-500/20 active:scale-95 cursor-pointer"
+                    : "bg-slate-700/50 border border-slate-600/30 cursor-not-allowed opacity-50"
+                }`}
+            >
+              🎥 Start Meeting
+            </button>
+
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onStartChat?.();
+              }}
+              className="flex-1 py-2 rounded-lg text-white text-xs sm:text-sm font-semibold 
+                        bg-gradient-to-r from-emerald-600 to-green-600 
+                        hover:from-emerald-500 hover:to-green-500 
+                        transition-all border border-emerald-500/20 
+                        shadow-md hover:shadow-emerald-500/30 active:scale-95"
+            >
+              💬 Chat
+            </button>
+          </>
         ) : (
           <>
-            {isPaid && isMeetingTimeReached ? (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onStartMeeting?.();
-                }}
-                disabled={!isPaid || !isMeetingTimeReached}
-                className={`flex-1 py-2 rounded-lg text-white text-sm font-semibold transition-all shadow-md active:scale-95
-                ${
-                  isPaid && isMeetingTimeReached
-                    ? "bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500 border border-emerald-500/20"
-                    : "bg-slate-700 text-gray-400 cursor-not-allowed opacity-50"
-                }`}
-              >
-                🎥 Start
-              </button>
-            ) : (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  if (isExpired) {
-                    alert("Meeting expired");
-                    return;
-                  }
-                  onEditLesson?.();
-                }}
-                className="flex-1 py-2 rounded-lg text-white text-sm font-semibold transition-all
-                    bg-gradient-to-r from-slate-700 to-slate-600 hover:from-slate-600 hover:to-slate-500
-                    border border-slate-500/20 shadow-md active:scale-95"
-              >
-                Edit
-              </button>
-            )}
+            {/* Unpaid Lessons - Edit, View, and Pay buttons */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                if (isExpired) {
+                  alert("Meeting expired");
+                  return;
+                }
+                onEditLesson?.();
+              }}
+              className="flex-1 py-2 rounded-lg text-white text-xs sm:text-sm font-semibold transition-all
+                  bg-gradient-to-r from-slate-700 to-slate-600 hover:from-slate-600 hover:to-slate-500
+                  border border-slate-500/20 shadow-md active:scale-95"
+            >
+              Edit
+            </button>
 
             {/* View Button */}
             <button
@@ -346,27 +416,27 @@ const LessonModel: React.FC<LessonModelProps> = (props) => {
                 e.stopPropagation();
                 onViewDetails();
               }}
-              className="flex-1 py-2 rounded-lg text-white text-sm font-semibold
+              className="flex-1 py-2 rounded-lg text-white text-xs sm:text-sm font-semibold
                          bg-slate-700 hover:bg-slate-600 transition-all
                          border border-slate-500/20 shadow-md active:scale-95"
             >
               View
             </button>
 
-            {/* Chat Button for paid lessons */}
-            {isPaid && (
+            {/* Pay Button - Show for unpaid with confirmed tutors */}
+            {hasConfirmedTutors && (
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  onStartChat?.();
+                  onViewDetails(); // Opens modal where they can pay
                 }}
-                className="flex-1 py-2 rounded-lg text-white text-sm font-semibold 
-                          bg-gradient-to-r from-emerald-600 to-green-600 
-                          hover:from-emerald-500 hover:to-green-500 
-                          transition-all border border-emerald-500/20 
-                          shadow-md hover:shadow-emerald-500/30 active:scale-95"
+                className="flex-1 py-2 rounded-lg text-white text-xs sm:text-sm font-semibold 
+                          bg-gradient-to-r from-violet-600 to-purple-600 
+                          hover:from-violet-500 hover:to-purple-500 
+                          transition-all border border-violet-500/20 
+                          shadow-md hover:shadow-violet-500/30 active:scale-95"
               >
-                Chat
+                💳 Pay
               </button>
             )}
           </>

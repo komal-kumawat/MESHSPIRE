@@ -525,6 +525,7 @@ const TutorUpdateProfile: React.FC = () => {
                       type="number"
                       name="age"
                       value={user.age ?? ""}
+                      
                       onChange={handleChange}
                       className="w-full px-4 py-3 rounded-lg bg-slate-900/80 border border-white/10 focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition text-white placeholder:text-gray-500"
                       placeholder="Enter your age"

@@ -37,10 +37,10 @@ const LessonCarousel: React.FC<LessonCarouselProps> = ({ children }) => {
   if (children.length === 0) return null;
 
   return (
-    <div className="relative w-full">
+    <div className="relative w-full max-w-full overflow-hidden">
       {/* Carousel Container */}
       <div
-        className="flex w-full overflow-x-auto overflow-y-hidden scroll-smooth no-scrollbar mb-6 px-2 sm:px-0"
+        className="flex w-full max-w-full overflow-x-auto overflow-y-hidden scroll-smooth no-scrollbar mb-6 px-2 sm:px-0"
         ref={carouselRef}
         onScroll={checkScrollability}
       >

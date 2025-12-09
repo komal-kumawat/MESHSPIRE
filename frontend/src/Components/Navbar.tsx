@@ -56,7 +56,7 @@ const Navbar: React.FC<NavbarProps> = ({ isSidebarExpanded }) => {
     <nav
       className={`flex-shrink-0 z-50 backdrop-blur-xl border border-[rgba(255,255,255,0.2)] 
       bg-slate-900/70 text-white py-2 sm:py-3 flex items-center justify-between transition-all duration-300
-      mx-2 sm:mx-4 rounded-xl mt-2 sm:mt-4 px-3 sm:px-4`}
+      mx-2 sm:mx-4 rounded-xl mt-2 sm:mt-4 px-3 sm:px-4 max-w-full`}
     >
       <div className="text-sm sm:text-base lg:text-lg font-semibold cursor-pointer transition-all duration-300 truncate max-w-[140px] sm:max-w-[200px] lg:max-w-none">
         {name
@@ -68,7 +68,7 @@ const Navbar: React.FC<NavbarProps> = ({ isSidebarExpanded }) => {
             }`}
       </div>
 
-      <div className="flex items-center gap-3 sm:gap-4 lg:gap-5 relative">
+      <div className="flex items-center gap-3 sm:gap-4 lg:gap-5 relative flex-shrink-0">
         <div
           className={`relative flex items-center transition-all duration-300 ${
             isSidebarExpanded ? "hidden xl:flex" : "hidden lg:flex"

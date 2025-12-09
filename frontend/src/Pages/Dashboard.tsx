@@ -252,8 +252,8 @@ const Dashboard: React.FC = () => {
   ));
 
   return (
-    <div className="bg-black text-white flex flex-col w-full overflow-x-hidden min-h-screen">
-      <main className="px-4 sm:px-8 py-8 flex flex-col gap-8 transition-all duration-300">
+    <div className="bg-black text-white flex flex-col w-full max-w-full overflow-x-hidden min-h-screen">
+      <main className="px-4 sm:px-8 py-8 flex flex-col gap-8 transition-all duration-300 max-w-full">
         {/* Header Section with elegant design */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0">
           <div className="flex items-center gap-2">

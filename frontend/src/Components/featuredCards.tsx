@@ -7,7 +7,7 @@ interface FeaturedCardProps {
   onClose: () => void;
   onSchedule: (data: any) => void;
   lessonData?: any;
-  editMode?:boolean;
+  editMode?: boolean;
 }
 
 const FeaturedCard: React.FC<FeaturedCardProps> = ({
@@ -15,7 +15,7 @@ const FeaturedCard: React.FC<FeaturedCardProps> = ({
   onClose,
   onSchedule,
   lessonData,
-  editMode
+  editMode,
 }) => {
   const classOptions = Array.from({ length: 12 }, (_, i) => i + 1);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -25,18 +25,20 @@ const FeaturedCard: React.FC<FeaturedCardProps> = ({
   const [selectedTime, setSelectedTime] = useState("");
 
   useEffect(() => {
-  if (editMode && lessonData) {
-    setSelectedDate(lessonData.date);
-    setSelectedTime(lessonData.time);
+    if (editMode && lessonData) {
+      setSelectedDate(lessonData.date);
+      setSelectedTime(lessonData.time);
 
-    (document.getElementById("topic") as HTMLInputElement).value = lessonData.topic;
-    (document.getElementById("subTopic") as HTMLInputElement).value = lessonData.subTopic || "";
-    (document.getElementById("subject") as HTMLSelectElement).value = lessonData.subject;
-    (document.getElementById("class") as HTMLSelectElement).value = lessonData.class;
-  }
-}, [editMode, lessonData]);
-
-
+      (document.getElementById("topic") as HTMLInputElement).value =
+        lessonData.topic;
+      (document.getElementById("subTopic") as HTMLInputElement).value =
+        lessonData.subTopic || "";
+      (document.getElementById("subject") as HTMLSelectElement).value =
+        lessonData.subject;
+      (document.getElementById("class") as HTMLSelectElement).value =
+        lessonData.class;
+    }
+  }, [editMode, lessonData]);
 
   useEffect(() => {
     const today = new Date();
@@ -100,7 +102,6 @@ const FeaturedCard: React.FC<FeaturedCardProps> = ({
       } else {
         await onSchedule(lessonDataToSend);
       }
-
     } catch (error) {
       console.error("Error scheduling lesson:", error);
     } finally {
@@ -114,7 +115,7 @@ const FeaturedCard: React.FC<FeaturedCardProps> = ({
         <>
           {/* Backdrop */}
           <motion.div
-            className="fixed inset-0 bg-black/70 backdrop-blur-md z-40"
+            className="fixed inset-0 bg-black/80 backdrop-blur-sm z-40"
             onClick={onClose}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -123,7 +124,7 @@ const FeaturedCard: React.FC<FeaturedCardProps> = ({
 
           {/* Sliding Panel */}
           <motion.div
-            className="fixed right-0 top-0 h-full w-full sm:w-[480px] bg-gradient-to-b from-slate-900/98 via-slate-900/95 to-slate-900/98 backdrop-blur-2xl text-white shadow-2xl border-l border-emerald-500/20 z-50 overflow-y-auto"
+            className="fixed right-0 top-0 h-full w-full sm:w-[480px] bg-gradient-to-b from-slate-900/98 via-slate-900/95 to-slate-900/98 backdrop-blur-xl text-white shadow-2xl border-l border-white/10 z-50 overflow-y-auto"
             initial={{ x: "100%" }}
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
@@ -131,18 +132,17 @@ const FeaturedCard: React.FC<FeaturedCardProps> = ({
           >
             <div className="p-6 sm:p-8">
               <div className="mb-8">
-                <h2 className="text-3xl sm:text-4xl font-bold mb-2 bg-gradient-to-r from-emerald-400 via-green-300 to-emerald-400 bg-clip-text text-transparent">
-                  Schedule Your Lesson
+                <h2 className="text-3xl sm:text-4xl font-bold text-white">
+                  {editMode ? "Edit Lesson" : "Schedule Your Lesson"}
                 </h2>
-                <div className="h-1 w-24 bg-gradient-to-r from-emerald-500 to-green-500 rounded-full"></div>
               </div>
 
               <form className="flex flex-col gap-6">
                 <div>
-                  <label className="font-semibold text-emerald-200 flex items-center gap-2 mb-2">
+                  <label className="font-semibold text-gray-200 flex items-center gap-2 mb-2">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
-                      className="h-4 w-4"
+                      className="h-4 w-4 text-white"
                       viewBox="0 0 20 20"
                       fill="currentColor"
                     >
@@ -154,16 +154,16 @@ const FeaturedCard: React.FC<FeaturedCardProps> = ({
                     id="topic"
                     type="text"
                     required
-                    className="w-full p-3 rounded-xl bg-slate-800/60 backdrop-blur-sm border border-emerald-500/20 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500/50 transition-all"
+                    className="w-full p-3 rounded-xl bg-slate-800/50 backdrop-blur-sm border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500/50 transition-all"
                     placeholder="e.g., Calculus Basics"
                   />
                 </div>
 
                 <div>
-                  <label className="font-semibold text-emerald-200 flex items-center gap-2 mb-2">
+                  <label className="font-semibold text-gray-200 flex items-center gap-2 mb-2">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
-                      className="h-4 w-4"
+                      className="h-4 w-4 text-white"
                       viewBox="0 0 20 20"
                       fill="currentColor"
                     >
@@ -178,16 +178,16 @@ const FeaturedCard: React.FC<FeaturedCardProps> = ({
                   <input
                     id="subTopic"
                     type="text"
-                    className="w-full p-3 rounded-xl bg-slate-800/60 backdrop-blur-sm border border-emerald-500/20 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500/50 transition-all"
+                    className="w-full p-3 rounded-xl bg-slate-800/50 backdrop-blur-sm border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500/50 transition-all"
                     placeholder="e.g., Derivatives"
                   />
                 </div>
 
                 <div>
-                  <label className="font-semibold text-emerald-200 flex items-center gap-2 mb-2">
+                  <label className="font-semibold text-gray-200 flex items-center gap-2 mb-2">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
-                      className="h-4 w-4"
+                      className="h-4 w-4 text-white"
                       viewBox="0 0 20 20"
                       fill="currentColor"
                     >
@@ -198,7 +198,7 @@ const FeaturedCard: React.FC<FeaturedCardProps> = ({
                   <select
                     id="subject"
                     required
-                    className="w-full p-3 rounded-xl bg-slate-800/60 backdrop-blur-sm border border-emerald-500/20 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500/50 transition-all"
+                    className="w-full p-3 rounded-xl bg-slate-800/50 backdrop-blur-sm border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500/50 transition-all"
                   >
                     <option value="">Select Subject</option>
                     <option value="Mathematics">Mathematics</option>
@@ -209,10 +209,10 @@ const FeaturedCard: React.FC<FeaturedCardProps> = ({
                 </div>
 
                 <div>
-                  <label className="font-semibold text-emerald-200 flex items-center gap-2 mb-2">
+                  <label className="font-semibold text-gray-200 flex items-center gap-2 mb-2">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
-                      className="h-4 w-4"
+                      className="h-4 w-4 text-white"
                       viewBox="0 0 20 20"
                       fill="currentColor"
                     >
@@ -223,7 +223,7 @@ const FeaturedCard: React.FC<FeaturedCardProps> = ({
                   <select
                     id="class"
                     required
-                    className="w-full p-3 rounded-xl bg-slate-800/60 backdrop-blur-sm border border-emerald-500/20 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500/50 transition-all"
+                    className="w-full p-3 rounded-xl bg-slate-800/50 backdrop-blur-sm border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500/50 transition-all"
                     defaultValue=""
                   >
                     <option value="" disabled>
@@ -242,10 +242,10 @@ const FeaturedCard: React.FC<FeaturedCardProps> = ({
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="font-semibold text-emerald-200 flex items-center gap-2 mb-2">
+                    <label className="font-semibold text-gray-200 flex items-center gap-2 mb-2">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
-                        className="h-4 w-4"
+                        className="h-4 w-4 text-white"
                         viewBox="0 0 20 20"
                         fill="currentColor"
                       >
@@ -264,15 +264,15 @@ const FeaturedCard: React.FC<FeaturedCardProps> = ({
                       required
                       value={selecetedDate}
                       onChange={(e) => setSelectedDate(e.target.value)}
-                      className="w-full p-3 rounded-xl bg-slate-800/60 backdrop-blur-sm border border-emerald-500/20 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500/50 transition-all"
+                      className="w-full p-3 rounded-xl bg-slate-800/50 backdrop-blur-sm border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500/50 transition-all"
                     />
                   </div>
 
                   <div>
-                    <label className="font-semibold text-emerald-200 flex items-center gap-2 mb-2">
+                    <label className="font-semibold text-gray-200 flex items-center gap-2 mb-2">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
-                        className="h-4 w-4"
+                        className="h-4 w-4 text-white"
                         viewBox="0 0 20 20"
                         fill="currentColor"
                       >
@@ -291,84 +291,69 @@ const FeaturedCard: React.FC<FeaturedCardProps> = ({
                       min={minTime}
                       value={selectedTime}
                       onChange={(e) => setSelectedTime(e.target.value)}
-                      className="w-full p-3 rounded-xl bg-slate-800/60 backdrop-blur-sm border border-emerald-500/20 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500/50 transition-all"
+                      className="w-full p-3 rounded-xl bg-slate-800/50 backdrop-blur-sm border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500/50 transition-all"
                     />
                   </div>
                 </div>
-                  {editMode?
+                {editMode ? (
                   <button
-                  type="button"
-                  onClick={handleSubmit}
-                  disabled={isSubmitting}
-                  className="w-full py-3 rounded-xl bg-gradient-to-r from-violet-600 via-purple-600 to-violet-600 
-                           hover:from-violet-500 hover:via-purple-500 hover:to-violet-500 
-                           font-bold shadow-xl transition-all duration-300 hover:shadow-violet-500/50 
-                           disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
-                >
-
-                  {isSubmitting? "Updating..." : "Update Lesson"}
-                </button>
-                :
-                <button
-                  type="button"
-                  onClick={handleSubmit}
-                  disabled={isSubmitting}
-                  className="w-full py-3.5 rounded-xl bg-gradient-to-r from-emerald-600 via-green-600 to-emerald-600 
-                           hover:from-emerald-500 hover:via-green-500 hover:to-emerald-500 
-                           font-bold shadow-xl transition-all duration-300 hover:shadow-emerald-500/50 
+                    type="button"
+                    onClick={handleSubmit}
+                    disabled={isSubmitting}
+                    className="w-full py-3.5 rounded-xl bg-gradient-to-r from-emerald-600 to-green-600 
+                           hover:from-emerald-500 hover:to-green-500 
+                           font-bold shadow-lg transition-all duration-300 hover:shadow-emerald-500/30 
                            disabled:opacity-50 disabled:cursor-not-allowed active:scale-95
                            border border-emerald-500/20 flex items-center justify-center gap-2"
-                >
-                  {isSubmitting ? (
-                    <>
-                      <svg
-                        className="animate-spin h-5 w-5"
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                      >
-                        <circle
-                          className="opacity-25"
-                          cx="12"
-                          cy="12"
-                          r="10"
-                          stroke="currentColor"
-                          strokeWidth="4"
-                        ></circle>
-                        <path
-                          className="opacity-75"
-                          fill="currentColor"
-                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                        ></path>
-                      </svg>
-                      Scheduling...
-                    </>
-                  ) : (
-                    <>
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-5 w-5"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                      Schedule Lesson
-                    </>
-                  )}
-                </button>
-              
-                  }
-                  </form>
+                  >
+                    {isSubmitting ? "Updating..." : "Update Lesson"}
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={handleSubmit}
+                    disabled={isSubmitting}
+                    className="w-full py-3.5 rounded-xl bg-gradient-to-r from-emerald-600 to-green-600 
+                           hover:from-emerald-500 hover:to-green-500 
+                           font-bold shadow-lg transition-all duration-300 hover:shadow-emerald-500/30 
+                           disabled:opacity-50 disabled:cursor-not-allowed active:scale-95
+                           border border-emerald-500/20 flex items-center justify-center gap-2"
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <svg
+                          className="animate-spin h-5 w-5"
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                        >
+                          <circle
+                            className="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            strokeWidth="4"
+                          ></circle>
+                          <path
+                            className="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                          ></path>
+                        </svg>
+                        Scheduling...
+                      </>
+                    ) : (
+                      <>Schedule Lesson</>
+                    )}
+                  </button>
+                )}
+              </form>
 
               <button
                 onClick={onClose}
                 disabled={isSubmitting}
-                className="w-full py-3 mt-4 rounded-xl bg-slate-800/60 backdrop-blur-sm border border-slate-600/30 text-gray-200 hover:bg-slate-700/60 transition-all hover:border-slate-500/50 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
+                className="w-full py-3 mt-4 rounded-xl bg-gradient-to-r from-slate-700 to-slate-600 hover:from-slate-600 hover:to-slate-500 border border-slate-500/20 text-white transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
               >
                 Cancel
               </button>

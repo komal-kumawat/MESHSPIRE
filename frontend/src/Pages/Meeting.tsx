@@ -96,7 +96,7 @@ const Meeting: React.FC = () => {
   };
 
   return (
-    <div className="bg-gradient-to-br from-black via-slate-950 to-slate-900 text-white w-full overflow-x-hidden flex flex-col min-h-screen">
+    <div className="bg-black text-white w-full overflow-x-hidden flex flex-col min-h-screen">
       <main className="flex-1 py-8 px-4 sm:px-8 transition-all duration-300 flex items-center justify-center">
         <div className="flex flex-col xl:flex-row items-center justify-center gap-8 lg:gap-12 max-w-7xl w-full">
           {/* LEFT CONTENT */}

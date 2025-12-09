@@ -252,7 +252,7 @@ const Dashboard: React.FC = () => {
   ));
 
   return (
-    <div className="bg-gradient-to-br from-black via-slate-950 to-slate-900 text-white flex flex-col w-full overflow-x-hidden min-h-screen">
+    <div className="bg-black text-white flex flex-col w-full overflow-x-hidden min-h-screen">
       <main className="px-4 sm:px-8 py-8 flex flex-col gap-8 transition-all duration-300">
         {/* Header Section with elegant design */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0">

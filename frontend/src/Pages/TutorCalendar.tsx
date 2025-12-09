@@ -28,7 +28,7 @@ const TutorCalendar: React.FC = () => {
   };
 
   return (
-    <div className="bg-gradient-to-br from-black via-slate-950 to-slate-900 text-white flex flex-col w-full overflow-x-hidden min-h-screen">
+    <div className="bg-black text-white flex flex-col w-full overflow-x-hidden min-h-screen">
       <main className="px-4 sm:px-8 py-6 flex flex-col gap-6 transition-all duration-300 max-h-[calc(100vh-5rem)] overflow-y-auto">
         <div className="flex justify-between items-center">
           <h2 className="text-2xl font-bold text-white tracking-wide">

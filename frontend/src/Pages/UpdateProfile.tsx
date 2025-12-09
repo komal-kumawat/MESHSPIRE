@@ -21,7 +21,7 @@ interface User {
   email: string;
   gender: string;
   age?: number;
-  class: number;
+  class: string;
   avatar?: string;
   bio?: string;
   skills?: string;
@@ -37,7 +37,7 @@ const UpdateProfile: React.FC = () => {
     email: "",
     gender: "",
     age: 0,
-    class: 0,
+    class: "0",
     avatar: "",
     bio: "",
     skills: "",
@@ -167,6 +167,7 @@ const UpdateProfile: React.FC = () => {
       } else if (preview === undefined) {
         formData.append("avatar", "");
       }
+      
 
       await API.put(`/profile/update`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
@@ -176,7 +177,7 @@ const UpdateProfile: React.FC = () => {
       setTimeout(() => navigate(`/profile/${userId}`), 1500);
     } catch (err) {
       console.error(err);
-      setMessage("Failed to update profile");
+      setMessage(`Failed to update profile : ${err}` );
     } finally {
       setSaving(false);
     }

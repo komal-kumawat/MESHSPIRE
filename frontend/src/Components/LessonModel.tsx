@@ -132,7 +132,9 @@ const LessonModel: React.FC<LessonModelProps> = (props) => {
       transition-all duration-300 relative
       border cursor-pointer
       ${
-        hasConfirmedTutors && !isPaid
+        isExpired && isPaid
+          ? "bg-red-950/40 border-red-500/60 shadow-red-500/20 ring-2 ring-red-500/20"
+          : hasConfirmedTutors && !isPaid
           ? "bg-emerald-950/40 border-emerald-500/60 shadow-emerald-500/20 ring-2 ring-emerald-500/20"
           : "bg-slate-900/60 border-white/20 hover:border-emerald-500/30"
       }
@@ -154,9 +156,9 @@ const LessonModel: React.FC<LessonModelProps> = (props) => {
               )
             ) : isConfirmed ? (
               <span className="text-emerald-300">Tutor Confirmed</span>
-            ) : (
+            ) : !isPaid ? (
               <span className="text-amber-300">Awaiting Tutor</span>
-            )}
+            ) : null}
           </p>
         </div>
 
@@ -250,49 +252,27 @@ const LessonModel: React.FC<LessonModelProps> = (props) => {
         </div>
       )}
 
-      {/* Status Badges */}
-      {(isPaid || isExpired) && (
+      {/* Status Badges - Only show expired on card */}
+      {isExpired && isPaid && (
         <div className="flex flex-col gap-2 mb-3">
-          {isPaid && (
-            <div
-              className="text-xs text-emerald-300 bg-emerald-900/30 backdrop-blur-sm px-3 py-1.5 rounded-lg
-                            border border-emerald-500/30 flex items-center gap-2 font-medium"
+          <div
+            className="text-xs text-red-300 bg-red-900/30 px-3 py-1.5 rounded-lg
+                          border border-red-500/30 flex items-center gap-2 font-medium"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-3.5 w-3.5 flex-shrink-0"
+              viewBox="0 0 20 20"
+              fill="currentColor"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-3.5 w-3.5 flex-shrink-0"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                  clipRule="evenodd"
-                />
-              </svg>
-              <span className="truncate">Payment Confirmed</span>
-            </div>
-          )}
-          {isExpired && (
-            <div
-              className="text-xs text-red-300 bg-red-900/30 px-3 py-1.5 rounded-lg
-                            border border-red-500/30 flex items-center gap-2 font-medium"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-3.5 w-3.5 flex-shrink-0"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                  clipRule="evenodd"
-                />
-              </svg>
-              <span className="truncate">Expired</span>
-            </div>
-          )}
+              <path
+                fillRule="evenodd"
+                d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                clipRule="evenodd"
+              />
+            </svg>
+            <span className="truncate">Meeting Expired</span>
+          </div>
         </div>
       )}
 
@@ -370,11 +350,11 @@ const LessonModel: React.FC<LessonModelProps> = (props) => {
               className={`flex-1 py-2 rounded-lg text-white text-xs sm:text-sm font-semibold transition-all shadow-md
                 ${
                   isMeetingTimeReached && !isExpired
-                    ? "bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500 border border-emerald-500/20 active:scale-95 cursor-pointer"
-                    : "bg-slate-700/50 border border-slate-600/30 cursor-not-allowed opacity-50"
+                    ? "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 border border-blue-500/20 active:scale-95 cursor-pointer"
+                    : "bg-gradient-to-r from-blue-900/40 to-indigo-900/40 border border-blue-700/20 cursor-not-allowed opacity-40"
                 }`}
             >
-              🎥 Start Meeting
+              Start Meeting
             </button>
 
             <button
@@ -383,12 +363,11 @@ const LessonModel: React.FC<LessonModelProps> = (props) => {
                 onStartChat?.();
               }}
               className="flex-1 py-2 rounded-lg text-white text-xs sm:text-sm font-semibold 
-                        bg-gradient-to-r from-emerald-600 to-green-600 
-                        hover:from-emerald-500 hover:to-green-500 
-                        transition-all border border-emerald-500/20 
-                        shadow-md hover:shadow-emerald-500/30 active:scale-95"
+                        bg-slate-700 hover:bg-slate-600 
+                        transition-all border border-slate-500/20 
+                        shadow-md active:scale-95"
             >
-              💬 Chat
+              Chat
             </button>
           </>
         ) : (
@@ -431,12 +410,12 @@ const LessonModel: React.FC<LessonModelProps> = (props) => {
                   onViewDetails(); // Opens modal where they can pay
                 }}
                 className="flex-1 py-2 rounded-lg text-white text-xs sm:text-sm font-semibold 
-                          bg-gradient-to-r from-violet-600 to-purple-600 
-                          hover:from-violet-500 hover:to-purple-500 
-                          transition-all border border-violet-500/20 
-                          shadow-md hover:shadow-violet-500/30 active:scale-95"
+                          bg-gradient-to-r from-emerald-600 to-green-600 
+                          hover:from-emerald-500 hover:to-green-500 
+                          transition-all border border-emerald-500/20 
+                          shadow-md hover:shadow-emerald-500/30 active:scale-95"
               >
-                💳 Pay
+                Pay
               </button>
             )}
           </>

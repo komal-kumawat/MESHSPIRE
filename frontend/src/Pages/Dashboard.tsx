@@ -256,20 +256,17 @@ const Dashboard: React.FC = () => {
       <main className="px-4 sm:px-8 py-8 flex flex-col gap-8 transition-all duration-300">
         {/* Header Section with elegant design */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0">
-          <div>
-            <h2 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-emerald-400 via-green-300 to-emerald-400 bg-clip-text text-transparent mb-2">
+          <div className="flex items-center gap-2">
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-200">
               My Lessons
-            </h2>
-            <p className="text-gray-400 text-sm">
-              Manage your scheduled sessions
-            </p>
+            </h1>
           </div>
           <button
             onClick={() => setOpenCard(true)}
             className="px-6 py-3 bg-gradient-to-r from-emerald-600 to-green-600 
                      hover:from-emerald-500 hover:to-green-500 
                      rounded-xl font-semibold shadow-lg transition-all duration-300 
-                     hover:scale-105 active:scale-95
+                     cursor-pointer 
                      border border-emerald-500/20 flex items-center gap-2"
           >
             <svg
@@ -354,11 +351,10 @@ const Dashboard: React.FC = () => {
         {/* Confirmed Classes Section */}
         {!loading && paidLessons.length > 0 && (
           <>
-            <div className="flex items-center gap-3 mt-4">
-              <div className="h-1 w-12 bg-gradient-to-r from-emerald-500 to-green-500 rounded-full"></div>
-              <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-emerald-400 to-green-400 bg-clip-text text-transparent">
+            <div className="flex items-center gap-2 mb-4">
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-200">
                 Confirmed Classes
-              </h2>
+              </h1>
             </div>
             <LessonCarousel>
               {paidLessons.map((lesson, index) => (

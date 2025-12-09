@@ -40,11 +40,11 @@ const LessonCarousel: React.FC<LessonCarouselProps> = ({ children }) => {
     <div className="relative w-full">
       {/* Carousel Container */}
       <div
-        className="flex w-full overflow-x-auto scroll-smooth no-scrollbar mb-6 px-2 sm:px-0"
+        className="flex w-full overflow-x-auto overflow-y-hidden scroll-smooth no-scrollbar mb-6 px-2 sm:px-0"
         ref={carouselRef}
         onScroll={checkScrollability}
       >
-        <div className="flex flex-row gap-4 sm:gap-5">
+        <div className="flex flex-row gap-5">
           {children.map((child, index) => (
             <div key={index} className="flex-shrink-0">
               {child}

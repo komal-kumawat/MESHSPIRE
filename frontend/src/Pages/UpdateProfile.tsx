@@ -198,6 +198,7 @@ const UpdateProfile: React.FC = () => {
       </div>
     </div>
   );
+  
 
   return (
     <div className="flex flex-col min-h-screen bg-black text-white overflow-x-hidden">

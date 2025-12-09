@@ -104,7 +104,7 @@ const Calendar: React.FC<CalendarProps> = ({
       days.push(
         <div
           key={`empty-${i}`}
-          className="bg-slate-900/20 border border-slate-800/50 rounded-lg p-2 min-h-[120px]"
+          className="bg-gradient-to-b from-slate-900/40 to-slate-900/20 border border-white/5 rounded-lg p-2 min-h-[90px]"
         />
       );
     }
@@ -117,17 +117,17 @@ const Calendar: React.FC<CalendarProps> = ({
       days.push(
         <div
           key={day}
-          className={`bg-slate-900/40 border rounded-lg p-2 min-h-[120px] transition-all hover:bg-slate-800/60
+          className={`bg-gradient-to-b from-slate-900/60 to-slate-900/30 backdrop-blur-sm border rounded-xl p-2 min-h-[90px] transition-all hover:from-slate-800/70 hover:to-slate-800/40
             ${
               isToday(day)
-                ? "border-violet-500 ring-2 ring-violet-500/30"
-                : "border-slate-700/50"
+                ? "border-emerald-500/50 ring-2 ring-emerald-500/20 shadow-lg shadow-emerald-500/10"
+                : "border-white/10"
             }
             ${hasLessons ? "cursor-pointer" : ""}`}
         >
           <div
-            className={`text-sm font-semibold mb-2 ${
-              isToday(day) ? "text-violet-400" : "text-gray-300"
+            className={`text-sm font-semibold mb-1.5 ${
+              isToday(day) ? "text-emerald-400" : "text-gray-300"
             }`}
           >
             {day}
@@ -139,26 +139,28 @@ const Calendar: React.FC<CalendarProps> = ({
                 <div
                   key={lesson._id}
                   onClick={() => onLessonClick(lesson)}
-                  className={`text-xs p-1.5 rounded cursor-pointer transition-all hover:scale-105
+                  className={`text-xs p-1.5 rounded-lg cursor-pointer transition-all hover:scale-[1.02] shadow-md
                     ${
                       lesson.isPaid
-                        ? "bg-green-900/40 border border-green-600/30 hover:bg-green-900/60"
-                        : "bg-violet-900/40 border border-violet-600/30 hover:bg-violet-900/60"
+                        ? "bg-gradient-to-r from-emerald-900/40 to-green-900/40 border border-emerald-500/30 hover:from-emerald-800/50 hover:to-green-800/50"
+                        : "bg-gradient-to-r from-violet-900/40 to-purple-900/40 border border-violet-500/30 hover:from-violet-800/50 hover:to-purple-800/50"
                     }`}
                 >
                   <div className="font-semibold truncate text-white">
                     {lesson.topic}
                   </div>
-                  <div className="text-gray-300 truncate">{lesson.time}</div>
+                  <div className="text-gray-300 truncate text-[10px]">
+                    {lesson.time}
+                  </div>
                   {userRole === "tutor" && lesson.studentId?.name && (
-                    <div className="text-gray-400 truncate text-[10px]">
+                    <div className="text-gray-400 truncate text-[9px]">
                       {lesson.studentId.name}
                     </div>
                   )}
                 </div>
               ))}
               {lessonsOnDay.length > 2 && (
-                <div className="text-[10px] text-gray-400 text-center py-1">
+                <div className="text-[10px] text-emerald-400 font-medium text-center py-0.5">
                   +{lessonsOnDay.length - 2} more
                 </div>
               )}
@@ -174,10 +176,10 @@ const Calendar: React.FC<CalendarProps> = ({
   return (
     <div className="w-full">
       {/* Calendar Header */}
-      <div className="flex items-center justify-between mb-6 bg-slate-900/60 p-4 rounded-xl border border-slate-700/50">
+      <div className="flex items-center justify-between mb-4 bg-gradient-to-r from-slate-900/80 via-emerald-900/20 to-slate-900/80 backdrop-blur-xl p-4 rounded-xl border border-white/10 shadow-lg">
         <button
           onClick={previousMonth}
-          className="p-2 hover:bg-slate-800 rounded-lg transition-all"
+          className="p-2 hover:bg-gradient-to-r hover:from-emerald-600/20 hover:to-green-600/20 rounded-lg transition-all duration-300 border border-white/5 hover:border-emerald-500/30"
         >
           <ChevronLeftIcon className="text-gray-300" />
         </button>
@@ -188,7 +190,7 @@ const Calendar: React.FC<CalendarProps> = ({
 
         <button
           onClick={nextMonth}
-          className="p-2 hover:bg-slate-800 rounded-lg transition-all"
+          className="p-2 hover:bg-gradient-to-r hover:from-emerald-600/20 hover:to-green-600/20 rounded-lg transition-all duration-300 border border-white/5 hover:border-emerald-500/30"
         >
           <ChevronRightIcon className="text-gray-300" />
         </button>
@@ -210,18 +212,18 @@ const Calendar: React.FC<CalendarProps> = ({
       <div className="grid grid-cols-7 gap-2">{renderCalendarDays()}</div>
 
       {/* Legend */}
-      <div className="flex gap-4 mt-6 justify-center flex-wrap">
+      <div className="flex gap-4 mt-4 justify-center flex-wrap">
         <div className="flex items-center gap-2">
-          <div className="w-4 h-4 bg-violet-900/40 border border-violet-600/30 rounded"></div>
-          <span className="text-sm text-gray-300">Pending Payment</span>
+          <div className="w-4 h-4 bg-gradient-to-r from-violet-900/40 to-purple-900/40 border border-violet-500/30 rounded-md"></div>
+          <span className="text-xs text-gray-400">Pending Payment</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-4 h-4 bg-green-900/40 border border-green-600/30 rounded"></div>
-          <span className="text-sm text-gray-300">Confirmed</span>
+          <div className="w-4 h-4 bg-gradient-to-r from-emerald-900/40 to-green-900/40 border border-emerald-500/30 rounded-md"></div>
+          <span className="text-xs text-gray-400">Confirmed</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-4 h-4 border-2 border-violet-500 rounded"></div>
-          <span className="text-sm text-gray-300">Today</span>
+          <div className="w-4 h-4 border-2 border-emerald-500 rounded-md"></div>
+          <span className="text-xs text-gray-400">Today</span>
         </div>
       </div>
     </div>

@@ -203,48 +203,72 @@ export const Card = ({
       {/* Expanded Modal */}
       <AnimatePresence>
         {open && (
-          <div className="fixed inset-0 z-50 h-screen overflow-auto flex items-center justify-center px-3 sm:px-4">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 h-full w-full bg-black/80 backdrop-blur-lg"
-            />
+          <div
+            className="fixed inset-0 bg-black/90 backdrop-blur-md flex justify-center items-center z-[9999] px-4"
+            onClick={handleClose}
+          >
             <motion.div
               ref={containerRef}
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="relative z-[60] w-full max-w-sm sm:max-w-2xl md:max-w-3xl rounded-2xl
-                backdrop-blur-lg bg-slate-900/60 border border-white/20
-                shadow-2xl p-5 sm:p-8 text-white"
+              onClick={(e) => e.stopPropagation()}
+              className="bg-gradient-to-b from-slate-900/95 to-slate-900/90 backdrop-blur-xl text-white p-8 rounded-2xl w-full sm:w-[520px] space-y-6 shadow-2xl border border-white/10 max-h-[90vh] overflow-y-auto"
             >
-              <button
-                className="absolute top-3 right-3 sm:top-4 sm:right-4 flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-full bg-gray-900 text-white"
-                onClick={handleClose}
-              >
-                <IconX className="h-4 w-4 sm:h-5 sm:w-5" />
-              </button>
-
-              <div className="flex flex-col items-start space-y-3 sm:space-y-4">
-                <motion.p className="text-xs sm:text-sm font-medium text-gray-300 flex items-center gap-2">
-                  {card.category} {renderStars(card.rating)}
-                </motion.p>
-                <motion.p className="text-2xl sm:text-3xl md:text-4xl font-semibold text-white">
+              {/* Header Section */}
+              <div className="flex justify-between items-start gap-4">
+                <h2 className="text-2xl sm:text-3xl font-bold text-gray-200">
                   {card.title}
-                </motion.p>
+                </h2>
+                <span className="text-xs font-semibold text-emerald-200 border border-emerald-500/40 px-3 py-1.5 rounded-full bg-emerald-500/10 whitespace-nowrap">
+                  {card.category}
+                </span>
+              </div>
 
-                <div className="text-gray-200 text-sm sm:text-base">
+              {/* Rating Section */}
+              <div className="flex items-center gap-2 bg-slate-800/40 backdrop-blur-sm px-4 py-2.5 rounded-lg border border-white/10 w-fit">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5 text-yellow-400"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                </svg>
+                <span className="text-gray-300 font-medium">
+                  {card.rating} / 5
+                </span>
+                {renderStars(card.rating)}
+              </div>
+
+              {/* Content Section */}
+              <div className="space-y-3 bg-slate-800/40 backdrop-blur-sm p-5 rounded-xl border border-white/10">
+                <div className="text-gray-300 text-sm sm:text-base">
                   {card.content}
                 </div>
+              </div>
 
+              {/* Action Buttons */}
+              <div className="flex flex-col sm:flex-row gap-3 pt-2">
                 <button
                   onClick={handleNavigate}
-                  className="px-6 sm:px-8 py-2 sm:py-2.5 font-medium text-white rounded-2xl
-                    bg-gradient-to-r from-violet-900 via-violet-800 to-violet-900
-                    hover:bg-violet-900 transition-all duration-300 text-sm sm:text-base"
+                  className="flex-1 px-6 py-3 font-semibold text-white rounded-xl
+                    bg-gradient-to-r from-emerald-600 to-green-600
+                    hover:from-emerald-500 hover:to-green-500 
+                    transition-all duration-300 shadow-lg hover:shadow-emerald-500/50
+                    border border-emerald-500/20 active:scale-95"
                 >
-                  Join
+                  Join Class
+                </button>
+                <button
+                  onClick={handleClose}
+                  className="flex-1 px-6 py-3 font-semibold text-white rounded-xl
+                    bg-gradient-to-r from-slate-700 to-slate-600 
+                    hover:from-slate-600 hover:to-slate-500 
+                    transition-all duration-300 shadow-lg
+                    border border-slate-500/20 active:scale-95"
+                >
+                  Close
                 </button>
               </div>
             </motion.div>
@@ -257,9 +281,22 @@ export const Card = ({
         onClick={handleOpen}
         className="relative flex flex-col w-[280px] sm:w-[380px] md:w-[440px] h-[240px] sm:h-[260px] md:h-[280px] p-4 sm:p-5 rounded-xl
           backdrop-blur-lg bg-slate-900/60 border border-white/20 shadow-lg hover:shadow-xl
-          transition-all duration-300 ease-in-out cursor-pointer flex-shrink-0"
+          transition-all duration-300 ease-in-out cursor-pointer flex-shrink-0 hover:border-emerald-500/30"
       >
-        <div className="flex items-start gap-4 mb-3">
+        {/* Top Section - Image on right, Title and Details on left */}
+        <div className="flex items-start justify-between gap-4 mb-3">
+          {/* Left side: Title, Category and Rating */}
+          <div className="flex-1 min-w-0">
+            <h2 className="text-base sm:text-lg font-bold text-white leading-tight truncate">
+              {card.title}
+            </h2>
+            <p className="text-xs sm:text-sm text-gray-300 mt-1">
+              {card.category}
+            </p>
+            <div className="mt-2">{renderStars(card.rating)}</div>
+          </div>
+
+          {/* Right side: Image */}
           <div className="w-16 sm:w-20 md:w-24 h-16 sm:h-20 md:h-24 rounded-xl overflow-hidden shadow-lg ring-2 ring-white/5 flex-shrink-0">
             <img
               src={card.src}
@@ -267,20 +304,15 @@ export const Card = ({
               className="w-full h-full object-cover"
             />
           </div>
-          <div className="flex flex-col flex-1 min-w-0">
-            <p className="text-base sm:text-lg font-bold text-white leading-tight truncate">
-              {card.title}
-            </p>
-            <p className="text-xs sm:text-sm text-gray-300 mt-1">
-              {card.category}
-            </p>
-            <div className="mt-2">{renderStars(card.rating)}</div>
-          </div>
         </div>
 
+        {/* Buttons at the bottom */}
         <div className="mt-auto flex gap-2">
           <button
-            onClick={handleNavigate}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleNavigate();
+            }}
             className="flex-1 px-4 py-2 font-medium text-white rounded-lg
               bg-gradient-to-r from-emerald-600 to-green-600
               hover:from-emerald-500 hover:to-green-500 transition-all duration-300 text-xs sm:text-sm"
@@ -288,7 +320,10 @@ export const Card = ({
             Start Now
           </button>
           <button
-            onClick={handleOpen}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleOpen();
+            }}
             className="flex-1 px-4 py-2 font-medium text-white rounded-lg
               bg-slate-700 hover:bg-slate-600 transition-all duration-300 text-xs sm:text-sm"
           >

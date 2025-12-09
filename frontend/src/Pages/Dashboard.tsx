@@ -362,10 +362,23 @@ const Dashboard: React.FC = () => {
                 const firstConfirmed = (lesson.confirmedTutors || []).find(
                   (ct: any) => !!ct.tutorId
                 );
-                const tutorName =
-                  firstConfirmed?.tutorId?.name ||
-                  firstConfirmed?.tutorId?.email ||
-                  "Tutor";
+
+                // Helper function to sentence case names
+                const toSentenceCase = (str: string) => {
+                  if (!str) return "";
+                  return str
+                    .split(" ")
+                    .map(
+                      (word) =>
+                        word.charAt(0).toUpperCase() +
+                        word.slice(1).toLowerCase()
+                    )
+                    .join(" ");
+                };
+
+                const tutorName = firstConfirmed?.tutorId?.name
+                  ? toSentenceCase(firstConfirmed.tutorId.name)
+                  : firstConfirmed?.tutorId?.email || "Tutor";
 
                 return (
                   <LessonModel
@@ -457,7 +470,7 @@ const Dashboard: React.FC = () => {
             }}
           >
             <div className="flex justify-between items-start gap-4">
-              <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-emerald-400 via-green-300 to-emerald-400 bg-clip-text text-transparent">
+              <h2 className="text-2xl sm:text-3xl font-bold text-gray-200">
                 {openDetails.topic}
               </h2>
               {openDetails.subject && (
@@ -581,7 +594,7 @@ const Dashboard: React.FC = () => {
             {openDetails.confirmedTutors &&
               openDetails.confirmedTutors.length > 0 && (
                 <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-emerald-300 flex items-center gap-2">
+                  <h3 className="text-lg font-semibold text-gray-200 flex items-center gap-2">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       className="h-5 w-5"
@@ -612,8 +625,22 @@ const Dashboard: React.FC = () => {
                         const isTutorPopulated =
                           confirmedTutor.tutorId &&
                           typeof confirmedTutor.tutorId === "object";
+
+                        // Helper function to sentence case names
+                        const toSentenceCase = (str: string) => {
+                          if (!str) return "";
+                          return str
+                            .split(" ")
+                            .map(
+                              (word) =>
+                                word.charAt(0).toUpperCase() +
+                                word.slice(1).toLowerCase()
+                            )
+                            .join(" ");
+                        };
+
                         const tutorName = isTutorPopulated
-                          ? confirmedTutor.tutorId.name
+                          ? toSentenceCase(confirmedTutor.tutorId.name || "")
                           : null;
                         const tutorEmail = isTutorPopulated
                           ? confirmedTutor.tutorId.email

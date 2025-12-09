@@ -58,7 +58,7 @@ const LessonCarousel: React.FC<LessonCarouselProps> = ({ children }) => {
         <div className="flex justify-center sm:justify-end gap-3 mr-0 sm:mr-10 mt-4">
           <button
             className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center 
-                       rounded-xl bg-gradient-to-br from-slate-800 to-slate-700 
+                       rounded-full bg-gradient-to-br from-slate-800 to-slate-700 
                        border border-emerald-500/20 hover:border-emerald-500/40
                        disabled:opacity-40 disabled:cursor-not-allowed
                        transition-all hover:shadow-lg hover:shadow-emerald-500/20
@@ -70,7 +70,7 @@ const LessonCarousel: React.FC<LessonCarouselProps> = ({ children }) => {
           </button>
           <button
             className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center 
-                       rounded-xl bg-gradient-to-br from-slate-800 to-slate-700 
+                       rounded-full bg-gradient-to-br from-slate-800 to-slate-700 
                        border border-emerald-500/20 hover:border-emerald-500/40
                        disabled:opacity-40 disabled:cursor-not-allowed
                        transition-all hover:shadow-lg hover:shadow-emerald-500/20

@@ -269,7 +269,7 @@ const Dashboard: React.FC = () => {
             className="px-6 py-3 bg-gradient-to-r from-emerald-600 to-green-600 
                      hover:from-emerald-500 hover:to-green-500 
                      rounded-xl font-semibold shadow-lg transition-all duration-300 
-                     hover:shadow-emerald-500/50 hover:scale-105 active:scale-95
+                     hover:scale-105 active:scale-95
                      border border-emerald-500/20 flex items-center gap-2"
           >
             <svg
@@ -402,12 +402,11 @@ const Dashboard: React.FC = () => {
           </>
         )}
 
-        {/* Explore Courses Section */}
-        <div className="mt-8">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="h-1 w-12 bg-gradient-to-r from-violet-500 to-purple-500 rounded-full"></div>
-            <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-violet-400 to-purple-400 bg-clip-text text-transparent">
-              Explore Courses
+        {/* Explore Classes Section */}
+        <div className="mt-6">
+          <div className="flex items-center gap-2 mb-4">
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-200">
+              Explore Classes
             </h1>
           </div>
           <div className="max-w-[100vw] overflow-x-hidden">

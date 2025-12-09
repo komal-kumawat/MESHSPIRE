@@ -88,8 +88,8 @@ const LessonModel: React.FC<LessonModelProps> = (props) => {
   return (
     <div
       className={`
-      flex flex-col w-[260px] sm:w-[380px] md:w-[480px]
-      p-5 sm:p-6 rounded-2xl
+      flex flex-col w-[280px] sm:w-[380px] md:w-[440px] h-[240px] sm:h-[260px] md:h-[280px]
+      p-4 sm:p-5 rounded-xl
       backdrop-blur-xl bg-gradient-to-b from-slate-900/80 to-slate-900/50 
       shadow-xl hover:shadow-2xl
       transition-all duration-300 relative
@@ -132,7 +132,7 @@ const LessonModel: React.FC<LessonModelProps> = (props) => {
 
       {/* Top Section */}
       <div className="flex items-start justify-between gap-4">
-        <div className="w-24 sm:w-28 md:w-32 rounded-xl overflow-hidden shadow-lg ring-2 ring-white/5 hover:ring-emerald-500/30 transition-all">
+        <div className="w-16 sm:w-20 md:w-24 h-16 sm:h-20 md:h-24 rounded-xl overflow-hidden shadow-lg ring-2 ring-white/5">
           <img
             src={imageSrc}
             alt={subject}
@@ -148,7 +148,7 @@ const LessonModel: React.FC<LessonModelProps> = (props) => {
       </div>
 
       {/* Topic */}
-      <h2 className="mt-4 text-lg sm:text-xl font-bold text-white leading-tight">
+      <h2 className="mt-3 text-base sm:text-lg font-bold text-white leading-tight">
         {topic}
       </h2>
 
@@ -157,15 +157,15 @@ const LessonModel: React.FC<LessonModelProps> = (props) => {
         {studentName ? (
           role === "tutor" ? (
             <>
-              👤 Student: <span className="text-white">{studentName}</span>
+              Student: <span className="text-white">{studentName}</span>
             </>
           ) : (
             <>
-              👤 Instructor: <span className="text-white">{studentName}</span>
+              Instructor: <span className="text-white">{studentName}</span>
             </>
           )
         ) : isConfirmed ? (
-          <span className="text-green-300">Tutor Confirmed ✅</span>
+          <span className="text-green-300">Tutor Confirmed</span>
         ) : (
           <span className="text-red-300"></span>
         )}
@@ -173,8 +173,8 @@ const LessonModel: React.FC<LessonModelProps> = (props) => {
 
       {/* Time */}
       <div
-        className="mt-3 flex items-center gap-3 text-sm text-gray-300 
-                      bg-slate-800/50 backdrop-blur-sm px-4 py-2.5 rounded-xl border border-white/10"
+        className="mt-2 flex items-center gap-2 text-xs sm:text-sm text-gray-300 
+                      bg-slate-800/50 backdrop-blur-sm px-3 py-2 rounded-lg border border-white/10"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"

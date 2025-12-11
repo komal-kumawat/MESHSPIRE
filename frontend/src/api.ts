@@ -24,14 +24,16 @@ API.interceptors.request.use((config) => {
 API.interceptors.response.use(
   (response) => {
     console.log(
-      `✅ API Response: ${response.config.method?.toUpperCase()} ${response.config.url
+      `✅ API Response: ${response.config.method?.toUpperCase()} ${
+        response.config.url
       } - Status: ${response.status}`
     );
     return response;
   },
   (error) => {
     console.error(
-      `❌ API Error: ${error.config?.method?.toUpperCase()} ${error.config?.url
+      `❌ API Error: ${error.config?.method?.toUpperCase()} ${
+        error.config?.url
       }`,
       error.response?.data || error.message
     );
@@ -71,15 +73,18 @@ export const cancelLesson = async (lessonId: string) => {
   const response = await API.post(`/lesson/cancel/${lessonId}`);
   return response.data;
 };
-export const UpdateLesson = async (lessonId: string, lessonData: {
-  topic: string;
-  subTopic?: string;
-  subject: string;
-  class: string;
-  date: string;
-  time: string;
-}) => {
-  const response = await API.put(`/lesson/update/${lessonId}` , lessonData);
+export const UpdateLesson = async (
+  lessonId: string,
+  lessonData: {
+    topic: string;
+    subTopic?: string;
+    subject: string;
+    class: string;
+    date: string;
+    time: string;
+  }
+) => {
+  const response = await API.put(`/lesson/update/${lessonId}`, lessonData);
   return response.data;
 };
 export const getLessonById = async (lessonId: string) => {

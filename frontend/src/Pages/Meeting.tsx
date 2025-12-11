@@ -130,7 +130,7 @@ const Meeting: React.FC = () => {
               locationState?.time && (
                 <div className="bg-gradient-to-b from-emerald-900/30 to-slate-900/30 backdrop-blur-xl border border-emerald-500/30 rounded-xl p-4 space-y-2">
                   <p className="text-emerald-300 text-sm font-semibold">
-                    📅 Scheduled Lesson
+                    Scheduled Lesson
                   </p>
                   <div className="flex flex-col gap-1 text-sm text-gray-300">
                     <div className="flex items-center gap-2">

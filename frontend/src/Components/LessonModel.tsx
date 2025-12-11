@@ -323,9 +323,18 @@ const LessonModel: React.FC<LessonModelProps> = (props) => {
               <button
                 onClick={(e) => {
                   e.stopPropagation();
+                  console.log("🎯 Start Meeting clicked", {
+                    isMeetingTimeReached,
+                    date,
+                    lessonTime,
+                  });
                   if (!isMeetingTimeReached) {
-                    return; // Do nothing if not time yet
+                    alert(
+                      "Meeting will be available 10 minutes before the scheduled time."
+                    );
+                    return;
                   }
+                  console.log("✅ Calling onStartMeeting");
                   onStartMeeting?.();
                 }}
                 disabled={!isMeetingTimeReached}

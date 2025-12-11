@@ -104,8 +104,10 @@ const TutorDashboard: React.FC = () => {
   };
 
   const handleStartMeeting = (lesson: any) => {
+    console.log("🚀 TutorDashboard: handleStartMeeting called", lesson);
     // Use lesson ID as room ID to ensure both student and tutor join the same room
     const roomId = `lesson-${lesson._id}`;
+    console.log("📍 Navigating to meeting page with roomId:", roomId);
     navigate(`/meeting`, {
       state: {
         lessonId: lesson._id,

@@ -6,10 +6,10 @@ import LessonModel from "../Components/LessonModel";
 import LessonCarousel from "../Components/LessonCarousel";
 import { createLesson, getMyLessons, deleteLesson } from "../api";
 import image1 from "../assets/calculus.png";
-import image2 from "../assets/algebra.png";
+import image2 from "../assets/maths.png";
 import image3 from "../assets/digital_logic.png";
 import image4 from "../assets/probablity.png";
-import image5 from "../assets/quantum-computing.png";
+import image5 from "../assets/computer.png";
 import image6 from "../assets/python.png";
 import { payForLesson } from "../api/payment";
 import { ensureConversation } from "../api/chat";
@@ -94,13 +94,18 @@ const Dashboard: React.FC = () => {
   };
 
   const handleStartMeeting = (lesson: any) => {
-    const randomId = Math.random().toString(36).substring(2, 10);
-    navigate(`/room/${randomId}`, {
+    // Use lesson ID as room ID to ensure both student and tutor join the same room
+    const roomId = `lesson-${lesson._id}`;
+    navigate(`/meeting`, {
       state: {
+        lessonId: lesson._id,
+        roomId: roomId,
         title: lesson.topic,
         category: lesson.subject,
         rating: 5,
-        autoSendVideo: true,
+        date: lesson.date,
+        time: lesson.time,
+        autoJoin: true,
       },
     });
   };

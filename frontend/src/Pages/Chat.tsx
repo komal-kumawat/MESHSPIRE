@@ -287,6 +287,14 @@ const Chat: React.FC = () => {
     }
   };
 
+  const toSentenceCase = (str: string) => {
+    if (!str) return "";
+    return str
+      .split(" ")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(" ");
+  };
+
   const getOtherUser = (conversation: Conversation) => {
     if (!conversation) return null;
     const otherUser =
@@ -438,7 +446,7 @@ const Chat: React.FC = () => {
                   <div className="flex-1 min-w-0 text-left">
                     <div className="flex justify-between items-start mb-1">
                       <h3 className="font-semibold text-white truncate">
-                        {otherUser.name}
+                        {toSentenceCase(otherUser.name)}
                       </h3>
                       {conv.lastMessageAt && (
                         <span className="text-xs text-gray-400 flex-shrink-0 ml-2">
@@ -447,7 +455,9 @@ const Chat: React.FC = () => {
                       )}
                     </div>
                     <p className="text-xs text-emerald-400 mb-1 font-medium">
-                      {conv.lessonId.subject} Tutor
+                      {role === "tutor"
+                        ? "Student"
+                        : `${conv.lessonId.subject} Tutor`}
                     </p>
                     {conv.lastMessage && (
                       <p className="text-sm text-gray-400 truncate">
@@ -501,10 +511,12 @@ const Chat: React.FC = () => {
 
                     <div className="flex-1">
                       <h3 className="font-semibold text-white text-lg">
-                        {otherUser.name}
+                        {toSentenceCase(otherUser.name)}
                       </h3>
                       <p className="text-xs text-emerald-400 font-medium">
-                        {selectedConversation.lessonId.subject} Tutor
+                        {role === "tutor"
+                          ? "Student"
+                          : `${selectedConversation.lessonId.subject} Tutor`}
                       </p>
                     </div>
 

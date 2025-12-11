@@ -54,6 +54,7 @@ export interface Conversation {
     _id: string;
     topic: string;
     subject: string;
+    class: string;
     date: string;
     time: string;
     isPaid?: boolean;

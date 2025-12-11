@@ -1,9 +1,9 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import calculus from "../assets/calculus.png";
-import quantum from "../assets/quantum-computing.png";
-import ComputerScience from "../assets/python.png";
-import Probability from "../assets/probablity.png";
+import computerImg from "../assets/computer.png";
+import englishImg from "../assets/emglish.png";
+import mathsImg from "../assets/maths.png";
+import scienceImg from "../assets/science.png";
 import { useAuth } from "../Context/AuthContext";
 
 interface LessonModelProps {
@@ -30,10 +30,11 @@ interface LessonModelProps {
 }
 
 const subjectImages: Record<string, string> = {
-  Mathematics: calculus,
-  Science: quantum,
-  English: Probability,
-  ComputerScience: ComputerScience,
+  Computer: computerImg,
+  ComputerScience: computerImg,
+  English: englishImg,
+  Mathematics: mathsImg,
+  Science: scienceImg,
 };
 
 const LessonModel: React.FC<LessonModelProps> = (props) => {
@@ -82,7 +83,7 @@ const LessonModel: React.FC<LessonModelProps> = (props) => {
     return () => clearInterval(interval);
   }, [date, lessonTime]);
 
-  const imageSrc = subjectImages[subject] || Probability;
+  const imageSrc = subjectImages[subject] || mathsImg;
 
   // Format date and time for display
   const formatDateTime = () => {
@@ -252,30 +253,6 @@ const LessonModel: React.FC<LessonModelProps> = (props) => {
         </div>
       )}
 
-      {/* Status Badges - Only show expired on card */}
-      {isExpired && isPaid && (
-        <div className="flex flex-col gap-2 mb-3">
-          <div
-            className="text-xs text-red-300 bg-red-900/30 px-3 py-1.5 rounded-lg
-                          border border-red-500/30 flex items-center gap-2 font-medium"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-3.5 w-3.5 flex-shrink-0"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <path
-                fillRule="evenodd"
-                d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                clipRule="evenodd"
-              />
-            </svg>
-            <span className="truncate">Meeting Expired</span>
-          </div>
-        </div>
-      )}
-
       {/* Buttons Section - Fixed at Bottom */}
       <div className="flex gap-2 mt-auto pt-3">
         {showActions ? (
@@ -334,28 +311,34 @@ const LessonModel: React.FC<LessonModelProps> = (props) => {
         ) : isPaid ? (
           <>
             {/* Confirmed Classes - Start Meeting and Chat */}
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                if (!isMeetingTimeReached && !isExpired) {
-                  return; // Do nothing if not time yet
-                }
-                if (isExpired) {
-                  alert("Meeting has expired");
-                  return;
-                }
-                onStartMeeting?.();
-              }}
-              disabled={!isMeetingTimeReached || isExpired}
-              className={`flex-1 py-2 rounded-lg text-white text-xs sm:text-sm font-semibold transition-all shadow-md
-                ${
-                  isMeetingTimeReached && !isExpired
-                    ? "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 border border-blue-500/20 active:scale-95 cursor-pointer"
-                    : "bg-gradient-to-r from-blue-900/40 to-indigo-900/40 border border-blue-700/20 cursor-not-allowed opacity-40"
-                }`}
-            >
-              Start Meeting
-            </button>
+            {isExpired ? (
+              <button
+                disabled
+                className="flex-1 py-2 rounded-lg text-white text-xs sm:text-sm font-semibold transition-all shadow-md
+                  bg-gradient-to-r from-red-900/40 to-red-800/40 border border-red-500/30 cursor-not-allowed opacity-60"
+              >
+                Meeting Expired
+              </button>
+            ) : (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (!isMeetingTimeReached) {
+                    return; // Do nothing if not time yet
+                  }
+                  onStartMeeting?.();
+                }}
+                disabled={!isMeetingTimeReached}
+                className={`flex-1 py-2 rounded-lg text-white text-xs sm:text-sm font-semibold transition-all shadow-md
+                  ${
+                    isMeetingTimeReached
+                      ? "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 border border-blue-500/20 active:scale-95 cursor-pointer"
+                      : "bg-gradient-to-r from-blue-900/40 to-indigo-900/40 border border-blue-700/20 cursor-not-allowed opacity-40"
+                  }`}
+              >
+                Start Meeting
+              </button>
+            )}
 
             <button
               onClick={(e) => {

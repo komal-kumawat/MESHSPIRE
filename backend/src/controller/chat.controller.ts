@@ -66,7 +66,7 @@ export const getConversations = async (req: Request, res: Response) => {
     const allConversations = await Conversation.find(query)
       .populate("studentId", "name email avatarUrl")
       .populate("tutorId", "name email avatarUrl")
-      .populate("lessonId", "topic subject date time isPaid")
+      .populate("lessonId", "topic subject class date time isPaid")
       .sort({ lastMessageAt: -1 })
       .lean();
 

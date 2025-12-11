@@ -104,13 +104,19 @@ const TutorDashboard: React.FC = () => {
   };
 
   const handleStartMeeting = (lesson: any) => {
-    const randomId = Math.random().toString(36).substring(2, 10);
-    navigate(`/room/${randomId}`, {
+    // Use lesson ID as room ID to ensure both student and tutor join the same room
+    const roomId = `lesson-${lesson._id}`;
+    navigate(`/meeting`, {
       state: {
+        lessonId: lesson._id,
+        roomId: roomId,
         title: lesson.topic,
         category: lesson.subject,
         rating: 5,
-        autoSendVideo: true,
+        date: lesson.date,
+        time: lesson.time,
+        studentName: lesson.studentId?.name || "Unknown Student",
+        autoJoin: true,
       },
     });
   };

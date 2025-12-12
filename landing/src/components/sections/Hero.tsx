@@ -17,24 +17,20 @@ const Hero = () => {
   return (
     <section
       id="home"
-      className={`
+      className="
         relative w-full min-h-screen
         flex flex-col items-center justify-center
         overflow-hidden
         text-[var(--color-font)]
-        ${
-          isDark
-            ? "bg-gradient-to-b from-slate-900 via-black to-black"
-            : "bg-gradient-to-b from-purple-100 via-white to-white"
-        }
-      `}
+        bg-[var(--background)]
+        transition-colors duration-700
+      "
     >
       <div className="mt-10 relative z-10 max-w-7xl mx-auto flex flex-col items-center justify-center pt-6 px-4">
         <button
           className="
-            bg-[var(--background)] text-[var(--color-font)] border border-[var(--foreground)]
-            hover:bg-indigo-100/50
-            dark:hover:bg-[var(--hover-dark)]
+            bg-[var(--background)] text-[var(--color-font)] border border-[var(--foreground)]/30
+            hover:bg-[var(--foreground)]/10
             font-small font-[var(--font-secondary)]
             px-6 md:px-10 py-1 text-sm md:text-base 
             transition-all duration-500 ease-in-out rounded-full mb-6 md:mb-0
@@ -95,7 +91,7 @@ const Hero = () => {
         alt="Dashboard"
         width={1280}
         height={750}
-        className="max-w-5xl w-[90%] h-[60%] object-contain sticky top-0 right-0 border-[8px] mt-10 md:mt-[136px] border-slate-300 dark:border-gray-800  rounded-2xl z-10"
+        className="max-w-5xl w-[90%] h-[60%] object-contain sticky top-0 right-0 border-[8px] mt-10 md:mt-[136px] border-[var(--foreground)]/20 rounded-2xl z-10 transition-colors duration-700"
       />
     </section>
   );

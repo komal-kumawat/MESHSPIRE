@@ -64,8 +64,7 @@ export default function Navbar() {
                   layoutId="hoverBg"
                   className="
                     absolute inset-0 rounded-full backdrop-blur-sm
-                    bg-gray-200/70 border border-gray-300
-                    dark:bg-gray-700/70 dark:border-gray-600
+                    bg-[var(--foreground)]/10 border border-[var(--foreground)]/20
                   "
                   transition={{
                     type: "spring",
@@ -84,8 +83,7 @@ export default function Navbar() {
                 className="
                 font-[var(--font-secondary)]
                   relative z-10 transition-colors
-                  text-gray-700 hover:text-black
-                  dark:text-gray-300 dark:hover:text-white
+                  text-[var(--color-font)]/80 hover:text-[var(--color-font)]
                 "
               >
                 {item.name}
@@ -100,10 +98,8 @@ export default function Navbar() {
           <a
             href="#footer"
             className="font-[var(--font-secondary)]
-  bg-[var(--color-primary)] text-[var(--background)] border border-transparent rounded-full px-6 py-1.5
+  bg-[var(--color-primary)] text-[var(--background)] dark:text-[var(--foreground)] border border-transparent rounded-full px-6 py-1.5
   transition duration-300 hover:bg-[var(--background)] hover:text-[var(--color-font)] hover:border-[var(--foreground)]
-  dark:bg-[var(--color-primary)] dark:text-[var(--foreground)] dark:border-transparent
-  dark:hover:bg-[var(--background)] dark:hover:text-[var(--color-font)] dark:hover:border-[var(--foreground)]
 "
           >
             Get Started
@@ -151,9 +147,9 @@ export default function Navbar() {
               href="#footer"
               className="
           rounded-full border px-6 py-1.5 transition-colors
-          bg-[var(--color-primary)] text-[var(--background)] dark:text-[var(--foreground)]  border-[var(--color-primary)]
+          bg-[var(--color-primary)] text-[var(--background)] dark:text-[var(--foreground)] border-[var(--color-primary)]
           hover:bg-[var(--background)] hover:text-[var(--color-font)] hover:border-[var(--foreground)]
-           font-[var(--font-secondary)]
+          font-[var(--font-secondary)]
         "
               onClick={() => setIsOpen(false)}
             >

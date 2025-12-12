@@ -270,15 +270,15 @@ const Dashboard: React.FC = () => {
           </div>
           <button
             onClick={() => setOpenCard(true)}
-            className="px-6 py-3 bg-gradient-to-r from-emerald-600 to-green-600 
+            className="px-4 py-2 sm:px-6 sm:py-3 bg-gradient-to-r from-emerald-600 to-green-600 
                      hover:from-emerald-500 hover:to-green-500 
-                     rounded-xl font-semibold shadow-lg transition-all duration-300 
+                     rounded-lg sm:rounded-xl font-semibold text-sm sm:text-base shadow-lg transition-all duration-300 
                      cursor-pointer 
                      border border-emerald-500/20 flex items-center gap-2"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5"
+              className="h-4 w-4 sm:h-5 sm:w-5"
               viewBox="0 0 20 20"
               fill="currentColor"
             >

@@ -325,19 +325,19 @@ const Chat: React.FC = () => {
   }
 
   return (
-    <div className="h-full max-h-[calc(100vh-4rem)] md:max-h-[calc(100vh-5rem)] bg-black text-white flex overflow-hidden p-2 md:p-4 gap-2 md:gap-4">
+    <div className="h-full max-h-[calc(100vh-4rem)] md:max-h-[calc(100vh-5rem)] bg-black text-white flex overflow-hidden p-1 sm:p-2 md:p-4 gap-1 sm:gap-2 md:gap-4">
       {/* Conversations Sidebar */}
       <div
         className={`${
           selectedConversation ? "hidden md:flex" : "flex"
-        } flex-col w-full md:w-80 lg:w-96 bg-gradient-to-b from-slate-900/80 to-slate-900/50 backdrop-blur-xl rounded-xl md:rounded-2xl border border-white/10 overflow-hidden`}
+        } flex-col w-full md:w-80 lg:w-96 bg-gradient-to-b from-slate-900/80 to-slate-900/50 backdrop-blur-xl rounded-lg md:rounded-xl lg:rounded-2xl border border-white/10 overflow-hidden`}
       >
         {/* Static Header - No Scroll */}
-        <div className="flex-shrink-0 p-4 border-b border-white/10 bg-gradient-to-r from-emerald-900/30 via-green-900/20 to-slate-900/30">
-          <h2 className="text-2xl font-bold bg-gradient-to-r from-emerald-400 to-green-400 bg-clip-text text-transparent">
+        <div className="flex-shrink-0 p-3 sm:p-4 border-b border-white/10 bg-gradient-to-r from-emerald-900/30 via-green-900/20 to-slate-900/30">
+          <h2 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-emerald-400 to-green-400 bg-clip-text text-transparent">
             Messages
           </h2>
-          <p className="text-gray-400 text-sm mt-1">
+          <p className="text-gray-400 text-xs sm:text-sm mt-1">
             {conversations.length} paid conversations
           </p>
         </div>
@@ -346,39 +346,39 @@ const Chat: React.FC = () => {
         <div className="flex-1 overflow-y-auto custom-scrollbar">
           {conversations.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full px-4 text-center">
-              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-emerald-500/20 to-green-500/20 flex items-center justify-center mb-6">
-                <div className="text-5xl">💬</div>
+              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-emerald-500/20 to-green-500/20 flex items-center justify-center mb-4 sm:mb-6">
+                <div className="text-4xl sm:text-5xl">💬</div>
               </div>
-              <h3 className="text-xl font-semibold text-white mb-2">
+              <h3 className="text-lg sm:text-xl font-semibold text-white mb-2">
                 No conversations yet
               </h3>
-              <p className="text-gray-400 text-sm max-w-md leading-relaxed">
+              <p className="text-gray-400 text-xs sm:text-sm max-w-md leading-relaxed">
                 {role === "student"
                   ? "Conversations will appear here after you complete payment for a confirmed lesson. Once paid, you can chat with your tutor!"
                   : "Conversations will appear here when students complete payment for lessons you've confirmed."}
               </p>
 
               {role === "student" && paidLessonsTutors.length > 0 && (
-                <div className="mt-8 w-full max-w-md text-left">
-                  <h4 className="text-sm font-semibold text-emerald-300 mb-3">
+                <div className="mt-6 sm:mt-8 w-full max-w-md text-left">
+                  <h4 className="text-xs sm:text-sm font-semibold text-emerald-300 mb-2 sm:mb-3">
                     Paid lessons with confirmed tutors
                   </h4>
-                  <div className="space-y-3">
+                  <div className="space-y-2 sm:space-y-3">
                     {paidLessonsTutors.map((item) => (
                       <div
                         key={`${item.lessonId}-${item.tutorId}`}
-                        className="flex items-center justify-between bg-gradient-to-r from-slate-800/70 to-slate-800/50 border border-emerald-500/20 rounded-xl p-4 hover:border-emerald-500/40 transition-all"
+                        className="flex items-center justify-between bg-gradient-to-r from-slate-800/70 to-slate-800/50 border border-emerald-500/20 rounded-lg sm:rounded-xl p-3 sm:p-4 hover:border-emerald-500/40 transition-all"
                       >
-                        <div>
-                          <p className="text-white text-sm font-medium">
+                        <div className="min-w-0 flex-1">
+                          <p className="text-white text-xs sm:text-sm font-medium truncate">
                             {item.tutorName}
                           </p>
-                          <p className="text-xs text-emerald-400">
+                          <p className="text-[10px] sm:text-xs text-emerald-400 truncate">
                             {item.topic}
                           </p>
                         </div>
                         <button
-                          className="px-4 py-2 text-xs bg-gradient-to-r from-emerald-600 to-green-600 rounded-lg hover:from-emerald-500 hover:to-green-500 font-medium shadow-lg hover:shadow-emerald-500/30 transition-all"
+                          className="px-3 py-1.5 sm:px-4 sm:py-2 text-[10px] sm:text-xs bg-gradient-to-r from-emerald-600 to-green-600 rounded-lg hover:from-emerald-500 hover:to-green-500 font-medium shadow-lg hover:shadow-emerald-500/30 transition-all flex-shrink-0 ml-2"
                           onClick={async () => {
                             try {
                               const conv = await ensureConversation({
@@ -419,7 +419,7 @@ const Chat: React.FC = () => {
                 <button
                   key={conv._id}
                   onClick={() => setSelectedConversation(conv)}
-                  className={`w-full p-4 flex items-start gap-3 hover:bg-slate-800/50 transition-all border-b border-white/5 relative group
+                  className={`w-full p-3 sm:p-4 flex items-start gap-2 sm:gap-3 hover:bg-slate-800/50 transition-all border-b border-white/5 relative group
                     ${
                       selectedConversation?._id === conv._id
                         ? "bg-gradient-to-r from-emerald-900/30 to-slate-800/50"
@@ -438,29 +438,29 @@ const Chat: React.FC = () => {
                     onClick={(e) => e.stopPropagation()}
                     className="flex-shrink-0"
                   >
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-emerald-500 to-green-600 flex items-center justify-center text-lg font-bold shadow-lg shadow-emerald-500/20 hover:scale-110 transition-transform cursor-pointer">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-emerald-500 to-green-600 flex items-center justify-center text-base sm:text-lg font-bold shadow-lg shadow-emerald-500/20 hover:scale-110 transition-transform cursor-pointer">
                       {otherUser.name.charAt(0).toUpperCase()}
                     </div>
                   </a>
 
                   <div className="flex-1 min-w-0 text-left">
                     <div className="flex justify-between items-start mb-1">
-                      <h3 className="font-semibold text-white truncate">
+                      <h3 className="font-semibold text-sm sm:text-base text-white truncate">
                         {toSentenceCase(otherUser.name)}
                       </h3>
                       {conv.lastMessageAt && (
-                        <span className="text-xs text-gray-400 flex-shrink-0 ml-2">
+                        <span className="text-[10px] sm:text-xs text-gray-400 flex-shrink-0 ml-2">
                           {formatDate(conv.lastMessageAt)}
                         </span>
                       )}
                     </div>
-                    <p className="text-xs text-emerald-400 mb-1 font-medium">
+                    <p className="text-[10px] sm:text-xs text-emerald-400 mb-1 font-medium">
                       {role === "tutor"
                         ? "Student"
                         : `${conv.lessonId.subject} Tutor`}
                     </p>
                     {conv.lastMessage && (
-                      <p className="text-sm text-gray-400 truncate">
+                      <p className="text-xs sm:text-sm text-gray-400 truncate">
                         {conv.lastMessage}
                       </p>
                     )}
@@ -479,22 +479,24 @@ const Chat: React.FC = () => {
       </div>
 
       {/* Chat Area */}
-      <div className="flex-1 flex flex-col bg-gradient-to-b from-slate-900/80 to-slate-900/50 backdrop-blur-xl rounded-xl md:rounded-2xl border border-white/10 overflow-hidden">
+      <div className="flex-1 flex flex-col bg-gradient-to-b from-slate-900/80 to-slate-900/50 backdrop-blur-xl rounded-lg md:rounded-xl lg:rounded-2xl border border-white/10 overflow-hidden">
         {selectedConversation ? (
           <>
             {/* Chat Header - Static, No Scroll */}
-            <div className="flex-shrink-0 p-5 border-b border-white/10 bg-gradient-to-r from-slate-900/80 via-emerald-900/10 to-slate-900/80 backdrop-blur-xl flex items-center gap-4 shadow-lg">
+            <div className="flex-shrink-0 p-3 sm:p-4 md:p-5 border-b border-white/10 bg-gradient-to-r from-slate-900/80 via-emerald-900/10 to-slate-900/80 backdrop-blur-xl flex items-center gap-2 sm:gap-3 md:gap-4 shadow-lg">
               <button
                 onClick={() => setSelectedConversation(null)}
-                className="md:hidden p-2 hover:bg-slate-800 rounded-lg transition-colors"
+                className="md:hidden p-1.5 sm:p-2 hover:bg-slate-800 rounded-lg transition-colors"
               >
-                <ArrowBackIcon />
+                <ArrowBackIcon className="text-xl sm:text-2xl" />
               </button>
 
               {(() => {
                 const otherUser = getOtherUser(selectedConversation);
                 if (!otherUser || !otherUser.name) {
-                  return <div className="text-gray-400">Loading user...</div>;
+                  return (
+                    <div className="text-gray-400 text-sm">Loading user...</div>
+                  );
                 }
                 return (
                   <>
@@ -504,23 +506,23 @@ const Chat: React.FC = () => {
                       rel="noopener noreferrer"
                       className="flex-shrink-0"
                     >
-                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-emerald-500 to-green-600 flex items-center justify-center font-bold text-lg shadow-lg shadow-emerald-500/30 hover:scale-110 transition-transform cursor-pointer">
+                      <div className="w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 rounded-full bg-gradient-to-br from-emerald-500 to-green-600 flex items-center justify-center font-bold text-base sm:text-lg shadow-lg shadow-emerald-500/30 hover:scale-110 transition-transform cursor-pointer">
                         {otherUser.name.charAt(0).toUpperCase()}
                       </div>
                     </a>
 
-                    <div className="flex-1">
-                      <h3 className="font-semibold text-white text-lg">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-white text-sm sm:text-base md:text-lg truncate">
                         {toSentenceCase(otherUser.name)}
                       </h3>
-                      <p className="text-xs text-emerald-400 font-medium">
+                      <p className="text-[10px] sm:text-xs text-emerald-400 font-medium truncate">
                         {role === "tutor"
                           ? "Student"
                           : `${selectedConversation.lessonId.subject} Tutor`}
                       </p>
                     </div>
 
-                    <div className="text-right text-xs text-gray-400">
+                    <div className="text-right text-[10px] sm:text-xs text-gray-400 hidden sm:block flex-shrink-0">
                       <p>{selectedConversation.lessonId.date}</p>
                       <p>{selectedConversation.lessonId.time}</p>
                     </div>
@@ -530,7 +532,7 @@ const Chat: React.FC = () => {
             </div>
 
             {/* Messages - Scrollable Section */}
-            <div className="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar">
+            <div className="flex-1 overflow-y-auto p-3 sm:p-4 md:p-6 space-y-3 sm:space-y-4 custom-scrollbar">
               {messages.map((message, index) => {
                 const isOwnMessage = message.senderId._id === userId;
                 const showDateDivider =
@@ -541,8 +543,8 @@ const Chat: React.FC = () => {
                 return (
                   <React.Fragment key={message._id}>
                     {showDateDivider && (
-                      <div className="flex items-center justify-center my-6">
-                        <div className="bg-gradient-to-r from-slate-800/50 to-slate-800/80 px-4 py-1.5 rounded-full text-xs text-gray-300 font-medium border border-white/5 shadow-lg">
+                      <div className="flex items-center justify-center my-4 sm:my-6">
+                        <div className="bg-gradient-to-r from-slate-800/50 to-slate-800/80 px-3 py-1 sm:px-4 sm:py-1.5 rounded-full text-[10px] sm:text-xs text-gray-300 font-medium border border-white/5 shadow-lg">
                           {formatDate(message.createdAt)}
                         </div>
                       </div>
@@ -554,20 +556,20 @@ const Chat: React.FC = () => {
                       }`}
                     >
                       <div
-                        className={`max-w-[70%] rounded-2xl px-4 py-3 shadow-lg ${
+                        className={`max-w-[85%] sm:max-w-[75%] md:max-w-[70%] rounded-xl sm:rounded-2xl px-3 py-2 sm:px-4 sm:py-3 shadow-lg ${
                           isOwnMessage
                             ? "bg-gradient-to-br from-emerald-600 to-green-600 text-white rounded-br-none shadow-emerald-500/20"
                             : "bg-gradient-to-br from-slate-800 to-slate-700 text-white rounded-bl-none border border-white/5"
                         }`}
                       >
                         {message.messageType === "file" ? (
-                          <div className="flex items-center gap-2">
-                            <InsertDriveFileIcon className="text-gray-300" />
-                            <div className="flex-1">
-                              <p className="text-sm font-medium">
+                          <div className="flex items-center gap-1.5 sm:gap-2">
+                            <InsertDriveFileIcon className="text-gray-300 text-base sm:text-xl" />
+                            <div className="flex-1 min-w-0">
+                              <p className="text-xs sm:text-sm font-medium truncate">
                                 {message.fileName}
                               </p>
-                              <p className="text-xs text-gray-300">
+                              <p className="text-[10px] sm:text-xs text-gray-300">
                                 {message.fileSize &&
                                   `${(message.fileSize / 1024).toFixed(1)} KB`}
                               </p>
@@ -580,18 +582,18 @@ const Chat: React.FC = () => {
                               download
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="p-1 hover:bg-white/10 rounded-full transition-colors"
+                              className="p-1 hover:bg-white/10 rounded-full transition-colors flex-shrink-0"
                             >
-                              <DownloadIcon fontSize="small" />
+                              <DownloadIcon className="text-base sm:text-xl" />
                             </a>
                           </div>
                         ) : (
-                          <p className="text-sm break-words">
+                          <p className="text-xs sm:text-sm break-words">
                             {message.content}
                           </p>
                         )}
                         <p
-                          className={`text-xs mt-1.5 ${
+                          className={`text-[10px] sm:text-xs mt-1 sm:mt-1.5 ${
                             isOwnMessage ? "text-emerald-100" : "text-gray-400"
                           }`}
                         >
@@ -608,9 +610,9 @@ const Chat: React.FC = () => {
             {/* Message Input - Static, No Scroll */}
             <form
               onSubmit={handleSendMessage}
-              className="flex-shrink-0 p-5 border-t border-white/10 bg-gradient-to-r from-slate-900/80 via-emerald-900/10 to-slate-900/80 backdrop-blur-xl shadow-lg"
+              className="flex-shrink-0 p-2 sm:p-3 md:p-4 lg:p-5 border-t border-white/10 bg-gradient-to-r from-slate-900/80 via-emerald-900/10 to-slate-900/80 backdrop-blur-xl shadow-lg"
             >
-              <div className="flex items-center gap-3 max-w-5xl mx-auto">
+              <div className="flex items-center gap-1.5 sm:gap-2 md:gap-3 max-w-5xl mx-auto">
                 <input
                   type="file"
                   ref={fileInputRef}
@@ -621,12 +623,12 @@ const Chat: React.FC = () => {
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
                   disabled={uploading}
-                  className="p-3 hover:bg-slate-800/80 rounded-xl transition-all hover:scale-105 disabled:opacity-50 disabled:hover:scale-100 text-gray-400 hover:text-emerald-400"
+                  className="p-2 sm:p-2.5 md:p-3 hover:bg-slate-800/80 rounded-lg sm:rounded-xl transition-all hover:scale-105 disabled:opacity-50 disabled:hover:scale-100 text-gray-400 hover:text-emerald-400 flex-shrink-0"
                 >
                   {uploading ? (
-                    <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-emerald-500"></div>
+                    <div className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-t-2 border-b-2 border-emerald-500"></div>
                   ) : (
-                    <AttachFileIcon />
+                    <AttachFileIcon className="text-xl sm:text-2xl" />
                   )}
                 </button>
 
@@ -636,33 +638,33 @@ const Chat: React.FC = () => {
                   onChange={(e) => setNewMessage(e.target.value)}
                   placeholder="Type a message..."
                   disabled={sending}
-                  className="flex-1 bg-slate-800/80 text-white px-5 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 disabled:opacity-50 border border-white/5 placeholder:text-gray-500 transition-all"
+                  className="flex-1 bg-slate-800/80 text-white px-3 py-2 sm:px-4 sm:py-2.5 md:px-5 md:py-3 rounded-lg sm:rounded-xl text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-emerald-500 disabled:opacity-50 border border-white/5 placeholder:text-gray-500 transition-all"
                 />
 
                 <button
                   type="submit"
                   disabled={!newMessage.trim() || sending}
-                  className="p-3 bg-gradient-to-br from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500 
-                           rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-emerald-500/50 hover:scale-105 active:scale-95"
+                  className="p-2 sm:p-2.5 md:p-3 bg-gradient-to-br from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500 
+                           rounded-lg sm:rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-emerald-500/50 hover:scale-105 active:scale-95 flex-shrink-0"
                 >
                   {sending ? (
-                    <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white"></div>
+                    <div className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-t-2 border-b-2 border-white"></div>
                   ) : (
-                    <SendIcon />
+                    <SendIcon className="text-xl sm:text-2xl" />
                   )}
                 </button>
               </div>
             </form>
           </>
         ) : (
-          <div className="flex-1 flex flex-col items-center justify-center text-center px-4 bg-gradient-to-b from-slate-900/80 to-slate-900/50 rounded-2xl">
-            <div className="w-32 h-32 rounded-full bg-gradient-to-br from-emerald-500/20 to-green-500/20 flex items-center justify-center mb-6 shadow-2xl shadow-emerald-500/10">
-              <div className="text-7xl">💬</div>
+          <div className="flex-1 flex flex-col items-center justify-center text-center px-4 bg-gradient-to-b from-slate-900/80 to-slate-900/50 rounded-xl sm:rounded-2xl">
+            <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-gradient-to-br from-emerald-500/20 to-green-500/20 flex items-center justify-center mb-4 sm:mb-6 shadow-2xl shadow-emerald-500/10">
+              <div className="text-5xl sm:text-7xl">💬</div>
             </div>
-            <h2 className="text-2xl font-bold text-white mb-3">
+            <h2 className="text-xl sm:text-2xl font-bold text-white mb-2 sm:mb-3">
               Select a conversation
             </h2>
-            <p className="text-gray-400 max-w-md leading-relaxed">
+            <p className="text-sm sm:text-base text-gray-400 max-w-md leading-relaxed">
               Choose a conversation from the sidebar to start chatting
             </p>
           </div>

@@ -1,5 +1,13 @@
 // next.config.js
 const nextConfig = {
+  turbopack: {
+    rules: {
+      "*.svg": {
+        loaders: ["@svgr/webpack"],
+        as: "*.js",
+      },
+    },
+  },
   webpack(config: {
     module: { rules: { test: RegExp; issuer: RegExp; use: string[] }[] };
   }) {

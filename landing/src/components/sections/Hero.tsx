@@ -41,7 +41,7 @@ const Hero = () => {
           "
           style={{ borderWidth: "0.5px" }}
         >
-          Launching Oct 2025
+          Launching Dec 2025
         </button>
 
         <div className="relative inline-block pt-4 md:pt-20 text-center">

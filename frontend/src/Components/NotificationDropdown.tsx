@@ -165,26 +165,26 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = () => {
 
       {/* Dropdown */}
       {isOpen && (
-        <div className="absolute -right-2 sm:-right-4 top-10 sm:top-12 mt-2 w-80 sm:w-96 bg-slate-900/95 backdrop-blur-xl text-white rounded-xl shadow-2xl border border-[rgba(255,255,255,0.15)] z-50 max-h-[500px] overflow-hidden flex flex-col">
+        <div className="fixed sm:absolute right-0 sm:-right-2 md:-right-4 top-14 sm:top-10 md:top-12 left-0 sm:left-auto mt-2 sm:mt-2 w-full sm:w-80 md:w-96 bg-slate-900/95 backdrop-blur-xl text-white rounded-none sm:rounded-xl shadow-2xl border-t sm:border border-[rgba(255,255,255,0.15)] z-50 max-h-[calc(100vh-4rem)] sm:max-h-[500px] overflow-hidden flex flex-col">
           {/* Header */}
-          <div className="px-4 py-3 border-b border-gray-700 flex items-center justify-between sticky top-0 bg-slate-900/95 backdrop-blur-xl">
-            <h3 className="text-lg font-semibold font-['IBM_Plex_Sans']">
+          <div className="px-3 sm:px-4 py-2.5 sm:py-3 border-b border-gray-700 flex items-center justify-between sticky top-0 bg-slate-900/95 backdrop-blur-xl">
+            <h3 className="text-base sm:text-lg font-semibold font-['IBM_Plex_Sans']">
               Notifications
             </h3>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 sm:gap-2">
               {unreadCount > 0 && (
                 <button
                   onClick={handleMarkAllAsRead}
-                  className="text-xs text-blue-400 hover:text-blue-300 transition-all duration-200 font-['IBM_Plex_Sans'] font-medium"
+                  className="text-[10px] sm:text-xs text-blue-400 hover:text-blue-300 transition-all duration-200 font-['IBM_Plex_Sans'] font-medium whitespace-nowrap"
                 >
                   Mark all read
                 </button>
               )}
               <button
                 onClick={() => setIsOpen(false)}
-                className="text-gray-400 hover:text-white transition-all duration-200"
+                className="text-gray-400 hover:text-white transition-all duration-200 p-1"
               >
-                <CloseIcon fontSize="small" />
+                <CloseIcon className="text-lg sm:text-xl" />
               </button>
             </div>
           </div>
@@ -196,9 +196,9 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = () => {
                 <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
               </div>
             ) : notifications.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-12 px-4">
-                <NotificationsIcon className="text-gray-600 text-5xl mb-3" />
-                <p className="text-gray-400 text-sm font-['IBM_Plex_Sans']">
+              <div className="flex flex-col items-center justify-center py-8 sm:py-12 px-4">
+                <NotificationsIcon className="text-gray-600 text-4xl sm:text-5xl mb-2 sm:mb-3" />
+                <p className="text-gray-400 text-xs sm:text-sm font-['IBM_Plex_Sans']">
                   No notifications yet
                 </p>
               </div>
@@ -206,18 +206,20 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = () => {
               notifications.map((notification) => (
                 <div
                   key={notification._id}
-                  className={`px-4 py-3 border-b border-gray-800 hover:bg-[rgba(255,255,255,0.05)] transition cursor-pointer group ${
+                  className={`px-3 sm:px-4 py-2.5 sm:py-3 border-b border-gray-800 hover:bg-[rgba(255,255,255,0.05)] transition cursor-pointer group ${
                     !notification.isRead ? "bg-[rgba(59,130,246,0.1)]" : ""
                   }`}
                   onClick={() => handleNotificationClick(notification)}
                 >
-                  <div className="flex items-start gap-3">
-                    <div className="flex-shrink-0 mt-1">
-                      {getNotificationIcon(notification.type)}
+                  <div className="flex items-start gap-2 sm:gap-3">
+                    <div className="flex-shrink-0 mt-0.5 sm:mt-1">
+                      <div className="text-xl sm:text-2xl">
+                        {getNotificationIcon(notification.type)}
+                      </div>
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2">
-                        <h4 className="text-sm font-semibold truncate font-['IBM_Plex_Sans']">
+                        <h4 className="text-xs sm:text-sm font-semibold truncate font-['IBM_Plex_Sans']">
                           {notification.title}
                         </h4>
                         <button
@@ -225,27 +227,27 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = () => {
                             e.stopPropagation();
                             handleDeleteNotification(notification._id);
                           }}
-                          className="flex-shrink-0 text-gray-500 hover:text-red-400 transition-all duration-200 opacity-0 group-hover:opacity-100"
+                          className="flex-shrink-0 text-gray-500 hover:text-red-400 transition-all duration-200 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 p-0.5"
                         >
-                          <CloseIcon fontSize="small" />
+                          <CloseIcon className="text-base sm:text-lg" />
                         </button>
                       </div>
-                      <p className="text-xs text-gray-400 mt-1 line-clamp-2 font-['IBM_Plex_Sans']">
+                      <p className="text-[11px] sm:text-xs text-gray-400 mt-0.5 sm:mt-1 line-clamp-2 font-['IBM_Plex_Sans']">
                         {notification.message}
                       </p>
                       {notification.lessonId &&
                         typeof notification.lessonId === "object" && (
-                          <p className="text-xs text-blue-400 mt-1 font-['IBM_Plex_Sans']">
+                          <p className="text-[10px] sm:text-xs text-blue-400 mt-0.5 sm:mt-1 font-['IBM_Plex_Sans'] truncate">
                             {notification.lessonId.topic} •{" "}
                             {notification.lessonId.date}
                           </p>
                         )}
-                      <div className="flex items-center justify-between mt-2">
-                        <span className="text-xs text-gray-500 font-['IBM_Plex_Sans']">
+                      <div className="flex items-center justify-between mt-1.5 sm:mt-2">
+                        <span className="text-[10px] sm:text-xs text-gray-500 font-['IBM_Plex_Sans']">
                           {formatTimeAgo(notification.createdAt)}
                         </span>
                         {!notification.isRead && (
-                          <span className="text-xs text-blue-400 font-semibold font-['IBM_Plex_Sans']">
+                          <span className="text-[10px] sm:text-xs text-blue-400 font-semibold font-['IBM_Plex_Sans']">
                             New
                           </span>
                         )}
@@ -259,10 +261,10 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = () => {
 
           {/* Clear All Button */}
           {notifications.length > 0 && (
-            <div className="px-4 py-3 border-t border-gray-700 sticky bottom-0 bg-slate-900/95 backdrop-blur-xl">
+            <div className="px-3 sm:px-4 py-2.5 sm:py-3 border-t border-gray-700 sticky bottom-0 bg-slate-900/95 backdrop-blur-xl">
               <button
                 onClick={handleDeleteAllNotifications}
-                className="w-full py-2 px-4 bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 rounded-lg transition-all duration-200 font-['IBM_Plex_Sans'] font-medium text-sm"
+                className="w-full py-1.5 sm:py-2 px-3 sm:px-4 bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 rounded-lg transition-all duration-200 font-['IBM_Plex_Sans'] font-medium text-xs sm:text-sm"
               >
                 Clear All Notifications
               </button>

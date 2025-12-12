@@ -55,7 +55,7 @@ export function InfiniteMovingCards({
 
   return (
     <div
-      className={\`overflow-hidden mx-auto max-w-7xl py-6 relative \${className}\`}
+      className={`overflow-hidden mx-auto max-w-7xl py-6 relative ${className}`}
       style={{
         // horizontal fade on edges using mask-image
         WebkitMaskImage:

@@ -51,17 +51,17 @@ export default function TestimonialsSection() {
       id="testimonials"
       className="py-12 px-4 md:mt-24 flex flex-col items-center justify-center mx-4 
                   bg-[var(--background)] text-[var(--color-font)] rounded-2xl md:gap-10 overflow-x-hidden
-                 dark:bg-black"
+                 transition-colors duration-700"
     >
       <div className="flex flex-col items-center justify-center gap-2 mb-12">
         <div
-          className="border border-gray-300 flex flex-col items-center md:items-start mx-auto p-2 md:p-6 max-w-xs md:max-w-none relative 
-                dark:border-white/[0.2]"
+          className="border-2 flex flex-col items-center md:items-start mx-auto p-2 md:p-6 max-w-xs md:max-w-none relative 
+                border-[var(--foreground)]/20 bg-[var(--background)]/60 transition-colors duration-700"
         >
-          <Icon className="absolute h-6 w-6 -top-3 -left-3 text-gray-600 dark:text-white" />
-          <Icon className="absolute h-6 w-6 -bottom-3 -left-3 text-gray-600 dark:text-white" />
-          <Icon className="absolute h-6 w-6 -top-3 -right-3 text-gray-600 dark:text-white" />
-          <Icon className="absolute h-6 w-6 -bottom-3 -right-3 text-gray-600 dark:text-white" />
+          <Icon className="absolute h-6 w-6 -top-3 -left-3 text-[var(--color-font)]/70 transition-colors" />
+          <Icon className="absolute h-6 w-6 -bottom-3 -left-3 text-[var(--color-font)]/70 transition-colors" />
+          <Icon className="absolute h-6 w-6 -top-3 -right-3 text-[var(--color-font)]/70 transition-colors" />
+          <Icon className="absolute h-6 w-6 -bottom-3 -right-3 text-[var(--color-font)]/70 transition-colors" />
 
           <h2
             className="text-2xl md:text-2xl lg:text-3xl 

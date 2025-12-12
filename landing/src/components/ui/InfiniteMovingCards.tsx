@@ -6,7 +6,6 @@ import {
   TargetAndTransition,
 } from "framer-motion";
 import { useEffect } from "react";
-import { useTheme } from "next-themes";
 
 type Testimonial = {
   quote: string;
@@ -54,12 +53,9 @@ export function InfiniteMovingCards({
     controls.start(animationProps);
   }, [controls, direction, duration]);
 
-  const { theme } = useTheme();
-  const isDark = theme === "dark";
-
   return (
     <div
-      className={`overflow-hidden mx-auto max-w-7xl py-6 relative ${className}`}
+      className={\`overflow-hidden mx-auto max-w-7xl py-6 relative \${className}\`}
       style={{
         // horizontal fade on edges using mask-image
         WebkitMaskImage:
@@ -80,33 +76,16 @@ export function InfiniteMovingCards({
         {[...items, ...items].map((item, idx) => (
           <div
             key={idx}
-            className={`flex-shrink-0 rounded-xl flex flex-col items-center px-12 py-12 mx-2 min-w-[250px]
-                        ${
-                          isDark
-                            ? "bg-slate-900 shadow-md"
-                            : "bg-[var(--hover-light)] shadow-md"
-                        }
-            `}
+            className="flex-shrink-0 rounded-xl flex flex-col items-center px-12 py-12 mx-2 min-w-[250px]
+                        bg-[var(--background)] border border-[var(--foreground)]/10 shadow-md transition-colors duration-700"
           >
-            <p
-              className={`text-center  italic ${
-                isDark ? "text-white" : "text-gray-800"
-              }`}
-            >
-              ”{item.quote}”
+            <p className="text-center italic text-[var(--color-font)]">
+              "{item.quote}"
             </p>
-            <span
-              className={`mt-3  font-bold ${
-                isDark ? "text-white" : "text-gray-900"
-              }`}
-            >
+            <span className="mt-3 font-bold text-[var(--color-font)]">
               {item.name}
             </span>
-            <span
-              className={`text-xs  ${
-                isDark ? "text-gray-200" : "text-gray-500"
-              }`}
-            >
+            <span className="text-xs text-[var(--color-font)]/60">
               {item.title}
             </span>
           </div>

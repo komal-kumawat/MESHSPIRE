@@ -8,7 +8,7 @@ import Testimonial from "@/components/sections/Testimonial";
 
 export default function Home() {
   return (
-    <main className="bg-[var(--background)]">
+    <main className="bg-[var(--background)] text-[var(--color-font)] transition-colors duration-700">
       <Navbar />
       <Hero />
       <Services />

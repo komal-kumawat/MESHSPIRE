@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { useLocation } from "react-router-dom";
 import { useAuth } from "../Context/AuthContext";
 import { useSocket } from "../providers/SocketProvider";
 import {
@@ -6,9 +7,11 @@ import {
   getMessages,
   sendMessage as sendMessageApi,
   uploadFile,
+  ensureConversation,
   type Conversation,
   type Message,
 } from "../api/chat";
+import { getMyLessons } from "../api";
 import SendIcon from "@mui/icons-material/Send";
 import AttachFileIcon from "@mui/icons-material/AttachFile";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
@@ -26,8 +29,18 @@ const Chat: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [paidLessonsTutors, setPaidLessonsTutors] = useState<
+    Array<{
+      lessonId: string;
+      topic: string;
+      tutorId: string;
+      tutorName: string;
+    }>
+  >([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const location = useLocation() as { state?: { conversationId?: string } };
+  const pendingConversationId = location.state?.conversationId;
 
   useEffect(() => {
     fetchConversations();
@@ -95,27 +108,75 @@ const Chat: React.FC = () => {
       const data = await getConversations();
       console.log("📋 Fetched conversations from API:", {
         count: data.length,
-        conversations: data,
+        currentUserId: userId,
+        currentUserRole: role,
+        conversations: data.map((c) => ({
+          id: c._id,
+          lessonTopic: c.lessonId?.topic,
+          isPaid: c.lessonId?.isPaid,
+          studentName: c.studentId?.name,
+          tutorName: c.tutorId?.name,
+        })),
       });
+      // Filter to paid lessons only (student and tutor)
+      const filtered = data.filter((c) => c.lessonId?.isPaid);
 
-      if (data.length === 0) {
-        console.warn("⚠️ No conversations returned from API. This could mean:");
-        console.warn("1. No lessons have been confirmed by tutors");
+      if (filtered.length === 0) {
+        console.warn(
+          "⚠️ No conversations returned from API. Possible reasons:"
+        );
+        console.warn("1. No lessons have been confirmed by tutors yet");
         console.warn("2. No confirmed lessons have been paid for yet");
         console.warn("3. User data is not properly populated in conversations");
+        console.warn(
+          "💡 To enable chat: Student must request lesson → Tutor confirms → Student pays"
+        );
       }
-
-      if (data.length > 0) {
+      if (filtered.length > 0) {
         console.log("First conversation details:", {
-          id: data[0]._id,
-          studentName: data[0].studentId?.name,
-          studentId: data[0].studentId?._id,
-          tutorName: data[0].tutorId?.name,
-          tutorId: data[0].tutorId?._id,
-          lessonTopic: data[0].lessonId?.topic,
+          id: filtered[0]._id,
+          studentName: filtered[0].studentId?.name,
+          studentId: filtered[0].studentId?._id,
+          tutorName: filtered[0].tutorId?.name,
+          tutorId: filtered[0].tutorId?._id,
+          lessonTopic: filtered[0].lessonId?.topic,
+          lessonPaid: filtered[0].lessonId?.isPaid,
         });
       }
-      setConversations(data);
+      setConversations(filtered);
+
+      // Auto-select deep-linked conversation if present
+      if (pendingConversationId) {
+        const match = filtered.find((c) => c._id === pendingConversationId);
+        if (match) setSelectedConversation(match);
+      }
+
+      // If no paid conversations, prepare a fallback list from paid lessons
+      if (filtered.length === 0 && role === "student") {
+        try {
+          const lessons = await getMyLessons();
+          const paid = (lessons || []).filter((l: any) => l.isPaid);
+          const tutors = paid.flatMap((l: any) =>
+            (l.confirmedTutors || [])
+              .filter((ct: any) => !!ct.tutorId)
+              .map((ct: any) => ({
+                lessonId: l._id,
+                topic: l.topic,
+                tutorId:
+                  typeof ct.tutorId === "object" ? ct.tutorId._id : ct.tutorId,
+                tutorName:
+                  typeof ct.tutorId === "object"
+                    ? ct.tutorId.name || "Tutor"
+                    : "Tutor",
+              }))
+          );
+          setPaidLessonsTutors(tutors);
+        } catch (e) {
+          console.warn("⚠️ Could not fetch paid lessons for fallback:", e);
+        }
+      } else {
+        setPaidLessonsTutors([]);
+      }
     } catch (error) {
       console.error("❌ Error fetching conversations:", error);
     } finally {
@@ -247,40 +308,90 @@ const Chat: React.FC = () => {
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen bg-black">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-violet-500"></div>
+        <div className="relative">
+          <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-emerald-500"></div>
+          <div className="absolute inset-0 rounded-full bg-emerald-500/20 blur-xl"></div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="h-screen bg-black text-white flex overflow-hidden">
+    <div className="h-full max-h-[calc(100vh-4rem)] md:max-h-[calc(100vh-5rem)] bg-black text-white flex overflow-hidden p-2 md:p-4 gap-2 md:gap-4">
       {/* Conversations Sidebar */}
       <div
         className={`${
           selectedConversation ? "hidden md:flex" : "flex"
-        } flex-col w-full md:w-80 lg:w-96 border-r border-white/10 bg-slate-900/50`}
+        } flex-col w-full md:w-80 lg:w-96 bg-gradient-to-b from-slate-900/80 to-slate-900/50 backdrop-blur-xl rounded-xl md:rounded-2xl border border-white/10 overflow-hidden`}
       >
-        <div className="p-4 border-b border-white/10 bg-gradient-to-r from-violet-900/30 to-purple-900/30">
-          <h2 className="text-2xl font-bold bg-gradient-to-r from-violet-400 to-purple-400 bg-clip-text text-transparent">
+        {/* Static Header - No Scroll */}
+        <div className="flex-shrink-0 p-4 border-b border-white/10 bg-gradient-to-r from-emerald-900/30 via-green-900/20 to-slate-900/30">
+          <h2 className="text-2xl font-bold bg-gradient-to-r from-emerald-400 to-green-400 bg-clip-text text-transparent">
             Messages
           </h2>
           <p className="text-gray-400 text-sm mt-1">
-            {conversations.length} conversations
+            {conversations.length} paid conversations
           </p>
         </div>
 
-        <div className="flex-1 overflow-y-auto">
+        {/* Scrollable Conversations List */}
+        <div className="flex-1 overflow-y-auto custom-scrollbar">
           {conversations.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full px-4 text-center">
-              <div className="text-6xl mb-4">💬</div>
-              <h3 className="text-xl font-semibold text-gray-300 mb-2">
+              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-emerald-500/20 to-green-500/20 flex items-center justify-center mb-6">
+                <div className="text-5xl">💬</div>
+              </div>
+              <h3 className="text-xl font-semibold text-white mb-2">
                 No conversations yet
               </h3>
-              <p className="text-gray-500 text-sm">
+              <p className="text-gray-400 text-sm max-w-md leading-relaxed">
                 {role === "student"
-                  ? "Conversations will appear here after a tutor confirms your lesson and you complete payment"
-                  : "Conversations will appear here when you confirm lessons and students complete payment"}
+                  ? "Conversations will appear here after you complete payment for a confirmed lesson. Once paid, you can chat with your tutor!"
+                  : "Conversations will appear here when students complete payment for lessons you've confirmed."}
               </p>
+
+              {role === "student" && paidLessonsTutors.length > 0 && (
+                <div className="mt-8 w-full max-w-md text-left">
+                  <h4 className="text-sm font-semibold text-emerald-300 mb-3">
+                    Paid lessons with confirmed tutors
+                  </h4>
+                  <div className="space-y-3">
+                    {paidLessonsTutors.map((item) => (
+                      <div
+                        key={`${item.lessonId}-${item.tutorId}`}
+                        className="flex items-center justify-between bg-gradient-to-r from-slate-800/70 to-slate-800/50 border border-emerald-500/20 rounded-xl p-4 hover:border-emerald-500/40 transition-all"
+                      >
+                        <div>
+                          <p className="text-white text-sm font-medium">
+                            {item.tutorName}
+                          </p>
+                          <p className="text-xs text-emerald-400">
+                            {item.topic}
+                          </p>
+                        </div>
+                        <button
+                          className="px-4 py-2 text-xs bg-gradient-to-r from-emerald-600 to-green-600 rounded-lg hover:from-emerald-500 hover:to-green-500 font-medium shadow-lg hover:shadow-emerald-500/30 transition-all"
+                          onClick={async () => {
+                            try {
+                              const conv = await ensureConversation({
+                                lessonId: item.lessonId,
+                                tutorId: item.tutorId,
+                              });
+                              await fetchConversations();
+                              setSelectedConversation(conv);
+                            } catch (e) {
+                              alert("Failed to start chat. Please try again.");
+                              console.error(e);
+                            }
+                          }}
+                        >
+                          Start Chat
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           ) : (
             conversations.map((conv) => {
@@ -300,18 +411,29 @@ const Chat: React.FC = () => {
                 <button
                   key={conv._id}
                   onClick={() => setSelectedConversation(conv)}
-                  className={`w-full p-4 flex items-start gap-3 hover:bg-slate-800/50 transition-all border-b border-white/5
+                  className={`w-full p-4 flex items-start gap-3 hover:bg-slate-800/50 transition-all border-b border-white/5 relative group
                     ${
                       selectedConversation?._id === conv._id
-                        ? "bg-slate-800/70 border-l-4 border-l-violet-500"
+                        ? "bg-gradient-to-r from-emerald-900/30 to-slate-800/50"
                         : ""
                     }`}
                 >
-                  <div className="flex-shrink-0">
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-lg font-bold">
+                  {/* Active Indicator */}
+                  {selectedConversation?._id === conv._id && (
+                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-emerald-500 to-green-500 rounded-r-full" />
+                  )}
+
+                  <a
+                    href={`${window.location.origin}/tutor/${otherUser._id}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => e.stopPropagation()}
+                    className="flex-shrink-0"
+                  >
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-emerald-500 to-green-600 flex items-center justify-center text-lg font-bold shadow-lg shadow-emerald-500/20 hover:scale-110 transition-transform cursor-pointer">
                       {otherUser.name.charAt(0).toUpperCase()}
                     </div>
-                  </div>
+                  </a>
 
                   <div className="flex-1 min-w-0 text-left">
                     <div className="flex justify-between items-start mb-1">
@@ -324,8 +446,8 @@ const Chat: React.FC = () => {
                         </span>
                       )}
                     </div>
-                    <p className="text-xs text-violet-400 mb-1">
-                      {conv.lessonId.topic}
+                    <p className="text-xs text-emerald-400 mb-1 font-medium">
+                      {conv.lessonId.subject} Tutor
                     </p>
                     {conv.lastMessage && (
                       <p className="text-sm text-gray-400 truncate">
@@ -335,7 +457,7 @@ const Chat: React.FC = () => {
                   </div>
 
                   {unreadCount > 0 && (
-                    <div className="flex-shrink-0 w-6 h-6 rounded-full bg-violet-600 flex items-center justify-center text-xs font-bold">
+                    <div className="flex-shrink-0 w-6 h-6 rounded-full bg-gradient-to-br from-emerald-500 to-green-600 flex items-center justify-center text-xs font-bold shadow-lg shadow-emerald-500/50 animate-pulse">
                       {unreadCount}
                     </div>
                   )}
@@ -347,11 +469,11 @@ const Chat: React.FC = () => {
       </div>
 
       {/* Chat Area */}
-      <div className="flex-1 flex flex-col bg-black">
+      <div className="flex-1 flex flex-col bg-gradient-to-b from-slate-900/80 to-slate-900/50 backdrop-blur-xl rounded-xl md:rounded-2xl border border-white/10 overflow-hidden">
         {selectedConversation ? (
           <>
-            {/* Chat Header */}
-            <div className="p-4 border-b border-white/10 bg-slate-900/50 flex items-center gap-3">
+            {/* Chat Header - Static, No Scroll */}
+            <div className="flex-shrink-0 p-5 border-b border-white/10 bg-gradient-to-r from-slate-900/80 via-emerald-900/10 to-slate-900/80 backdrop-blur-xl flex items-center gap-4 shadow-lg">
               <button
                 onClick={() => setSelectedConversation(null)}
                 className="md:hidden p-2 hover:bg-slate-800 rounded-lg transition-colors"
@@ -366,16 +488,23 @@ const Chat: React.FC = () => {
                 }
                 return (
                   <>
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center font-bold">
-                      {otherUser.name.charAt(0).toUpperCase()}
-                    </div>
+                    <a
+                      href={`${window.location.origin}/tutor/${otherUser._id}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-shrink-0"
+                    >
+                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-emerald-500 to-green-600 flex items-center justify-center font-bold text-lg shadow-lg shadow-emerald-500/30 hover:scale-110 transition-transform cursor-pointer">
+                        {otherUser.name.charAt(0).toUpperCase()}
+                      </div>
+                    </a>
 
                     <div className="flex-1">
-                      <h3 className="font-semibold text-white">
+                      <h3 className="font-semibold text-white text-lg">
                         {otherUser.name}
                       </h3>
-                      <p className="text-xs text-violet-400">
-                        {selectedConversation.lessonId.topic}
+                      <p className="text-xs text-emerald-400 font-medium">
+                        {selectedConversation.lessonId.subject} Tutor
                       </p>
                     </div>
 
@@ -388,8 +517,8 @@ const Chat: React.FC = () => {
               })()}
             </div>
 
-            {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+            {/* Messages - Scrollable Section */}
+            <div className="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar">
               {messages.map((message, index) => {
                 const isOwnMessage = message.senderId._id === userId;
                 const showDateDivider =
@@ -400,8 +529,8 @@ const Chat: React.FC = () => {
                 return (
                   <React.Fragment key={message._id}>
                     {showDateDivider && (
-                      <div className="flex items-center justify-center my-4">
-                        <div className="bg-slate-800 px-3 py-1 rounded-full text-xs text-gray-400">
+                      <div className="flex items-center justify-center my-6">
+                        <div className="bg-gradient-to-r from-slate-800/50 to-slate-800/80 px-4 py-1.5 rounded-full text-xs text-gray-300 font-medium border border-white/5 shadow-lg">
                           {formatDate(message.createdAt)}
                         </div>
                       </div>
@@ -413,10 +542,10 @@ const Chat: React.FC = () => {
                       }`}
                     >
                       <div
-                        className={`max-w-[70%] rounded-2xl px-4 py-2 ${
+                        className={`max-w-[70%] rounded-2xl px-4 py-3 shadow-lg ${
                           isOwnMessage
-                            ? "bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-br-none"
-                            : "bg-slate-800 text-white rounded-bl-none"
+                            ? "bg-gradient-to-br from-emerald-600 to-green-600 text-white rounded-br-none shadow-emerald-500/20"
+                            : "bg-gradient-to-br from-slate-800 to-slate-700 text-white rounded-bl-none border border-white/5"
                         }`}
                       >
                         {message.messageType === "file" ? (
@@ -434,7 +563,7 @@ const Chat: React.FC = () => {
                             <a
                               href={`${
                                 import.meta.env.VITE_BACKEND_URL ||
-                                "http://localhost:8000"
+                                "https://meshspire-core.onrender.com"
                               }${message.fileUrl}`}
                               download
                               target="_blank"
@@ -450,8 +579,8 @@ const Chat: React.FC = () => {
                           </p>
                         )}
                         <p
-                          className={`text-xs mt-1 ${
-                            isOwnMessage ? "text-violet-200" : "text-gray-400"
+                          className={`text-xs mt-1.5 ${
+                            isOwnMessage ? "text-emerald-100" : "text-gray-400"
                           }`}
                         >
                           {formatTime(message.createdAt)}
@@ -464,12 +593,12 @@ const Chat: React.FC = () => {
               <div ref={messagesEndRef} />
             </div>
 
-            {/* Message Input */}
+            {/* Message Input - Static, No Scroll */}
             <form
               onSubmit={handleSendMessage}
-              className="p-4 border-t border-white/10 bg-slate-900/50"
+              className="flex-shrink-0 p-5 border-t border-white/10 bg-gradient-to-r from-slate-900/80 via-emerald-900/10 to-slate-900/80 backdrop-blur-xl shadow-lg"
             >
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3 max-w-5xl mx-auto">
                 <input
                   type="file"
                   ref={fileInputRef}
@@ -480,10 +609,10 @@ const Chat: React.FC = () => {
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
                   disabled={uploading}
-                  className="p-3 hover:bg-slate-800 rounded-xl transition-colors disabled:opacity-50"
+                  className="p-3 hover:bg-slate-800/80 rounded-xl transition-all hover:scale-105 disabled:opacity-50 disabled:hover:scale-100 text-gray-400 hover:text-emerald-400"
                 >
                   {uploading ? (
-                    <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-violet-500"></div>
+                    <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-emerald-500"></div>
                   ) : (
                     <AttachFileIcon />
                   )}
@@ -495,14 +624,14 @@ const Chat: React.FC = () => {
                   onChange={(e) => setNewMessage(e.target.value)}
                   placeholder="Type a message..."
                   disabled={sending}
-                  className="flex-1 bg-slate-800 text-white px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 disabled:opacity-50"
+                  className="flex-1 bg-slate-800/80 text-white px-5 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 disabled:opacity-50 border border-white/5 placeholder:text-gray-500 transition-all"
                 />
 
                 <button
                   type="submit"
                   disabled={!newMessage.trim() || sending}
-                  className="p-3 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-500 hover:to-purple-500 
-                           rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="p-3 bg-gradient-to-br from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500 
+                           rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-emerald-500/50 hover:scale-105 active:scale-95"
                 >
                   {sending ? (
                     <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white"></div>
@@ -514,12 +643,14 @@ const Chat: React.FC = () => {
             </form>
           </>
         ) : (
-          <div className="flex-1 flex flex-col items-center justify-center text-center px-4">
-            <div className="text-8xl mb-6">💬</div>
-            <h2 className="text-2xl font-bold text-gray-300 mb-2">
+          <div className="flex-1 flex flex-col items-center justify-center text-center px-4 bg-gradient-to-b from-slate-900/80 to-slate-900/50 rounded-2xl">
+            <div className="w-32 h-32 rounded-full bg-gradient-to-br from-emerald-500/20 to-green-500/20 flex items-center justify-center mb-6 shadow-2xl shadow-emerald-500/10">
+              <div className="text-7xl">💬</div>
+            </div>
+            <h2 className="text-2xl font-bold text-white mb-3">
               Select a conversation
             </h2>
-            <p className="text-gray-500">
+            <p className="text-gray-400 max-w-md leading-relaxed">
               Choose a conversation from the sidebar to start chatting
             </p>
           </div>

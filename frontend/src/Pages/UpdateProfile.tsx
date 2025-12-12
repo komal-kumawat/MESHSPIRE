@@ -21,7 +21,7 @@ interface User {
   email: string;
   gender: string;
   age?: number;
-  class: number;
+  class: string;
   avatar?: string;
   bio?: string;
   skills?: string;
@@ -37,7 +37,7 @@ const UpdateProfile: React.FC = () => {
     email: "",
     gender: "",
     age: 0,
-    class: 0,
+    class: "0",
     avatar: "",
     bio: "",
     skills: "",
@@ -103,16 +103,25 @@ const UpdateProfile: React.FC = () => {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      setSelectedFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreview(reader.result as string);
-        setUser((prev) => ({ ...prev, avatar: reader.result as string }));
-      };
-      reader.readAsDataURL(file);
+    if (!file) return;
+
+    const MAX_SIZE = 2*1024 * 1024; 
+
+    if (file.size > MAX_SIZE) {
+      setMessage("Image size is too large! Please upload an image under 2 MB.");
+      setSelectedFile(null);
+      return;
     }
+
+    setSelectedFile(file);
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setPreview(reader.result as string);
+      setUser((prev) => ({ ...prev, avatar: reader.result as string }));
+    };
+    reader.readAsDataURL(file);
   };
+
 
   const handleRemovePhoto = () => {
     setSelectedFile(null);
@@ -138,18 +147,18 @@ const UpdateProfile: React.FC = () => {
         "skills",
         user.skills
           ? user.skills
-              .split(",")
-              .map((s) => s.trim())
-              .join(",")
+            .split(",")
+            .map((s) => s.trim())
+            .join(",")
           : ""
       );
       formData.append(
         "languages",
         user.languages
           ? user.languages
-              .split(",")
-              .map((l) => l.trim())
-              .join(",")
+            .split(",")
+            .map((l) => l.trim())
+            .join(",")
           : ""
       );
 
@@ -158,6 +167,7 @@ const UpdateProfile: React.FC = () => {
       } else if (preview === undefined) {
         formData.append("avatar", "");
       }
+      
 
       await API.put(`/profile/update`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
@@ -167,7 +177,7 @@ const UpdateProfile: React.FC = () => {
       setTimeout(() => navigate(`/profile/${userId}`), 1500);
     } catch (err) {
       console.error(err);
-      setMessage("Failed to update profile");
+      setMessage(`Failed to update profile : ${err}` );
     } finally {
       setSaving(false);
     }
@@ -322,6 +332,7 @@ const UpdateProfile: React.FC = () => {
                       type="number"
                       name="age"
                       value={user.age}
+                      min="0"
                       onChange={handleChange}
                       className="w-full px-4 py-3 rounded-lg bg-slate-900/80 border border-white/10 focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition text-white placeholder:text-gray-500"
                       placeholder="Enter your age"
@@ -334,15 +345,31 @@ const UpdateProfile: React.FC = () => {
                       <SchoolIcon className="text-emerald-400" />
                       Class
                     </label>
-                    <input
-                      type="number"
+
+                    <select
                       name="class"
                       value={user.class}
                       onChange={handleChange}
-                      className="w-full px-4 py-3 rounded-lg bg-slate-900/80 border border-white/10 focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition text-white placeholder:text-gray-500"
-                      placeholder="Enter your class/grade"
-                    />
+                      className="w-full px-4 py-3 rounded-lg bg-slate-900/80 border border-white/10 
+               text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent 
+               outline-none transition placeholder:text-gray-500"
+                    >
+                      <option value="" disabled>
+                        Select Class
+                      </option>
+
+                      {Array.from({ length: 12 }, (_, i) => i + 1).map((cls) => (
+                        <option key={cls} value={cls}>
+                          Class {cls}
+                        </option>
+                      ))}
+
+                      <option value="Bachelors">Bachelors</option>
+                      <option value="Masters">Masters</option>
+                      <option value="PhD">PhD</option>
+                    </select>
                   </div>
+
 
                   {/* Role (Read-only) */}
                   <div className="bg-slate-800/40 border border-white/10 rounded-xl p-5 backdrop-blur-sm">
@@ -409,11 +436,10 @@ const UpdateProfile: React.FC = () => {
                 {/* Success/Error Message */}
                 {message && (
                   <div
-                    className={`mt-6 p-4 rounded-xl border flex items-center gap-3 ${
-                      message.includes("success")
-                        ? "bg-emerald-600/20 border-emerald-500/30 text-emerald-400"
-                        : "bg-red-600/20 border-red-500/30 text-red-400"
-                    }`}
+                    className={`mt-6 p-4 rounded-xl border flex items-center gap-3 ${message.includes("success")
+                      ? "bg-emerald-600/20 border-emerald-500/30 text-emerald-400"
+                      : "bg-red-600/20 border-red-500/30 text-red-400"
+                      }`}
                   >
                     <InfoIcon />
                     <span className="font-medium">{message}</span>
@@ -439,11 +465,10 @@ const UpdateProfile: React.FC = () => {
                   <button
                     type="submit"
                     disabled={saving}
-                    className={`flex-1 px-6 py-4 rounded-xl font-semibold transition-all shadow-lg flex items-center justify-center gap-2 ${
-                      saving
-                        ? "bg-slate-700 text-gray-400 cursor-not-allowed"
-                        : "bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500 hover:shadow-emerald-500/50"
-                    }`}
+                    className={`flex-1 px-6 py-4 rounded-xl font-semibold transition-all shadow-lg flex items-center justify-center gap-2 ${saving
+                      ? "bg-slate-700 text-gray-400 cursor-not-allowed"
+                      : "bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500 hover:shadow-emerald-500/50"
+                      }`}
                   >
                     <SaveIcon />
                     {saving ? "Saving..." : "Save Changes"}

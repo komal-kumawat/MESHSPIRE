@@ -34,7 +34,14 @@ export class ProfileController {
           .json({ message: "Unauthorized" });
       }
 
+      // Convert numeric fields manually because req.body gives strings
+      if (req.body.age) req.body.age = Number(req.body.age);
+      if (req.body.experience) req.body.experience = Number(req.body.experience);
+      if (req.body.hourlyRate) req.body.hourlyRate = Number(req.body.hourlyRate);
+
+      // Now validate
       const parsed = profileSchema.safeParse(req.body);
+
       if (!parsed.success) {
         return res
           .status(StatusCodes.BAD_REQUEST)
@@ -157,18 +164,18 @@ export class ProfileController {
             ...(bio && { bio }),
             ...(skills
               ? {
-                  skills: Array.isArray(skills)
-                    ? skills
-                    : skills.split(",").map((s: string) => s.trim()),
-                }
+                skills: Array.isArray(skills)
+                  ? skills
+                  : skills.split(",").map((s: string) => s.trim()),
+              }
               : {}),
             ...(role && { role }),
             ...(languages
               ? {
-                  languages: Array.isArray(languages)
-                    ? languages
-                    : languages.split(",").map((l: string) => l.trim()),
-                }
+                languages: Array.isArray(languages)
+                  ? languages
+                  : languages.split(",").map((l: string) => l.trim()),
+              }
               : {}),
 
             // tutor-only fields:
@@ -176,9 +183,10 @@ export class ProfileController {
             ...(hourlyRate && { hourlyRate: Number(hourlyRate) }),
             ...(qualification && { qualification }),
             subjects:
-              subjects === ""
-                ? []
-                : subjects.split(",").map((s: string) => s.trim()),
+              subjects
+                ? subjects.split(",").map((s: string) => s.trim())
+                : existingProfile?.subjects || [],
+
 
             ...(document.length > 0 && { document: updatedDocuments }),
             ...(resume && { resume }),

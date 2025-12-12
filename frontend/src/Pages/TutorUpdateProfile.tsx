@@ -119,8 +119,8 @@ const TutorUpdateProfile: React.FC = () => {
           subjects: Array.isArray(profileData.subjects)
             ? profileData.subjects
             : typeof profileData.subjects === "string"
-            ? profileData.subjects.split(",").map((s: string) => s.trim())
-            : [],
+              ? profileData.subjects.split(",").map((s: string) => s.trim())
+              : [],
 
           experience: profileData.experience
             ? Number(profileData.experience)
@@ -150,8 +150,8 @@ const TutorUpdateProfile: React.FC = () => {
           Array.isArray(profileData.subjects)
             ? profileData.subjects
             : typeof profileData.subjects === "string"
-            ? profileData.subjects.split(",").map((s: string) => s.trim())
-            : []
+              ? profileData.subjects.split(",").map((s: string) => s.trim())
+              : []
         );
       } catch (err) {
         console.error("Error fetching profile:", err);
@@ -189,15 +189,23 @@ const TutorUpdateProfile: React.FC = () => {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      setSelectedFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreview(reader.result as string);
-        setUser((prev) => ({ ...prev, avatar: reader.result as string }));
-      };
-      reader.readAsDataURL(file);
+    if (!file) return;
+
+    const MAX_SIZE = 2*1024 * 1024;
+
+    if (file.size > MAX_SIZE) {
+      setMessage("Image size is too large! Please upload an image under 2 MB.");
+      setSelectedFile(null);
+      return;
     }
+
+    setSelectedFile(file);
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setPreview(reader.result as string);
+      setUser((prev) => ({ ...prev, avatar: reader.result as string }));
+    };
+    reader.readAsDataURL(file);
   };
   const handleDocumentUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -282,18 +290,18 @@ const TutorUpdateProfile: React.FC = () => {
         "skills",
         user.skills
           ? user.skills
-              .split(",")
-              .map((s) => s.trim())
-              .join(",")
+            .split(",")
+            .map((s) => s.trim())
+            .join(",")
           : ""
       );
       formData.append(
         "languages",
         user.languages
           ? user.languages
-              .split(",")
-              .map((l) => l.trim())
-              .join(",")
+            .split(",")
+            .map((l) => l.trim())
+            .join(",")
           : ""
       );
       formData.append(
@@ -301,19 +309,19 @@ const TutorUpdateProfile: React.FC = () => {
         Array.isArray(user.subjects)
           ? user.subjects.map((s) => s.trim()).join(",")
           : user.subjects
-          ? (user.subjects as unknown as string)
+            ? (user.subjects as unknown as string)
               .split(",")
               .map((l) => l.trim())
               .join(",")
-          : ""
+            : ""
       );
       formData.append(
         "qualification",
         user.qualification
           ? user.qualification
-              .split(",")
-              .map((l) => l.trim())
-              .join(",")
+            .split(",")
+            .map((l) => l.trim())
+            .join(",")
           : ""
       );
       formData.append("experience", user.experience?.toString() || "");
@@ -525,6 +533,7 @@ const TutorUpdateProfile: React.FC = () => {
                       type="number"
                       name="age"
                       value={user.age ?? ""}
+
                       onChange={handleChange}
                       className="w-full px-4 py-3 rounded-lg bg-slate-900/80 border border-white/10 focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition text-white placeholder:text-gray-500"
                       placeholder="Enter your age"
@@ -781,11 +790,10 @@ const TutorUpdateProfile: React.FC = () => {
                 {/* Success/Error Message */}
                 {message && (
                   <div
-                    className={`mt-6 p-4 rounded-xl border flex items-center gap-3 ${
-                      message.includes("success")
+                    className={`mt-6 p-4 rounded-xl border flex items-center gap-3 ${message.includes("success")
                         ? "bg-emerald-600/20 border-emerald-500/30 text-emerald-400"
                         : "bg-red-600/20 border-red-500/30 text-red-400"
-                    }`}
+                      }`}
                   >
                     <InfoIcon />
                     <span className="font-medium">{message}</span>
@@ -805,11 +813,10 @@ const TutorUpdateProfile: React.FC = () => {
                   <button
                     type="submit"
                     disabled={saving}
-                    className={`flex-1 px-6 py-4 rounded-xl font-semibold transition-all shadow-lg flex items-center justify-center gap-2 ${
-                      saving
+                    className={`flex-1 px-6 py-4 rounded-xl font-semibold transition-all shadow-lg flex items-center justify-center gap-2 ${saving
                         ? "bg-slate-700 text-gray-400 cursor-not-allowed"
                         : "bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500 hover:shadow-emerald-500/50"
-                    }`}
+                      }`}
                   >
                     <SaveIcon />
                     {saving ? "Saving..." : "Save Changes"}

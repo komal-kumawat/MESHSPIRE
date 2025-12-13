@@ -65,7 +65,6 @@ const StudentCalendar: React.FC = () => {
           </div>
         </div>
 
-        {/* Calendar / Loading / Empty */}
         {loading ? (
           <div className="flex justify-center items-center py-12">
             <div className="relative">

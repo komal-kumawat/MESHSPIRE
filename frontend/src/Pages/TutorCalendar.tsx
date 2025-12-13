@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from "react";
 import Calendar from "../Components/Calendar";
 import { getRelevantLessons } from "../api";
+import DaySchedule from "../Components/DaySchedule";
 
 const TutorCalendar: React.FC = () => {
   const [lessons, setLessons] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [openDetails, setOpenDetails] = useState<any>(null);
-
+  const [dayLessons, setDayLessons] = useState<any>(null);
   useEffect(() => {
     fetchLessons();
   }, []);
@@ -26,6 +27,9 @@ const TutorCalendar: React.FC = () => {
   const handleLessonClick = (lesson: any) => {
     setOpenDetails(lesson);
   };
+  const handleDayClick = (lessons: any[]) => {
+    setDayLessons(lessons)
+  }
 
   return (
     <div className="bg-black text-white flex flex-col w-full overflow-x-hidden min-h-screen">
@@ -49,7 +53,8 @@ const TutorCalendar: React.FC = () => {
         ) : lessons.length > 0 ? (
           <Calendar
             lessons={lessons}
-            onLessonClick={handleLessonClick}
+            onLessonClick={()=>{}}
+            onDayClick={handleDayClick}
             userRole="tutor"
           />
         ) : (
@@ -79,6 +84,17 @@ const TutorCalendar: React.FC = () => {
           </div>
         )}
       </main>
+      {
+        dayLessons && (
+          <DaySchedule
+            open={!!dayLessons}
+            onClose={() => setDayLessons(null)}
+            lessons={dayLessons}
+            onLessonClick={handleLessonClick}
+          />
+
+        )
+      }
 
       {/* Lesson Details Modal */}
       {openDetails && (
@@ -122,9 +138,8 @@ const TutorCalendar: React.FC = () => {
               <p className="text-gray-300 text-sm">
                 <span className="font-semibold text-gray-200">Status:</span>{" "}
                 <span
-                  className={`${
-                    openDetails.isPaid ? "text-green-400" : "text-yellow-400"
-                  } font-semibold`}
+                  className={`${openDetails.isPaid ? "text-green-400" : "text-yellow-400"
+                    } font-semibold`}
                 >
                   {openDetails.isPaid ? "Confirmed" : "Pending Payment"}
                 </span>

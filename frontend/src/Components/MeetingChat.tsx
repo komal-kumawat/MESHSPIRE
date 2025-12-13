@@ -103,7 +103,7 @@ const MeetingChat: React.FC<MeetingChatProps> = ({
     return () => {
       // Don't cleanup in strict mode double-render
       console.log("🔌 Cleanup called for room-message listener", socket.id);
-      // Only actually clean up when component unmounts for real
+      // Only actually clean up when compon aent unmounts for real
       if (!listenerSetupRef.current) return;
 
       socket.off("room-message", handleRoomMessage);
